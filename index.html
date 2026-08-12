@@ -122,6 +122,39 @@
             background: rgba(255, 50, 50, 0.25);
         }
 
+        /* Alert Banner */
+        .alert-banner {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 30, 30, 0.95);
+            border: 2px solid #ff0000;
+            border-radius: 16px;
+            padding: 16px 28px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            z-index: 9999;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            animation: alertPulse 0.8s infinite;
+            min-width: 320px;
+        }
+
+        @keyframes alertPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            }
+
+            50% {
+                box-shadow: 0 0 80px rgba(255, 0, 0, 0.9);
+            }
+        }
+
         .container {
             padding: 24px 30px;
             max-width: 1300px;
@@ -198,6 +231,58 @@
             margin-top: 6px;
         }
 
+        .card.danger {
+            border-color: rgba(255, 50, 50, 0.6) !important;
+            background: rgba(255, 30, 30, 0.08) !important;
+            animation: alertPulse 1s infinite;
+        }
+
+        /* Sensor Status Cards */
+        .sensor-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.12);
+            border-radius: 16px;
+            padding: 22px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .sensor-card.safe {
+            border-color: rgba(0, 255, 100, 0.3);
+            background: rgba(0, 255, 100, 0.04);
+        }
+
+        .sensor-card.danger {
+            border-color: rgba(255, 50, 50, 0.6);
+            background: rgba(255, 30, 30, 0.1);
+            animation: alertPulse 0.8s infinite;
+        }
+
+        .sensor-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .sensor-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .sensor-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .sensor-safe {
+            color: #00ff88;
+        }
+
+        .sensor-danger {
+            color: #ff4444;
+        }
+
         /* Device Cards */
         .device-card {
             background: rgba(255, 255, 255, 0.04);
@@ -206,13 +291,6 @@
             padding: 24px;
             text-align: center;
             transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .device-card:hover {
-            border-color: rgba(0, 150, 255, 0.4);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 150, 255, 0.1);
         }
 
         .device-card.active {
@@ -220,14 +298,18 @@
             background: rgba(0, 255, 100, 0.04);
         }
 
+        .device-card.bms-card {
+            cursor: pointer;
+        }
+
+        .device-card.bms-card:hover {
+            border-color: rgba(0, 150, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
         .device-emoji {
             font-size: 44px;
             margin-bottom: 12px;
-            transition: transform 0.3s;
-        }
-
-        .device-card:hover .device-emoji {
-            transform: scale(1.1);
         }
 
         .device-name {
@@ -242,7 +324,58 @@
             margin-bottom: 16px;
         }
 
-        /* Toggle Switch */
+        /* Read-only Toggle */
+        .switch-readonly {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+            pointer-events: none;
+        }
+
+        .switch-readonly input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider-readonly {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 28px;
+            transition: .3s;
+            background: rgba(255, 50, 50, 0.25);
+            border: 1px solid rgba(255, 50, 50, 0.5);
+        }
+
+        .slider-readonly:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: #ff4444;
+            box-shadow: 0 0 8px #ff4444;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        .slider-readonly.on {
+            background: rgba(0, 255, 100, 0.2);
+            border-color: rgba(0, 255, 100, 0.4);
+        }
+
+        .slider-readonly.on:before {
+            transform: translateX(26px);
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        /* Clickable Toggle */
         .switch {
             position: relative;
             display: inline-block;
@@ -263,8 +396,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 50, 50, 0.25);
+            border: 1px solid rgba(255, 50, 50, 0.5);
             transition: .3s;
             border-radius: 28px;
         }
@@ -276,7 +409,8 @@
             width: 20px;
             left: 3px;
             bottom: 3px;
-            background: #666;
+            background: #ff4444;
+            box-shadow: 0 0 8px #ff4444;
             transition: .3s;
             border-radius: 50%;
         }
@@ -304,7 +438,7 @@
         }
 
         .status-off {
-            color: #555;
+            color: #ff4444;
         }
 
         /* Chart */
@@ -364,7 +498,6 @@
 
         .calc-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(150, 0, 255, 0.3);
         }
 
         .calc-btn.blue {
@@ -402,7 +535,6 @@
             font-size: 13px;
             line-height: 1.7;
             scrollbar-width: thin;
-            scrollbar-color: #222 transparent;
         }
 
         .msg-you {
@@ -413,6 +545,12 @@
         .msg-ai {
             color: #aaa;
             margin-bottom: 6px;
+        }
+
+        .msg-alert {
+            color: #ff4444;
+            margin-bottom: 6px;
+            font-weight: 700;
         }
 
         .chat-controls {
@@ -446,10 +584,6 @@
             transition: all 0.3s;
         }
 
-        .send-btn:hover {
-            transform: translateY(-2px);
-        }
-
         .voice-btn {
             padding: 11px 14px;
             background: rgba(255, 50, 50, 0.15);
@@ -478,7 +612,6 @@
             }
         }
 
-        /* Wake word banner */
         .wake-banner {
             position: fixed;
             bottom: 20px;
@@ -490,7 +623,7 @@
             font-size: 12px;
             color: #00aaff;
             backdrop-filter: blur(10px);
-            z-index: 999;
+            z-index: 998;
         }
 
         @media(max-width:768px) {
@@ -508,15 +641,16 @@
             nav {
                 padding: 12px 16px;
             }
-
-            .nav-left h1 {
-                font-size: 15px;
-            }
         }
     </style>
 </head>
 
 <body>
+
+    <!-- Fire Alert Banner -->
+    <div class="alert-banner" id="alert-banner">
+        🔥 DANGER! FIRE DETECTED! EVACUATE IMMEDIATELY! 🔥
+    </div>
 
     <nav>
         <div class="nav-left">
@@ -536,6 +670,7 @@
 
     <div class="container">
 
+        <!-- Sensor Cards -->
         <div class="section-label">📡 Live Sensor Data</div>
         <div class="grid-4">
             <div class="card">
@@ -549,17 +684,35 @@
                 <div class="card-sub">Live reading</div>
             </div>
             <div class="card">
-                <div class="card-label">⚡ Active Power</div>
-                <div class="card-big" id="active-power">--<span>W</span></div>
-                <div class="card-sub">Current draw</div>
+                <div class="card-label">⚡ Voltage</div>
+                <div class="card-big" id="voltage">--<span>V</span></div>
+                <div class="card-sub">Supply voltage</div>
             </div>
             <div class="card">
-                <div class="card-label">🔌 Devices On</div>
-                <div class="card-big" id="devices-on">--<span>/3</span></div>
-                <div class="card-sub">Running now</div>
+                <div class="card-label">🔋 Current</div>
+                <div class="card-big" id="current">--<span>A</span></div>
+                <div class="card-sub">Load current</div>
             </div>
         </div>
 
+        <!-- Smoke & Spark Sensors -->
+        <div class="section-label">🔥 Safety Sensors</div>
+        <div class="grid-2">
+            <div class="sensor-card safe" id="smoke-card">
+                <div class="sensor-icon">💨</div>
+                <div class="sensor-name">Smoke Sensor</div>
+                <div class="sensor-value sensor-safe" id="smoke-value">CLEAR</div>
+                <div style="font-size:12px;color:#555;margin-top:6px" id="smoke-level">No smoke detected</div>
+            </div>
+            <div class="sensor-card safe" id="spark-card">
+                <div class="sensor-icon">⚡</div>
+                <div class="sensor-name">Spark / Flame Sensor</div>
+                <div class="sensor-value sensor-safe" id="spark-value">CLEAR</div>
+                <div style="font-size:12px;color:#555;margin-top:6px" id="spark-level">No spark detected</div>
+            </div>
+        </div>
+
+        <!-- Graphs -->
         <div class="section-label">📊 Live Graphs</div>
         <div class="grid-2">
             <div class="chart-card">
@@ -571,41 +724,53 @@
                 <canvas id="humChart"></canvas>
             </div>
         </div>
-
-        <div class="section-label">🔌 Device Controls — tap card to toggle</div>
-        <div class="grid-3">
-            <div class="device-card" id="card-fan" onclick="toggleDevice('fan')">
-                <div class="device-emoji">🌀</div>
-                <div class="device-name">Fan</div>
-                <div class="device-watts">50W</div>
-                <label class="switch" onclick="event.stopPropagation()">
-                    <input type="checkbox" id="switch-fan" onchange="toggleDevice('fan')">
-                    <span class="slider"></span>
-                </label>
-                <div id="fan-status" class="status-text status-off">OFF</div>
+        <div class="grid-2">
+            <div class="chart-card">
+                <div class="chart-title">⚡ Voltage History</div>
+                <canvas id="voltChart"></canvas>
             </div>
-            <div class="device-card" id="card-light" onclick="toggleDevice('light')">
-                <div class="device-emoji">💡</div>
-                <div class="device-name">Light</div>
-                <div class="device-watts">10W</div>
-                <label class="switch" onclick="event.stopPropagation()">
-                    <input type="checkbox" id="switch-light" onchange="toggleDevice('light')">
-                    <span class="slider"></span>
-                </label>
-                <div id="light-status" class="status-text status-off">OFF</div>
-            </div>
-            <div class="device-card" id="card-ac" onclick="toggleDevice('ac')">
-                <div class="device-emoji">❄️</div>
-                <div class="device-name">AC</div>
-                <div class="device-watts">1500W</div>
-                <label class="switch" onclick="event.stopPropagation()">
-                    <input type="checkbox" id="switch-ac" onchange="toggleDevice('ac')">
-                    <span class="slider"></span>
-                </label>
-                <div id="ac-status" class="status-text status-off">OFF</div>
+            <div class="chart-card">
+                <div class="chart-title">🔋 Current History</div>
+                <canvas id="currChart"></canvas>
             </div>
         </div>
 
+        <!-- Device Status -->
+        <div class="section-label">🔌 Device Status & BMS Control</div>
+        <div class="grid-3">
+            <div class="device-card" id="card-fan">
+                <div class="device-emoji">🌀</div>
+                <div class="device-name">Fan</div>
+                <div class="device-watts">50W · Status Only</div>
+                <div class="switch-readonly">
+                    <input type="checkbox" id="switch-fan" disabled>
+                    <span class="slider-readonly" id="slider-fan"></span>
+                </div>
+                <div id="fan-status" class="status-text status-off">OFF</div>
+            </div>
+            <div class="device-card" id="card-light">
+                <div class="device-emoji">💡</div>
+                <div class="device-name">Light</div>
+                <div class="device-watts">10W · Status Only</div>
+                <div class="switch-readonly">
+                    <input type="checkbox" id="switch-light" disabled>
+                    <span class="slider-readonly" id="slider-light"></span>
+                </div>
+                <div id="light-status" class="status-text status-off">OFF</div>
+            </div>
+            <div class="device-card bms-card" id="card-bms" onclick="toggleBMS()">
+                <div class="device-emoji">🖥️</div>
+                <div class="device-name">BMS Device</div>
+                <div class="device-watts">Main Controller</div>
+                <label class="switch" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="switch-bms" onchange="toggleBMS()">
+                    <span class="slider"></span>
+                </label>
+                <div id="bms-status" class="status-text status-off">OFF</div>
+            </div>
+        </div>
+
+        <!-- Bill + Chat -->
         <div class="section-label">⚡ Bill & BMS AI Agent</div>
         <div class="grid-2">
             <div class="card">
@@ -625,13 +790,13 @@
             <div class="card">
                 <div class="chart-title">🤖 BMS AI Agent</div>
                 <div class="chat-messages" id="chat-output">
-                    <div class="msg-ai">👋 Hi! I am your BMS AI Agent. Say "<b>BMS</b>" or tap 🎤 to use voice. I can
-                        control devices, read sensors and calculate your bill!</div>
+                    <div class="msg-ai">👋 Hi! I am your BMS AI Agent. Say "<b>BMS</b>" or tap 🎤 to use voice. I
+                        monitor sensors, detect fire hazards and control your BMS device!</div>
                 </div>
                 <div class="chat-controls">
                     <input class="chat-field" type="text" id="chat-input" placeholder="Ask BMS anything..."
                         onkeypress="if(event.key==='Enter') sendChat()" />
-                    <button class="voice-btn" id="voice-btn" onclick="startVoice()" title="Tap to speak">🎤</button>
+                    <button class="voice-btn" id="voice-btn" onclick="startVoice()">🎤</button>
                     <button class="send-btn" onclick="sendChat()">Send</button>
                 </div>
             </div>
@@ -644,19 +809,13 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
-            authDomain: "ai-bms-dashboard.firebaseapp.com",
-            projectId: "ai-bms-dashboard",
-            storageBucket: "ai-bms-dashboard.firebasestorage.app",
-            messagingSenderId: "706812934530",
-            appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
+            // PASTE YOUR FIREBASE CONFIG HERE
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const API = "https://ai-bms-dashboard.onrender.com";
 
-        // Auth guard
         onAuthStateChanged(auth, user => {
             if (!user) { window.location.href = "login.html"; return; }
             document.getElementById("user-name").textContent = user.displayName || user.email;
@@ -667,14 +826,16 @@
         });
 
         // Charts
-        const labels = [], tempData = [], humData = [];
+        const labels = [];
+        const tempData = [], humData = [], voltData = [], currData = [];
         const maxPts = 20;
 
-        const mkChart = (id, dataArr, color) => new Chart(document.getElementById(id), {
+        const mkChart = (id, dataArr, color, label) => new Chart(document.getElementById(id), {
             type: 'line',
             data: {
                 labels,
                 datasets: [{
+                    label,
                     data: dataArr,
                     borderColor: color,
                     backgroundColor: color.replace(')', ',0.07)').replace('rgb', 'rgba'),
@@ -691,17 +852,132 @@
             }
         });
 
-        const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)');
-        const hChart = mkChart('humChart', humData, 'rgb(0,170,255)');
+        const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
+        const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
+        const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
+        const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
 
         let lastTemp = null;
+        let fireAlertActive = false;
+        let lastSmokeState = false;
+        let lastSparkState = false;
+
+        // Voice alert function
+        function speakAlert(message) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = 'en-IN';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.2;
+            utterance.volume = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Simulate smoke & spark from sensor data
+        function checkSafetySensors(temperature, humidity) {
+            // Simulate: smoke detected if temp > 33 or humidity drops suddenly
+            const smokeDetected = temperature > 33;
+            // Simulate: spark detected if temp > 35
+            const sparkDetected = temperature > 35;
+
+            updateSmokeCard(smokeDetected, temperature);
+            updateSparkCard(sparkDetected, temperature);
+
+            const fireDetected = smokeDetected && sparkDetected;
+
+            if (fireDetected && !fireAlertActive) {
+                fireAlertActive = true;
+                triggerFireAlert();
+            } else if (!fireDetected && fireAlertActive) {
+                fireAlertActive = false;
+                clearFireAlert();
+            }
+
+            // Individual sensor alerts
+            if (smokeDetected && !lastSmokeState) {
+                speakAlert("Warning! Smoke detected in the device. Please check immediately.");
+                addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
+            }
+            if (sparkDetected && !lastSparkState) {
+                speakAlert("Warning! Spark or flame detected. Danger! Take immediate action.");
+                addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
+            }
+
+            lastSmokeState = smokeDetected;
+            lastSparkState = sparkDetected;
+        }
+
+        function updateSmokeCard(detected, temp) {
+            const card = document.getElementById("smoke-card");
+            const value = document.getElementById("smoke-value");
+            const level = document.getElementById("smoke-level");
+            if (detected) {
+                card.className = "sensor-card danger";
+                value.className = "sensor-value sensor-danger";
+                value.textContent = "SMOKE!";
+                level.textContent = `High smoke level detected (Temp: ${temp}°C)`;
+            } else {
+                card.className = "sensor-card safe";
+                value.className = "sensor-value sensor-safe";
+                value.textContent = "CLEAR";
+                level.textContent = "No smoke detected";
+            }
+        }
+
+        function updateSparkCard(detected, temp) {
+            const card = document.getElementById("spark-card");
+            const value = document.getElementById("spark-value");
+            const level = document.getElementById("spark-level");
+            if (detected) {
+                card.className = "sensor-card danger";
+                value.className = "sensor-value sensor-danger";
+                value.textContent = "SPARK!";
+                level.textContent = `Flame/Spark detected (Temp: ${temp}°C)`;
+            } else {
+                card.className = "sensor-card safe";
+                value.className = "sensor-value sensor-safe";
+                value.textContent = "CLEAR";
+                level.textContent = "No spark detected";
+            }
+        }
+
+        function triggerFireAlert() {
+            const banner = document.getElementById("alert-banner");
+            banner.style.display = "block";
+            addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
+
+            // Repeat voice alert 3 times
+            speakAlert("Emergency! The device is on fire! Emergency! The device is on fire! Please evacuate immediately and call for help!");
+            setTimeout(() => speakAlert("Warning! Fire detected! The device is on fire! Evacuate now!"), 4000);
+            setTimeout(() => speakAlert("The device is on fire! The device is on fire! Take action immediately!"), 8000);
+        }
+
+        function clearFireAlert() {
+            document.getElementById("alert-banner").style.display = "none";
+            addChatAlert("✅ Safety sensors cleared. No fire detected.");
+            speakAlert("All clear. Safety sensors show no fire detected.");
+        }
+
+        function addChatAlert(message) {
+            const output = document.getElementById("chat-output");
+            output.innerHTML += `<div class="msg-alert">🚨 ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
 
         async function fetchData() {
             try {
                 const res = await fetch(`${API}/data`);
                 const d = await res.json();
+
                 document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
                 document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
+
+                const voltage = (220 + (d.temperature - 25) * 0.5).toFixed(1);
+                const current = (d.humidity / 100 * 5).toFixed(2);
+                document.getElementById("voltage").innerHTML = `${voltage}<span>V</span>`;
+                document.getElementById("current").innerHTML = `${current}<span>A</span>`;
+
                 if (lastTemp !== null) {
                     const diff = (d.temperature - lastTemp).toFixed(1);
                     document.getElementById("temp-trend").innerHTML =
@@ -709,50 +985,59 @@
                             diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
                 }
                 lastTemp = d.temperature;
+
                 const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                if (labels.length >= maxPts) { labels.shift(); tempData.shift(); humData.shift(); }
-                labels.push(now); tempData.push(d.temperature); humData.push(d.humidity);
+                if (labels.length >= maxPts) {
+                    labels.shift(); tempData.shift(); humData.shift();
+                    voltData.shift(); currData.shift();
+                }
+                labels.push(now);
+                tempData.push(d.temperature);
+                humData.push(d.humidity);
+                voltData.push(parseFloat(voltage));
+                currData.push(parseFloat(current));
                 tChart.update(); hChart.update();
-                updateDevices(d.devices);
-                const watts = { fan: 50, light: 10, ac: 1500 };
-                let power = 0, count = 0;
-                for (const [n, i] of Object.entries(d.devices)) { if (i.status) { power += watts[n] || 0; count++; } }
-                document.getElementById("active-power").innerHTML = `${power}<span>W</span>`;
-                document.getElementById("devices-on").innerHTML = `${count}<span>/3</span>`;
+                vChart.update(); cChart.update();
+
+                updateReadOnlyDevice('fan', d.devices.fan?.status || false);
+                updateReadOnlyDevice('light', d.devices.light?.status || false);
+
+                // Check safety sensors
+                checkSafetySensors(d.temperature, d.humidity);
+
             } catch (e) { console.error(e); }
         }
 
-        function updateDevices(devices) {
-            for (const [name, info] of Object.entries(devices)) {
-                const sw = document.getElementById(`switch-${name}`);
-                const st = document.getElementById(`${name}-status`);
-                const card = document.getElementById(`card-${name}`);
-                if (sw) sw.checked = info.status;
-                if (st) { st.textContent = info.status ? "ON" : "OFF"; st.className = `status-text ${info.status ? "status-on" : "status-off"}`; }
-                if (card) { card.className = `device-card${info.status ? " active" : ""}`; }
-            }
+        function updateReadOnlyDevice(name, isOn) {
+            const slider = document.getElementById(`slider-${name}`);
+            const status = document.getElementById(`${name}-status`);
+            const card = document.getElementById(`card-${name}`);
+            if (slider) slider.className = `slider-readonly${isOn ? " on" : ""}`;
+            if (status) { status.textContent = isOn ? "ON" : "OFF"; status.className = `status-text ${isOn ? "status-on" : "status-off"}`; }
+            if (card) card.className = `device-card${isOn ? " active" : ""}`;
         }
 
         setInterval(fetchData, 5000);
         fetchData();
 
-        // Keep Render server awake
+        // Keep Render awake
         setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
 
-        window.toggleDevice = async (name) => {
+        // BMS Toggle
+        window.toggleBMS = async () => {
             try {
-                const res = await fetch(`${API}/toggle/${name}`, { method: "POST" });
+                const res = await fetch(`${API}/toggle/ac`, { method: "POST" });
                 const d = await res.json();
-                const sw = document.getElementById(`switch-${name}`);
-                const st = document.getElementById(`${name}-status`);
-                const card = document.getElementById(`card-${name}`);
+                const sw = document.getElementById("switch-bms");
+                const st = document.getElementById("bms-status");
+                const card = document.getElementById("card-bms");
                 if (sw) sw.checked = d.status;
                 if (st) { st.textContent = d.status ? "ON" : "OFF"; st.className = `status-text ${d.status ? "status-on" : "status-off"}`; }
-                if (card) { card.className = `device-card${d.status ? " active" : ""}`; }
-                fetchData();
+                if (card) card.className = `device-card bms-card${d.status ? " active" : ""}`;
             } catch (e) { console.error(e); }
         };
 
+        // Bill
         window.calculateBill = async () => {
             const h = document.getElementById("hours-input").value || 24;
             try {
@@ -772,6 +1057,7 @@
             } catch (e) { }
         };
 
+        // Chat
         window.sendChat = async () => {
             const input = document.getElementById("chat-input");
             const output = document.getElementById("chat-output");
@@ -795,10 +1081,10 @@
             }
         };
 
-        // Voice Input
+        // Voice input
         window.startVoice = () => {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert("Use Chrome browser for voice support!");
+                alert("Use Chrome for voice support!");
                 return;
             }
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -810,8 +1096,7 @@
             btn.textContent = "🔴";
             rec.start();
             rec.onresult = (e) => {
-                const transcript = e.results[0][0].transcript;
-                document.getElementById("chat-input").value = transcript;
+                document.getElementById("chat-input").value = e.results[0][0].transcript;
                 btn.classList.remove("listening");
                 btn.textContent = "🎤";
                 window.sendChat();
@@ -822,31 +1107,28 @@
             };
         };
 
-        // Wake Word Listener — say "BMS" to activate
-        const startWakeWordListener = () => {
+        // Wake word
+        const startWakeWord = () => {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             const rec = new SR();
             rec.lang = 'en-IN';
             rec.continuous = true;
             rec.interimResults = false;
-
             rec.onresult = (e) => {
-                const transcript = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
-                if (transcript.includes("bms") || transcript.includes("hey bms") || transcript.includes("okay bms")) {
+                const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+                if (t.includes("bms") || t.includes("hey bms")) {
                     const output = document.getElementById("chat-output");
-                    output.innerHTML += `<div class="msg-ai">🎤 BMS Agent activated! Listening for your command...</div>`;
+                    output.innerHTML += `<div class="msg-ai">🎤 BMS Agent activated! Listening...</div>`;
                     output.scrollTop = output.scrollHeight;
                     setTimeout(() => window.startVoice(), 500);
                 }
             };
-
             rec.onend = () => { try { rec.start(); } catch (e) { } };
             try { rec.start(); } catch (e) { }
         };
 
-        // Start wake word listener after page loads
-        setTimeout(startWakeWordListener, 2000);
+        setTimeout(startWakeWord, 2000);
     </script>
 </body>
 
