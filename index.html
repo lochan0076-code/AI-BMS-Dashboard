@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07071a">
+    <link rel="manifest" href="manifest.json">
+    <title>AI BMS Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #07071a;
+            font-family: 'Segoe UI', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 150, 255, 0.15);
+            padding: 14px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #0066ff, #00aaff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-left h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .nav-left h1 span {
+            color: #00aaff;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 255, 100, 0.08);
+            border: 1px solid rgba(0, 255, 100, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #00ff88;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: scale(0.8)
+            }
+        }
+
+        #user-name {
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        #logout-btn {
+            background: rgba(255, 50, 50, 0.12);
+            border: 1px solid rgba(255, 50, 50, 0.25);
+            color: #ff6666;
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        #logout-btn:hover {
+            background: rgba(255, 50, 50, 0.25);
+        }
+
+        .container {
+            padding: 24px 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #444;
+            margin-bottom: 14px;
+            margin-top: 28px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.12);
+            border-radius: 16px;
+            padding: 22px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 150, 255, 0.35);
+            box-shadow: 0 0 25px rgba(0, 150, 255, 0.07);
+        }
+
+        .card-label {
+            color: #555;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .card-big {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .card-big span {
+            font-size: 16px;
+            color: #444;
+            font-weight: 400;
+        }
+
+        .card-sub {
+            color: #444;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        /* Device Cards */
+        .device-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.12);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .device-card:hover {
+            border-color: rgba(0, 150, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 150, 255, 0.1);
+        }
+
+        .device-card.active {
+            border-color: rgba(0, 255, 100, 0.4);
+            background: rgba(0, 255, 100, 0.04);
+        }
+
+        .device-emoji {
+            font-size: 44px;
+            margin-bottom: 12px;
+            transition: transform 0.3s;
+        }
+
+        .device-card:hover .device-emoji {
+            transform: scale(1.1);
+        }
+
+        .device-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .device-watts {
+            color: #444;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: .3s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: #666;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background: rgba(0, 255, 100, 0.2);
+            border-color: rgba(0, 255, 100, 0.4);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .status-text {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .status-on {
+            color: #00ff88;
+        }
+
+        .status-off {
+            color: #555;
+        }
+
+        /* Chart */
+        .chart-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.12);
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        canvas {
+            max-height: 170px;
+        }
+
+        /* Bill */
+        .bill-input {
+            width: 100%;
+            padding: 11px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .bill-input:focus {
+            border-color: #00aaff;
+        }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .calc-btn {
+            padding: 11px;
+            background: linear-gradient(135deg, #5500cc, #9900ff);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(150, 0, 255, 0.3);
+        }
+
+        .calc-btn.blue {
+            background: linear-gradient(135deg, #003399, #0066cc);
+        }
+
+        .bill-result-box {
+            background: rgba(150, 0, 255, 0.07);
+            border: 1px solid rgba(150, 0, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .bill-inr {
+            font-size: 30px;
+            font-weight: 700;
+            color: #bb44ff;
+        }
+
+        .bill-kwh {
+            font-size: 12px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        /* Chat */
+        .chat-messages {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.7;
+            scrollbar-width: thin;
+            scrollbar-color: #222 transparent;
+        }
+
+        .msg-you {
+            color: #00aaff;
+            margin-bottom: 6px;
+        }
+
+        .msg-ai {
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-field {
+            flex: 1;
+            padding: 11px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .chat-field:focus {
+            border-color: #00aaff;
+        }
+
+        .send-btn {
+            padding: 11px 16px;
+            background: linear-gradient(135deg, #0055dd, #0099ff);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .voice-btn {
+            padding: 11px 14px;
+            background: rgba(255, 50, 50, 0.15);
+            border: 1px solid rgba(255, 50, 50, 0.25);
+            border-radius: 10px;
+            color: #ff6666;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .voice-btn.listening {
+            background: rgba(255, 50, 50, 0.35);
+            animation: voicePulse 1s infinite;
+        }
+
+        @keyframes voicePulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 50, 50, 0.4)
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(255, 50, 50, 0)
+            }
+        }
+
+        /* Wake word banner */
+        .wake-banner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 150, 255, 0.15);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 12px;
+            color: #00aaff;
+            backdrop-filter: blur(10px);
+            z-index: 999;
+        }
+
+        @media(max-width:768px) {
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            nav {
+                padding: 12px 16px;
+            }
+
+            .nav-left h1 {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-left">
+            <div class="nav-logo">⚡</div>
+            <h1><span>BMS</span> AI Dashboard</h1>
+        </div>
+        <div class="nav-right">
+            <div class="live-badge">
+                <div class="live-dot"></div>Live
+            </div>
+            <span id="user-name"></span>
+            <button id="logout-btn">⏻ Logout</button>
+        </div>
+    </nav>
+
+    <div class="wake-banner">🎤 Say "<b>BMS</b>" to activate voice</div>
+
+    <div class="container">
+
+        <div class="section-label">📡 Live Sensor Data</div>
+        <div class="grid-4">
+            <div class="card">
+                <div class="card-label">🌡️ Temperature</div>
+                <div class="card-big" id="temperature">--<span>°C</span></div>
+                <div class="card-sub" id="temp-trend">Updating...</div>
+            </div>
+            <div class="card">
+                <div class="card-label">💧 Humidity</div>
+                <div class="card-big" id="humidity">--<span>%</span></div>
+                <div class="card-sub">Live reading</div>
+            </div>
+            <div class="card">
+                <div class="card-label">⚡ Active Power</div>
+                <div class="card-big" id="active-power">--<span>W</span></div>
+                <div class="card-sub">Current draw</div>
+            </div>
+            <div class="card">
+                <div class="card-label">🔌 Devices On</div>
+                <div class="card-big" id="devices-on">--<span>/3</span></div>
+                <div class="card-sub">Running now</div>
+            </div>
+        </div>
+
+        <div class="section-label">📊 Live Graphs</div>
+        <div class="grid-2">
+            <div class="chart-card">
+                <div class="chart-title">🌡️ Temperature History</div>
+                <canvas id="tempChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">💧 Humidity History</div>
+                <canvas id="humChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section-label">🔌 Device Controls — tap card to toggle</div>
+        <div class="grid-3">
+            <div class="device-card" id="card-fan" onclick="toggleDevice('fan')">
+                <div class="device-emoji">🌀</div>
+                <div class="device-name">Fan</div>
+                <div class="device-watts">50W</div>
+                <label class="switch" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="switch-fan" onchange="toggleDevice('fan')">
+                    <span class="slider"></span>
+                </label>
+                <div id="fan-status" class="status-text status-off">OFF</div>
+            </div>
+            <div class="device-card" id="card-light" onclick="toggleDevice('light')">
+                <div class="device-emoji">💡</div>
+                <div class="device-name">Light</div>
+                <div class="device-watts">10W</div>
+                <label class="switch" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="switch-light" onchange="toggleDevice('light')">
+                    <span class="slider"></span>
+                </label>
+                <div id="light-status" class="status-text status-off">OFF</div>
+            </div>
+            <div class="device-card" id="card-ac" onclick="toggleDevice('ac')">
+                <div class="device-emoji">❄️</div>
+                <div class="device-name">AC</div>
+                <div class="device-watts">1500W</div>
+                <label class="switch" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="switch-ac" onchange="toggleDevice('ac')">
+                    <span class="slider"></span>
+                </label>
+                <div id="ac-status" class="status-text status-off">OFF</div>
+            </div>
+        </div>
+
+        <div class="section-label">⚡ Bill & BMS AI Agent</div>
+        <div class="grid-2">
+            <div class="card">
+                <div class="chart-title">⚡ Electricity Bill Calculator</div>
+                <input class="bill-input" type="number" id="hours-input" placeholder="Hours of usage" value="24" min="1"
+                    max="744" />
+                <div class="btn-row">
+                    <button class="calc-btn" onclick="calculateBill()">Calculate</button>
+                    <button class="calc-btn blue" onclick="calcMonthly()">Monthly Est.</button>
+                </div>
+                <div class="bill-result-box">
+                    <div class="bill-inr" id="bill-result">₹ --</div>
+                    <div class="bill-kwh" id="bill-kwh">Enter hours to calculate</div>
+                </div>
+                <div style="margin-top:10px;font-size:11px;color:#333;">Rate: ₹8/kWh · Karnataka BESCOM tariff</div>
+            </div>
+            <div class="card">
+                <div class="chart-title">🤖 BMS AI Agent</div>
+                <div class="chat-messages" id="chat-output">
+                    <div class="msg-ai">👋 Hi! I am your BMS AI Agent. Say "<b>BMS</b>" or tap 🎤 to use voice. I can
+                        control devices, read sensors and calculate your bill!</div>
+                </div>
+                <div class="chat-controls">
+                    <input class="chat-field" type="text" id="chat-input" placeholder="Ask BMS anything..."
+                        onkeypress="if(event.key==='Enter') sendChat()" />
+                    <button class="voice-btn" id="voice-btn" onclick="startVoice()" title="Tap to speak">🎤</button>
+                    <button class="send-btn" onclick="sendChat()">Send</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
+            authDomain: "ai-bms-dashboard.firebaseapp.com",
+            projectId: "ai-bms-dashboard",
+            storageBucket: "ai-bms-dashboard.firebasestorage.app",
+            messagingSenderId: "706812934530",
+            appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const API = "https://ai-bms-dashboard.onrender.com";
+
+        // Auth guard
+        onAuthStateChanged(auth, user => {
+            if (!user) { window.location.href = "login.html"; return; }
+            document.getElementById("user-name").textContent = user.displayName || user.email;
+        });
+
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            signOut(auth).then(() => window.location.href = "login.html");
+        });
+
+        // Charts
+        const labels = [], tempData = [], humData = [];
+        const maxPts = 20;
+
+        const mkChart = (id, dataArr, color) => new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    data: dataArr,
+                    borderColor: color,
+                    backgroundColor: color.replace(')', ',0.07)').replace('rgb', 'rgba'),
+                    fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: color
+                }]
+            },
+            options: {
+                responsive: true, animation: { duration: 300 },
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#444', maxTicksLimit: 5 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                    y: { ticks: { color: '#444' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                }
+            }
+        });
+
+        const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)');
+        const hChart = mkChart('humChart', humData, 'rgb(0,170,255)');
+
+        let lastTemp = null;
+
+        async function fetchData() {
+            try {
+                const res = await fetch(`${API}/data`);
+                const d = await res.json();
+                document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
+                document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
+                if (lastTemp !== null) {
+                    const diff = (d.temperature - lastTemp).toFixed(1);
+                    document.getElementById("temp-trend").innerHTML =
+                        diff > 0 ? `<span style="color:#ff6644">▲ +${diff}°</span>` :
+                            diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
+                }
+                lastTemp = d.temperature;
+                const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (labels.length >= maxPts) { labels.shift(); tempData.shift(); humData.shift(); }
+                labels.push(now); tempData.push(d.temperature); humData.push(d.humidity);
+                tChart.update(); hChart.update();
+                updateDevices(d.devices);
+                const watts = { fan: 50, light: 10, ac: 1500 };
+                let power = 0, count = 0;
+                for (const [n, i] of Object.entries(d.devices)) { if (i.status) { power += watts[n] || 0; count++; } }
+                document.getElementById("active-power").innerHTML = `${power}<span>W</span>`;
+                document.getElementById("devices-on").innerHTML = `${count}<span>/3</span>`;
+            } catch (e) { console.error(e); }
+        }
+
+        function updateDevices(devices) {
+            for (const [name, info] of Object.entries(devices)) {
+                const sw = document.getElementById(`switch-${name}`);
+                const st = document.getElementById(`${name}-status`);
+                const card = document.getElementById(`card-${name}`);
+                if (sw) sw.checked = info.status;
+                if (st) { st.textContent = info.status ? "ON" : "OFF"; st.className = `status-text ${info.status ? "status-on" : "status-off"}`; }
+                if (card) { card.className = `device-card${info.status ? " active" : ""}`; }
+            }
+        }
+
+        setInterval(fetchData, 5000);
+        fetchData();
+
+        // Keep Render server awake
+        setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
+
+        window.toggleDevice = async (name) => {
+            try {
+                const res = await fetch(`${API}/toggle/${name}`, { method: "POST" });
+                const d = await res.json();
+                const sw = document.getElementById(`switch-${name}`);
+                const st = document.getElementById(`${name}-status`);
+                const card = document.getElementById(`card-${name}`);
+                if (sw) sw.checked = d.status;
+                if (st) { st.textContent = d.status ? "ON" : "OFF"; st.className = `status-text ${d.status ? "status-on" : "status-off"}`; }
+                if (card) { card.className = `device-card${d.status ? " active" : ""}`; }
+                fetchData();
+            } catch (e) { console.error(e); }
+        };
+
+        window.calculateBill = async () => {
+            const h = document.getElementById("hours-input").value || 24;
+            try {
+                const res = await fetch(`${API}/bill?hours=${h}`);
+                const d = await res.json();
+                document.getElementById("bill-result").textContent = `₹ ${d.bill_inr}`;
+                document.getElementById("bill-kwh").textContent = `${d.kwh} kWh over ${h} hours`;
+            } catch (e) { }
+        };
+
+        window.calcMonthly = async () => {
+            try {
+                const res = await fetch(`${API}/bill?hours=720`);
+                const d = await res.json();
+                document.getElementById("bill-result").textContent = `₹ ${d.bill_inr}`;
+                document.getElementById("bill-kwh").textContent = `${d.kwh} kWh — monthly estimate`;
+            } catch (e) { }
+        };
+
+        window.sendChat = async () => {
+            const input = document.getElementById("chat-input");
+            const output = document.getElementById("chat-output");
+            const msg = input.value.trim();
+            if (!msg) return;
+            output.innerHTML += `<div class="msg-you">You: ${msg}</div>`;
+            input.value = "";
+            output.scrollTop = output.scrollHeight;
+            try {
+                const res = await fetch(`${API}/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg })
+                });
+                const d = await res.json();
+                output.innerHTML += `<div class="msg-ai">🤖 ${d.reply}</div>`;
+                output.scrollTop = output.scrollHeight;
+                setTimeout(fetchData, 800);
+            } catch (e) {
+                output.innerHTML += `<div class="msg-ai">⚠️ BMS Agent is waking up, try again in 30s</div>`;
+            }
+        };
+
+        // Voice Input
+        window.startVoice = () => {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Use Chrome browser for voice support!");
+                return;
+            }
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const rec = new SR();
+            rec.lang = 'en-IN';
+            rec.interimResults = false;
+            const btn = document.getElementById("voice-btn");
+            btn.classList.add("listening");
+            btn.textContent = "🔴";
+            rec.start();
+            rec.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                document.getElementById("chat-input").value = transcript;
+                btn.classList.remove("listening");
+                btn.textContent = "🎤";
+                window.sendChat();
+            };
+            rec.onerror = rec.onend = () => {
+                btn.classList.remove("listening");
+                btn.textContent = "🎤";
+            };
+        };
+
+        // Wake Word Listener — say "BMS" to activate
+        const startWakeWordListener = () => {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const rec = new SR();
+            rec.lang = 'en-IN';
+            rec.continuous = true;
+            rec.interimResults = false;
+
+            rec.onresult = (e) => {
+                const transcript = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+                if (transcript.includes("bms") || transcript.includes("hey bms") || transcript.includes("okay bms")) {
+                    const output = document.getElementById("chat-output");
+                    output.innerHTML += `<div class="msg-ai">🎤 BMS Agent activated! Listening for your command...</div>`;
+                    output.scrollTop = output.scrollHeight;
+                    setTimeout(() => window.startVoice(), 500);
+                }
+            };
+
+            rec.onend = () => { try { rec.start(); } catch (e) { } };
+            try { rec.start(); } catch (e) { }
+        };
+
+        // Start wake word listener after page loads
+        setTimeout(startWakeWordListener, 2000);
+    </script>
+</body>
+
+</html>
