@@ -1,0 +1,34 @@
+{
+  "device_id": "AI-BMS-PI3B",
+  "timestamp": "2026-08-12T15:30:00+05:30",
+  "online": true,
+  "temperature": 28.6,
+  "humidity": 61.4,
+  "voltage": 51.8,
+  "current": 2.35,
+  "power": 121.73,
+  "battery_soc": 78.5,
+  "battery_status": "NORMAL",
+  "safety": {
+    "smoke": false,
+    "spark": false,
+    "flame": false,
+    "fire": false
+  },
+  "devices": {
+    "fan": {
+      "status": false,
+      "watts": 50
+    },
+    "light": {
+      "status": true,
+      "watts": 10
+    },
+    "bms": {
+      "status": true,
+      "watts": 5
+    }
+  },
+  "alerts": [],
+  "test_mode": false
+}
