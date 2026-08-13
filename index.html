@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#07071a">
-    <link rel="manifest" href="manifest.json">
     <title>AI BMS Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <style>
@@ -809,19 +808,20 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
-            authDomain: "ai-bms-dashboard.firebaseapp.com",
-            projectId: "ai-bms-dashboard",
-            storageBucket: "ai-bms-dashboard.firebasestorage.app",
-            messagingSenderId: "706812934530",
-            appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
-        };
+            const firebaseConfig = {
+                apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
+                authDomain: "ai-bms-dashboard.firebaseapp.com",
+                projectId: "ai-bms-dashboard",
+                storageBucket: "ai-bms-dashboard.firebasestorage.app",
+                messagingSenderId: "706812934530",
+                appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
+            };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const API = "https://ai-bms-dashboard.onrender.com";
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const API = "https://ai-bms-dashboard.onrender.com";
 
-        onAuthStateChanged(auth, user => {
+            onAuthStateChanged(auth, user => {
             if (!user) { window.location.href = "login.html"; return; }
             document.getElementById("user-name").textContent = user.displayName || user.email;
         });
