@@ -57,7 +57,7 @@ System Status:
         prompt = f"{SYSTEM_PROMPT}\n\nCurrent Context:\n{context}\n\nUser Question: {user_msg}\n\nBMS AI Agent:"
 
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-3.6-flash',
             contents=prompt,
         )
         return response.text.strip()
