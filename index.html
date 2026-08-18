@@ -880,11 +880,10 @@
         }
 
         // Simulate smoke & spark from sensor data
-        function checkSafetySensors(temperature, humidity) {
-            // Simulate: smoke detected if temp > 33 or humidity drops suddenly
-            const smokeDetected = temperature > 33;
-            // Simulate: spark detected if temp > 35
-            const sparkDetected = temperature > 35;
+        function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
+            smokeDetected = smokeDetected !== undefined ? smokeDetected : temperature > 33;
+            sparkDetected = sparkDetected !== undefined ? sparkDetected : temperature > 35;
+            fireDetected = fireDetected !== undefined ? fireDetected : (smokeDetected && sparkDetected);
 
             updateSmokeCard(smokeDetected, temperature);
             updateSparkCard(sparkDetected, temperature);
@@ -978,8 +977,8 @@
                 document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
                 document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
 
-                const voltage = (220 + (d.temperature - 25) * 0.5).toFixed(1);
-                const current = (d.humidity / 100 * 5).toFixed(2);
+                const voltage = d.voltage || 0;
+                const current = d.current || 0;
                 document.getElementById("voltage").innerHTML = `${voltage}<span>V</span>`;
                 document.getElementById("current").innerHTML = `${current}<span>A</span>`;
 
@@ -1008,7 +1007,13 @@
                 updateReadOnlyDevice('light', d.devices.light?.status || false);
 
                 // Check safety sensors
-                checkSafetySensors(d.temperature, d.humidity);
+                checkSafetySensors(
+                    d.temperature,
+                    d.humidity,
+                    d.safety?.smoke,
+                    d.safety?.spark,
+                    d.safety?.fire
+                );
 
             } catch (e) { console.error(e); }
         }

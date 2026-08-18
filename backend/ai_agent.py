@@ -1,174 +1,83 @@
-from groq import Groq
 import json
 import os
-from pathlib import Path
+import google.generativeai as genai
 from dotenv import load_dotenv
+from pi_mock import get_sensor_data, toggle_device, calculate_bill
 
-from backend.pi_mock import (
-    get_sensor_data,
-    toggle_device,
-    calculate_bill,
-)
+load_dotenv()
 
-# ---------------------------------------------------------
-# LOAD ENVIRONMENT VARIABLES
-# ---------------------------------------------------------
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ENV_FILE = PROJECT_ROOT / ".env"
+SYSTEM = """You are BMS AI Agent — an intelligent Battery Management System assistant 
+controlling a smart home dashboard connected to a Raspberry Pi 3B+.
 
-load_dotenv(dotenv_path=ENV_FILE)
+Your capabilities:
+- Read live sensor data (temperature, humidity, voltage, current, power, battery SOC)
+- Monitor safety sensors (smoke, spark, flame, fire detectors)
+- Toggle the BMS device ON or OFF
+- Monitor device status (fan and light are read-only — cannot be controlled)
+- Calculate electricity bills in Indian Rupees (₹) at ₹8/kWh (Karnataka BESCOM tariff)
+- Alert users urgently about fire, smoke or spark hazards
+- Report battery state of charge (SOC) and battery status
 
-api_key = os.getenv("GROQ_API_KEY")
-
-if not api_key:
-    raise RuntimeError(
-        "GROQ_API_KEY is not set. Please add it to the .env file."
-    )
-
-client = Groq(api_key=api_key)
-
-# ---------------------------------------------------------
-# AI SYSTEM PROMPT
-# ---------------------------------------------------------
-
-SYSTEM = """You are the AI assistant for an AI-based Battery Management System (AI-BMS) dashboard.
-
-You monitor a Raspberry Pi-based battery management system.
-
-You can:
-- Read battery temperature
-- Read humidity
-- Read voltage
-- Read current
-- Read power
-- Read battery state of charge (SOC)
-- Read battery status
-- Read safety conditions
-- Read the ON/OFF status of the BMS, fan, and light
-- Calculate electricity usage and bill
-- Control the BMS ON/OFF state
-
-IMPORTANT DEVICE CONTROL RULES:
-
-- The BMS is the ONLY device that can be controlled.
-- The fan is MONITORING ONLY.
-- The light is MONITORING ONLY.
-- Never attempt to turn the fan ON or OFF.
-- Never attempt to turn the light ON or OFF.
-- If the user asks to control the fan or light, explain that these devices are monitoring-only and cannot be controlled from the dashboard.
-- Never claim that a device was changed unless the backend actually changed it.
-
-Reply concisely and clearly.
+Rules:
+- Always respond helpfully and concisely (under 3 sentences unless explaining something)
+- When fire/smoke/spark is detected, respond with URGENT warnings
+- Use ₹ symbol for all currency values
+- Fan and light cannot be toggled — only BMS device can be toggled
+- Always confirm actions taken on BMS device
 """
 
-# ---------------------------------------------------------
-# AI AGENT
-# ---------------------------------------------------------
-
 def ask_agent(user_msg: str) -> str:
-
-    state = json.dumps(
-        get_sensor_data(),
-        indent=2
-    )
-
-    bill = json.dumps(
-        calculate_bill(),
-        indent=2
-    )
-
-    context = (
-        f"Current sensor state:\n{state}\n\n"
-        f"Current bill (24h):\n{bill}"
-    )
-
-    user_lower = user_msg.lower()
-
-    # -----------------------------------------------------
-    # BMS CONTROL ONLY
-    # -----------------------------------------------------
-
-    if "bms" in user_lower:
-
-        control_words = [
-            "on",
-            "off",
-            "toggle",
-            "turn",
-            "switch",
-        ]
-
-        if any(
-            word in user_lower
-            for word in control_words
-        ):
-
-            result = toggle_device("bms")
-
-            if result is not None:
-
-                status = (
-                    "ON"
-                    if result.get("status")
-                    else "OFF"
-                )
-
-                return f"BMS is now {status}."
-
-    # -----------------------------------------------------
-    # FAN / LIGHT ARE MONITORING ONLY
-    # -----------------------------------------------------
-
-    if "fan" in user_lower or "light" in user_lower:
-
-        requested_device = (
-            "fan"
-            if "fan" in user_lower
-            else "light"
-        )
-
-        control_words = [
-            "on",
-            "off",
-            "toggle",
-            "turn",
-            "switch",
-        ]
-
-        if any(
-            word in user_lower
-            for word in control_words
-        ):
-
-            return (
-                f"The {requested_device} is "
-                "monitoring-only and cannot be "
-                "controlled from the dashboard."
-            )
-
-    # -----------------------------------------------------
-    # GROQ AI RESPONSE
-    # -----------------------------------------------------
-
     try:
+        state = get_sensor_data()
+        bill  = calculate_bill()
 
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM + "\n\n" + context,
-                },
-                {
-                    "role": "user",
-                    "content": user_msg,
-                },
-            ],
-        )
+        context = f"""
+Live BMS Sensor Data:
+- Temperature: {state['temperature']}°C
+- Humidity: {state['humidity']}%
+- Voltage: {state['voltage']}V
+- Current: {state['current']}A
+- Power: {state['power']}W
+- Battery SOC: {state.get('battery_soc', 'N/A')}%
+- Battery Status: {state.get('battery_status', 'N/A')}
 
-        return response.choices[0].message.content
+Safety Status:
+- Smoke: {'DETECTED ⚠️' if state['safety']['smoke'] else 'Clear'}
+- Spark: {'DETECTED ⚠️' if state['safety']['spark'] else 'Clear'}
+- Flame: {'DETECTED ⚠️' if state['safety']['flame'] else 'Clear'}
+- Fire:  {'🔥 CRITICAL' if state['safety']['fire'] else 'Clear'}
+- Alerts: {', '.join(state['alerts']) if state['alerts'] else 'None'}
+
+Device Status:
+- Fan: {'ON' if state['devices']['fan']['status'] else 'OFF'} (50W, read-only)
+- Light: {'ON' if state['devices']['light']['status'] else 'OFF'} (10W, read-only)
+- BMS Device: {'ON' if state['devices']['bms']['status'] else 'OFF'} (5W, controllable)
+
+Electricity Bill (24h): ₹{bill['bill_inr']} ({bill['kwh']} kWh)
+"""
+
+        # Handle BMS toggle commands
+        msg_lower = user_msg.lower()
+        if "bms" in msg_lower:
+            if any(w in msg_lower for w in ["on","off","toggle","turn","start","stop","enable","disable"]):
+                result = toggle_device("bms")
+                if result:
+                    status = "ON" if result["status"] else "OFF"
+                    return f"✅ BMS Device has been turned {status}."
+
+        # Handle fan/light toggle attempts
+        if any(d in msg_lower for d in ["fan","light"]):
+            if any(w in msg_lower for w in ["on","off","toggle","turn"]):
+                return "⚠️ Fan and Light are monitoring-only devices. Only the BMS Device can be toggled from this dashboard."
+
+        # Build full prompt
+        prompt = f"{SYSTEM}\n\nCurrent Context:\n{context}\n\nUser: {user_msg}\n\nBMS AI Agent:"
+
+        response = model.generate_content(prompt)
+        return response.text.strip()
 
     except Exception as e:
-
-        return f"AI Agent response unavailable: {e}"
+        return f"BMS Agent error: {str(e)}"
