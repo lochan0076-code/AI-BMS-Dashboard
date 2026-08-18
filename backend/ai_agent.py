@@ -2,8 +2,7 @@ import json
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
-from pi_mock import get_sensor_data, toggle_device, calculate_bill
-
+from backend.pi_mock import get_sensor_data, toggle_device, calculate_bill
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
