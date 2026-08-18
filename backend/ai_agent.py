@@ -2,11 +2,11 @@ import json
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
-from backend.pi_mock import get_sensor_data, toggle_device, calculate_bill
+from backend.pi_mock import get_sensor_data, toggle_device, calculate_billx
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 SYSTEM = """You are BMS AI Agent — an intelligent Battery Management System assistant 
 controlling a smart home dashboard connected to a Raspberry Pi 3B+.
