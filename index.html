@@ -974,14 +974,13 @@
                 const res = await fetch(`${API}/data`);
                 const d = await res.json();
 
+                // Sensor cards
                 document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
                 document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
+                document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
+                document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
 
-                const voltage = d.voltage || 0;
-                const current = d.current || 0;
-                document.getElementById("voltage").innerHTML = `${voltage}<span>V</span>`;
-                document.getElementById("current").innerHTML = `${current}<span>A</span>`;
-
+                // Trend
                 if (lastTemp !== null) {
                     const diff = (d.temperature - lastTemp).toFixed(1);
                     document.getElementById("temp-trend").innerHTML =
@@ -990,6 +989,7 @@
                 }
                 lastTemp = d.temperature;
 
+                // Charts
                 const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 if (labels.length >= maxPts) {
                     labels.shift(); tempData.shift(); humData.shift();
@@ -998,24 +998,37 @@
                 labels.push(now);
                 tempData.push(d.temperature);
                 humData.push(d.humidity);
-                voltData.push(parseFloat(voltage));
-                currData.push(parseFloat(current));
+                voltData.push(d.voltage || 0);
+                currData.push(d.current || 0);
                 tChart.update(); hChart.update();
                 vChart.update(); cChart.update();
 
-                updateReadOnlyDevice('fan', d.devices.fan?.status || false);
-                updateReadOnlyDevice('light', d.devices.light?.status || false);
+                // Device status
+                updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
+                updateReadOnlyDevice('light', d.devices?.light?.status || false);
 
-                // Check safety sensors
+                // BMS device
+                const bmsOn = d.devices?.bms?.status || false;
+                const bmsSw = document.getElementById("switch-bms");
+                const bmsSt = document.getElementById("bms-status");
+                const bmsCard = document.getElementById("card-bms");
+                if (bmsSw) bmsSw.checked = bmsOn;
+                if (bmsSt) { bmsSt.textContent = bmsOn ? "ON" : "OFF"; bmsSt.className = `status-text ${bmsOn ? "status-on" : "status-off"}`; }
+                if (bmsCard) bmsCard.className = `device-card bms-card${bmsOn ? " active" : ""}`;
+
+                // Safety sensors
+                const safety = d.safety || {};
                 checkSafetySensors(
                     d.temperature,
                     d.humidity,
-                    d.safety?.smoke,
-                    d.safety?.spark,
-                    d.safety?.fire
+                    safety.smoke,
+                    safety.spark || safety.flame,
+                    safety.fire
                 );
 
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error("Fetch error:", e);
+            }
         }
 
         function updateReadOnlyDevice(name, isOn) {
