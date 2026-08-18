@@ -888,7 +888,7 @@
             updateSmokeCard(smokeDetected, temperature);
             updateSparkCard(sparkDetected, temperature);
 
-            const fireDetected = smokeDetected && sparkDetected;
+            fireDetected = smokeDetected && sparkDetected;
 
             if (fireDetected && !fireAlertActive) {
                 fireAlertActive = true;
