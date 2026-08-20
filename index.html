@@ -1011,12 +1011,14 @@
             }
         }
 
-        async function toggleEjection(isEjecting) {
+        window.toggleEjection = async function (isEjecting) {
             const statusElem = document.getElementById("ejection-status");
+            const switchElem = document.getElementById("switch-ejection");
+
             if (isEjecting) {
                 const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
                 if (!confirmEject) {
-                    document.getElementById("switch-ejection").checked = false;
+                    if (switchElem) switchElem.checked = false;
                     return;
                 }
             }
