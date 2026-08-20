@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from backend.pi_mock import get_sensor_data, toggle_device, calculate_bill
+from backend.pi_mock import get_sensor_data, toggle_device, FALLBACK_BMS_DATA
 from backend.ai_agent import ask_agent
 
 app = FastAPI()
+
+bms_data = FALLBACK_BMS_DATA
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,10 +31,13 @@ def toggle(device: str):
         return {"error": "Toggle failed"}
     return result
 
-@app.get("/bill")
-def bill(hours: float = 24):
-    return calculate_bill(hours)
-
 @app.post("/chat")
 def chat(body: dict):
     return {"reply": ask_agent(body["message"])}
+
+@app.post("/control/ejection")
+async def control_ejection(request: Request):
+    data = await request.json()
+    state = data.get('state', 'LOCKED')
+    bms_data['ejection_status'] = state
+    return {"status": "success", "ejection_status": state}

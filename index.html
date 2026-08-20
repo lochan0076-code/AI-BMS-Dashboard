@@ -757,49 +757,29 @@
                 </div>
                 <div id="light-status" class="status-text status-off">OFF</div>
             </div>
-            <div class="device-card bms-card" id="card-bms" onclick="toggleBMS()">
-                <div class="device-emoji">🖥️</div>
-                <div class="device-name">BMS Device</div>
-                <div class="device-watts">Main Controller</div>
-                <label class="switch" onclick="event.stopPropagation()">
-                    <input type="checkbox" id="switch-bms" onchange="toggleBMS()">
-                    <span class="slider"></span>
+            <div class="card" id="card-ejection">
+                <h3>🔋 Battery Ejection System</h3>
+                <p style="font-size: 0.85rem; color: #888;">Emergency Mechanical Release</p>
+                <label class="switch">
+                    <input type="checkbox" id="switch-ejection" onchange="toggleEjection(this.checked)">
+                    <span class="slider round"></span>
                 </label>
-                <div id="bms-status" class="status-text status-off">OFF</div>
+                <p>Status: <span id="ejection-status" style="font-weight: bold; color: #4ade80;">LOCKED</span></p>
+            </div>
+            <!--Chat -->
+            <div class="chart-title">🤖 BMS AI Agent</div>
+            <div class="chat-messages" id="chat-output">
+                <div class="msg-ai">👋 Hi! I am your BMS AI Agent. Say "<b>BMS</b>" or tap 🎤 to use voice. I
+                    monitor sensors, detect fire hazards and control your BMS device!</div>
+            </div>
+            <div class="chat-controls">
+                <input class="chat-field" type="text" id="chat-input" placeholder="Ask BMS anything..."
+                    onkeypress="if(event.key==='Enter') sendChat()" />
+                <button class="voice-btn" id="voice-btn" onclick="startVoice()">🎤</button>
+                <button class="send-btn" onclick="sendChat()">Send</button>
             </div>
         </div>
-
-        <!-- Bill + Chat -->
-        <div class="section-label">⚡ Bill & BMS AI Agent</div>
-        <div class="grid-2">
-            <div class="card">
-                <div class="chart-title">⚡ Electricity Bill Calculator</div>
-                <input class="bill-input" type="number" id="hours-input" placeholder="Hours of usage" value="24" min="1"
-                    max="744" />
-                <div class="btn-row">
-                    <button class="calc-btn" onclick="calculateBill()">Calculate</button>
-                    <button class="calc-btn blue" onclick="calcMonthly()">Monthly Est.</button>
-                </div>
-                <div class="bill-result-box">
-                    <div class="bill-inr" id="bill-result">₹ --</div>
-                    <div class="bill-kwh" id="bill-kwh">Enter hours to calculate</div>
-                </div>
-                <div style="margin-top:10px;font-size:11px;color:#333;">Rate: ₹8/kWh · Karnataka BESCOM tariff</div>
-            </div>
-            <div class="card">
-                <div class="chart-title">🤖 BMS AI Agent</div>
-                <div class="chat-messages" id="chat-output">
-                    <div class="msg-ai">👋 Hi! I am your BMS AI Agent. Say "<b>BMS</b>" or tap 🎤 to use voice. I
-                        monitor sensors, detect fire hazards and control your BMS device!</div>
-                </div>
-                <div class="chat-controls">
-                    <input class="chat-field" type="text" id="chat-input" placeholder="Ask BMS anything..."
-                        onkeypress="if(event.key==='Enter') sendChat()" />
-                    <button class="voice-btn" id="voice-btn" onclick="startVoice()">🎤</button>
-                    <button class="send-btn" onclick="sendChat()">Send</button>
-                </div>
-            </div>
-        </div>
+    </div>
 
     </div>
 
@@ -1028,6 +1008,30 @@
 
             } catch (e) {
                 console.error("Fetch error:", e);
+            }
+        }
+
+        async function toggleEjection(isEjecting) {
+            const statusElem = document.getElementById("ejection-status");
+            if (isEjecting) {
+                const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
+                if (!confirmEject) {
+                    document.getElementById("switch-ejection").checked = false;
+                    return;
+                }
+            }
+            try {
+                const res = await fetch(`${API}/control/ejection`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ state: isEjecting ? "EJECTED" : "LOCKED" })
+                });
+                if (res.ok) {
+                    statusElem.textContent = isEjecting ? "EJECTED ⚠️" : "LOCKED";
+                    statusElem.style.color = isEjecting ? "#ef4444" : "#4ade80";
+                }
+            } catch (err) {
+                console.error("Ejection control error:", err);
             }
         }
 
