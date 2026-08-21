@@ -459,68 +459,165 @@
             max-height: 170px;
         }
 
-        /* Bill */
-        .bill-input {
-            width: 100%;
-            padding: 11px 14px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(0, 150, 255, 0.2);
+
+        /* AI Agent Container */
+        .ai-agent-card {
+            grid-column: 1 / -1;
+            /* Spans full dashboard width */
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 18px;
+            box-sizing: border-box;
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .agent-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #f8fafc;
+        }
+
+        .agent-badge {
+            background: rgba(37, 99, 235, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Chat Log Area */
+        .chat-box {
+            min-height: 180px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bot-msg,
+        .user-msg {
+            padding: 10px 14px;
             border-radius: 10px;
-            color: #fff;
-            font-size: 14px;
-            margin-bottom: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            max-width: 85%;
+            word-break: break-word;
+        }
+
+        .bot-msg {
+            background: #1e293b;
+            color: #e2e8f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .user-msg {
+            background: #2563eb;
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        /* Input Controls Bar */
+        .chat-input-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #020617;
+            color: #f8fafc;
+            font-size: 0.9rem;
             outline: none;
         }
 
-        .bill-input:focus {
-            border-color: #00aaff;
+        .chat-input-bar input:focus {
+            border-color: #2563eb;
         }
 
-        .btn-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .calc-btn {
-            padding: 11px;
-            background: linear-gradient(135deg, #5500cc, #9900ff);
+        .icon-btn,
+        .primary-btn {
             border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: background 0.2s ease;
         }
 
-        .calc-btn:hover {
-            transform: translateY(-2px);
+        .icon-btn {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 12px 14px;
+            font-size: 1rem;
         }
 
-        .calc-btn.blue {
-            background: linear-gradient(135deg, #003399, #0066cc);
+        .icon-btn:hover {
+            background: #334155;
         }
 
-        .bill-result-box {
-            background: rgba(150, 0, 255, 0.07);
-            border: 1px solid rgba(150, 0, 255, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
+        .primary-btn {
+            background: #2563eb;
+            color: #ffffff;
+            padding: 12px 20px;
+            font-size: 0.9rem;
         }
 
-        .bill-inr {
-            font-size: 30px;
-            font-weight: 700;
-            color: #bb44ff;
+        .primary-btn:hover {
+            background: #1d4ed8;
         }
 
-        .bill-kwh {
-            font-size: 12px;
-            color: #555;
-            margin-top: 4px;
+        /* Mobile Devices Breakpoint (Smartphones) */
+        @media (max-width: 640px) {
+            .ai-agent-card {
+                padding: 12px;
+            }
+
+            .chat-box {
+                min-height: 150px;
+                max-height: 220px;
+            }
+
+            .bot-msg,
+            .user-msg {
+                font-size: 0.85rem;
+                max-width: 90%;
+            }
+
+            .chat-input-bar input {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+
+            .primary-btn {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+
+            .icon-btn {
+                padding: 10px;
+            }
         }
 
         /* Chat */
@@ -767,10 +864,27 @@
                 <p>Status: <span id="ejection-status" style="font-weight: bold; color: #4ade80;">LOCKED</span></p>
             </div>
             <!--Chat -->
-            <div class="chart-title">🤖 BMS AI Agent</div>
-            <div class="chat-messages" id="chat-output">
-                <div class="msg-ai">👋 Hi! I am your BMS AI Agent. Say "<b>BMS</b>" or tap 🎤 to use voice. I
-                    monitor sensors, detect fire hazards and control your BMS device!</div>
+            <div class="card ai-agent-card">
+                <div class="agent-header">
+                    <h3>🤖 BMS AI Agent</h3>
+                    <span class="agent-badge">Gemini 3.6 Flash</span>
+                </div>
+
+                <!-- Scrollable Chat History Box -->
+                <div id="chat-box" class="chat-box">
+                    <div class="bot-msg">
+                        👋 Hi! I am your BMS AI Agent. Say <b>"BMS"</b> or tap 🎤 to use voice. I monitor sensors,
+                        detect fire hazards, and control your BMS device!
+                    </div>
+                </div>
+
+                <!-- Input Control Bar -->
+                <div class="chat-input-bar">
+                    <input type="text" id="chat-input" placeholder="Ask BMS anything..."
+                        onkeypress="if(event.key === 'Enter') sendMessage()" />
+                    <button id="mic-btn" class="icon-btn" onclick="startVoiceInput()" title="Voice Input">🎤</button>
+                    <button id="send-btn" class="primary-btn" onclick="sendMessage()">Send</button>
+                </div>
             </div>
             <div class="chat-controls">
                 <input class="chat-field" type="text" id="chat-input" placeholder="Ask BMS anything..."
