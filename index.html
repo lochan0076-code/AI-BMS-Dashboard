@@ -1287,28 +1287,40 @@
 
                     recognitionInstance.start();
                 };
-                // Wake word
+                // Wake word listener
                 const startWakeWord = () => {
                     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
                     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
                     const rec = new SR();
-                    rec.lang = 'en-IN';
+                    rec.lang = 'en-US';
                     rec.continuous = true;
                     rec.interimResults = false;
+
                     rec.onresult = (e) => {
                         const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
                         if (t.includes("bms") || t.includes("hey bms")) {
-                            const output = document.getElementById("chat-output");
-                            output.innerHTML += `<div class="msg-ai">🎤 BMS Agent activated! Listening...</div>`;
-                            output.scrollTop = output.scrollHeight;
-                            setTimeout(() => window.startVoice(), 500);
+                            const output = document.getElementById("chat-box"); // Fixed ID
+                            if (output) {
+                                const activationDiv = document.createElement("div");
+                                activationDiv.className = "bot-msg";
+                                activationDiv.innerHTML = "🎤 BMS Agent activated! Listening...";
+                                output.appendChild(activationDiv);
+                                output.scrollTop = output.scrollHeight;
+                            }
+                            rec.stop();
+                            setTimeout(() => {
+                                if (window.startVoiceInput) window.startVoiceInput(); // Fixed function name
+                            }, 500);
                         }
                     };
-                    rec.onend = () => { try { rec.start(); } catch (e) { } };
-                    try { rec.start(); } catch (e) { }
+
+                    rec.start();
                 };
 
-                setTimeout(startWakeWord, 2000);
+                // Initialize wake word listener on page load
+                window.addEventListener("DOMContentLoaded", () => {
+                    startWakeWord();
+                });
             </script>
 </body>
 
