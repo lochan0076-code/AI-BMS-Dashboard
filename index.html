@@ -1193,56 +1193,94 @@
                     } catch (e) { }
                 };
 
-                // Chat
-                window.sendChat = async () => {
-                    const input = document.getElementById("chat-input");
-                    const output = document.getElementById("chat-output");
-                    const msg = input.value.trim();
-                    if (!msg) return;
-                    output.innerHTML += `<div class="msg-you">You: ${msg}</div>`;
-                    input.value = "";
-                    output.scrollTop = output.scrollHeight;
+                // Send Chat Message Handler
+                window.sendMessage = async function () {
+                    const inputField = document.getElementById("chat-input");
+                    const chatBox = document.getElementById("chat-box");
+
+                    if (!inputField || !chatBox) return;
+
+                    const text = inputField.value.trim();
+                    if (!text) return;
+
+                    // Display User Message
+                    const userDiv = document.createElement("div");
+                    userDiv.className = "user-msg";
+                    userDiv.style.margin = "8px 0";
+                    userDiv.style.textAlign = "right";
+                    userDiv.innerHTML = '<span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius:  8px; display: inline-block;">${text}</span>';
+                    chatBox.appendChild(userDiv);
+
+                    inputField.value = "";
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    // Display Bot Typing State
+                    const botDiv = document.createElement("div");
+                    botDiv.className = "bot-msg";
+                    botDiv.style.margin = "8px 0";
+                    botDiv.innerHTML = `<span style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; display: inline-block;">Thinking...</span>`;
+                    chatBox.appendChild(botDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
                     try {
-                        const res = await fetch(`${API}/chat`, {
+                        const response = await fetch(`${API}/chat`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ message: msg })
+                            body: JSON.stringify({ message: text })
                         });
-                        const d = await res.json();
-                        output.innerHTML += `<div class="msg-ai">🤖 ${d.reply}</div>`;
-                        output.scrollTop = output.scrollHeight;
-                        setTimeout(fetchData, 800);
-                    } catch (e) {
-                        output.innerHTML += `<div class="msg-ai">⚠️ BMS Agent is waking up, try again in 30s</div>`;
+
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                        const data = await response.json();
+                        const reply = data.reply || data.response || "No response text received from backend.";
+                        botDiv.querySelector("span").textContent = reply;
+                    } catch (err) {
+                        console.error("Chat Error:", err);
+                        botDiv.querySelector("span").textContent = "⚠️ Could not connect to backend server.Check API orCORS.";
                     }
+
+                    chatBox.scrollTop = chatBox.scrollHeight;
                 };
 
-                // Voice input
-                window.startVoice = () => {
-                    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                        alert("Use Chrome for voice support!");
+                // Web Speech API Voice Recognition
+                window.startVoiceInput = function () {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+                    if (!SpeechRecognition) {
+                        alert("Speech recognition is not supported in this browser. Please try Google Chrome.");
                         return;
                     }
-                    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    const rec = new SR();
-                    rec.lang = 'en-IN';
-                    rec.interimResults = false;
-                    const btn = document.getElementById("voice-btn");
-                    btn.classList.add("listening");
-                    btn.textContent = "🔴";
-                    rec.start();
-                    rec.onresult = (e) => {
-                        document.getElementById("chat-input").value = e.results[0][0].transcript;
-                        btn.classList.remove("listening");
-                        btn.textContent = "🎤";
-                        window.sendChat();
-                    };
-                    rec.onerror = rec.onend = () => {
-                        btn.classList.remove("listening");
-                        btn.textContent = "🎤";
-                    };
-                };
 
+                    const recognition = new SpeechRecognition();
+                    recognition.lang = 'en-US';
+                    recognition.interimResults = false;
+
+                    const micBtn = document.getElementById("mic-btn");
+
+                    recognition.onstart = () => {
+                        if (micBtn) micBtn.style.background = "#dc2626"; // Highlight red while listening
+                    };
+
+                    recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        const inputField = document.getElementById("chat-input");
+                        if (inputField) {
+                            inputField.value = transcript;
+                            window.sendMessage(); // Automatically send transcribed text
+                        }
+                    };
+
+                    recognition.onerror = (err) => {
+                        console.error("Voice Recognition error:", err);
+                        alert("Voice recognition error: " + err.error);
+                    };
+
+                    recognition.onend = () => {
+                        if (micBtn) micBtn.style.background = "";
+                    };
+
+                    recognition.start();
+                };
                 // Wake word
                 const startWakeWord = () => {
                     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
