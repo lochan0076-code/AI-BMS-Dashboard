@@ -844,6 +844,7 @@
                 </div>
                 <div id="fan-status" class="status-text status-off">OFF</div>
             </div>
+
             <div class="device-card" id="card-light">
                 <div class="device-emoji">💡</div>
                 <div class="device-name">Light</div>
@@ -854,6 +855,7 @@
                 </div>
                 <div id="light-status" class="status-text status-off">OFF</div>
             </div>
+
             <div class="card" id="card-ejection">
                 <h3>🔋 Battery Ejection System</h3>
                 <p style="font-size: 0.85rem; color: #888;">Emergency Mechanical Release</p>
@@ -863,7 +865,8 @@
                 </label>
                 <p>Status: <span id="ejection-status" style="font-weight: bold; color: #4ade80;">LOCKED</span></p>
             </div>
-            <!--Chat -->
+
+            <!-- Chat Section -->
             <div class="card ai-agent-card">
                 <div class="agent-header">
                     <h3>🤖 BMS AI Agent</h3>
@@ -878,7 +881,7 @@
                     </div>
                 </div>
 
-                <!-- Input Control Bar -->
+                <!-- Single Unified Input Control Bar -->
                 <div class="chat-input-bar">
                     <input type="text" id="chat-input" placeholder="Ask BMS anything..."
                         onkeypress="if(event.key === 'Enter') sendMessage()" />
@@ -886,393 +889,383 @@
                     <button id="send-btn" class="primary-btn" onclick="sendMessage()">Send</button>
                 </div>
             </div>
-            <div class="chat-controls">
-                <input class="chat-field" type="text" id="chat-input" placeholder="Ask BMS anything..."
-                    onkeypress="if(event.key==='Enter') sendChat()" />
-                <button class="voice-btn" id="voice-btn" onclick="startVoice()">🎤</button>
-                <button class="send-btn" onclick="sendChat()">Send</button>
-            </div>
-        </div>
-    </div>
 
-    </div>
+            <script type="module">
+                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+                import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
-            authDomain: "ai-bms-dashboard.firebaseapp.com",
-            projectId: "ai-bms-dashboard",
-            storageBucket: "ai-bms-dashboard.firebasestorage.app",
-            messagingSenderId: "706812934530",
-            appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
-        };
+                const firebaseConfig = {
+                    apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
+                    authDomain: "ai-bms-dashboard.firebaseapp.com",
+                    projectId: "ai-bms-dashboard",
+                    storageBucket: "ai-bms-dashboard.firebasestorage.app",
+                    messagingSenderId: "706812934530",
+                    appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
+                };
 
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const API = "https://ai-bms-dashboard.onrender.com";
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const API = "https://ai-bms-dashboard.onrender.com";
 
-        onAuthStateChanged(auth, user => {
-            if (!user) { window.location.href = "login.html"; return; }
-            document.getElementById("user-name").textContent = user.displayName || user.email;
-        });
+                onAuthStateChanged(auth, user => {
+                    if (!user) { window.location.href = "login.html"; return; }
+                    document.getElementById("user-name").textContent = user.displayName || user.email;
+                });
 
-        document.getElementById("logout-btn").addEventListener("click", () => {
-            signOut(auth).then(() => window.location.href = "login.html");
-        });
-
-        // Charts
-        const labels = [];
-        const tempData = [], humData = [], voltData = [], currData = [];
-        const maxPts = 20;
-
-        const mkChart = (id, dataArr, color, label) => new Chart(document.getElementById(id), {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{
-                    label,
-                    data: dataArr,
-                    borderColor: color,
-                    backgroundColor: color.replace(')', ',0.07)').replace('rgb', 'rgba'),
-                    fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: color
-                }]
-            },
-            options: {
-                responsive: true, animation: { duration: 300 },
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { ticks: { color: '#444', maxTicksLimit: 5 }, grid: { color: 'rgba(255,255,255,0.04)' } },
-                    y: { ticks: { color: '#444' }, grid: { color: 'rgba(255,255,255,0.04)' } }
-                }
-            }
-        });
-
-        const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
-        const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
-        const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
-        const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
-
-        let lastTemp = null;
-        let fireAlertActive = false;
-        let lastSmokeState = false;
-        let lastSparkState = false;
-
-        // Voice alert function
-        function speakAlert(message) {
-            if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(message);
-            utterance.lang = 'en-IN';
-            utterance.rate = 0.9;
-            utterance.pitch = 1.2;
-            utterance.volume = 1;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        // Simulate smoke & spark from sensor data
-        function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
-            smokeDetected = smokeDetected !== undefined ? smokeDetected : temperature > 33;
-            sparkDetected = sparkDetected !== undefined ? sparkDetected : temperature > 35;
-            fireDetected = fireDetected !== undefined ? fireDetected : (smokeDetected && sparkDetected);
-
-            updateSmokeCard(smokeDetected, temperature);
-            updateSparkCard(sparkDetected, temperature);
-
-            fireDetected = smokeDetected && sparkDetected;
-
-            if (fireDetected && !fireAlertActive) {
-                fireAlertActive = true;
-                triggerFireAlert();
-            } else if (!fireDetected && fireAlertActive) {
-                fireAlertActive = false;
-                clearFireAlert();
-            }
-
-            // Individual sensor alerts
-            if (smokeDetected && !lastSmokeState) {
-                speakAlert("Warning! Smoke detected in the device. Please check immediately.");
-                addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
-            }
-            if (sparkDetected && !lastSparkState) {
-                speakAlert("Warning! Spark or flame detected. Danger! Take immediate action.");
-                addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
-            }
-
-            lastSmokeState = smokeDetected;
-            lastSparkState = sparkDetected;
-        }
-
-        function updateSmokeCard(detected, temp) {
-            const card = document.getElementById("smoke-card");
-            const value = document.getElementById("smoke-value");
-            const level = document.getElementById("smoke-level");
-            if (detected) {
-                card.className = "sensor-card danger";
-                value.className = "sensor-value sensor-danger";
-                value.textContent = "SMOKE!";
-                level.textContent = `High smoke level detected (Temp: ${temp}°C)`;
-            } else {
-                card.className = "sensor-card safe";
-                value.className = "sensor-value sensor-safe";
-                value.textContent = "CLEAR";
-                level.textContent = "No smoke detected";
-            }
-        }
-
-        function updateSparkCard(detected, temp) {
-            const card = document.getElementById("spark-card");
-            const value = document.getElementById("spark-value");
-            const level = document.getElementById("spark-level");
-            if (detected) {
-                card.className = "sensor-card danger";
-                value.className = "sensor-value sensor-danger";
-                value.textContent = "SPARK!";
-                level.textContent = `Flame/Spark detected (Temp: ${temp}°C)`;
-            } else {
-                card.className = "sensor-card safe";
-                value.className = "sensor-value sensor-safe";
-                value.textContent = "CLEAR";
-                level.textContent = "No spark detected";
-            }
-        }
-
-        function triggerFireAlert() {
-            const banner = document.getElementById("alert-banner");
-            banner.style.display = "block";
-            addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
-
-            // Repeat voice alert 3 times
-            speakAlert("Emergency! The device is on fire! Emergency! The device is on fire! Please evacuate immediately and call for help!");
-            setTimeout(() => speakAlert("Warning! Fire detected! The device is on fire! Evacuate now!"), 4000);
-            setTimeout(() => speakAlert("The device is on fire! The device is on fire! Take action immediately!"), 8000);
-        }
-
-        function clearFireAlert() {
-            document.getElementById("alert-banner").style.display = "none";
-            addChatAlert("✅ Safety sensors cleared. No fire detected.");
-            speakAlert("All clear. Safety sensors show no fire detected.");
-        }
-
-        function addChatAlert(message) {
-            const output = document.getElementById("chat-output");
-            output.innerHTML += `<div class="msg-alert">🚨 ${message}</div>`;
-            output.scrollTop = output.scrollHeight;
-        }
-
-        async function fetchData() {
-            try {
-                const res = await fetch(`${API}/data`);
-                const d = await res.json();
-
-                // Sensor cards
-                document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
-                document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
-                document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
-                document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
-
-                // Trend
-                if (lastTemp !== null) {
-                    const diff = (d.temperature - lastTemp).toFixed(1);
-                    document.getElementById("temp-trend").innerHTML =
-                        diff > 0 ? `<span style="color:#ff6644">▲ +${diff}°</span>` :
-                            diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
-                }
-                lastTemp = d.temperature;
+                document.getElementById("logout-btn").addEventListener("click", () => {
+                    signOut(auth).then(() => window.location.href = "login.html");
+                });
 
                 // Charts
-                const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                if (labels.length >= maxPts) {
-                    labels.shift(); tempData.shift(); humData.shift();
-                    voltData.shift(); currData.shift();
-                }
-                labels.push(now);
-                tempData.push(d.temperature);
-                humData.push(d.humidity);
-                voltData.push(d.voltage || 0);
-                currData.push(d.current || 0);
-                tChart.update(); hChart.update();
-                vChart.update(); cChart.update();
+                const labels = [];
+                const tempData = [], humData = [], voltData = [], currData = [];
+                const maxPts = 20;
 
-                // Device status
-                updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
-                updateReadOnlyDevice('light', d.devices?.light?.status || false);
-
-                // BMS device
-                const bmsOn = d.devices?.bms?.status || false;
-                const bmsSw = document.getElementById("switch-bms");
-                const bmsSt = document.getElementById("bms-status");
-                const bmsCard = document.getElementById("card-bms");
-                if (bmsSw) bmsSw.checked = bmsOn;
-                if (bmsSt) { bmsSt.textContent = bmsOn ? "ON" : "OFF"; bmsSt.className = `status-text ${bmsOn ? "status-on" : "status-off"}`; }
-                if (bmsCard) bmsCard.className = `device-card bms-card${bmsOn ? " active" : ""}`;
-
-                // Safety sensors
-                const safety = d.safety || {};
-                checkSafetySensors(
-                    d.temperature,
-                    d.humidity,
-                    safety.smoke,
-                    safety.spark || safety.flame,
-                    safety.fire
-                );
-
-            } catch (e) {
-                console.error("Fetch error:", e);
-            }
-        }
-
-        window.toggleEjection = async function (isEjecting) {
-            const statusElem = document.getElementById("ejection-status");
-            const switchElem = document.getElementById("switch-ejection");
-
-            if (isEjecting) {
-                const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
-                if (!confirmEject) {
-                    if (switchElem) switchElem.checked = false;
-                    return;
-                }
-            }
-            try {
-                const res = await fetch(`${API}/control/ejection`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ state: isEjecting ? "EJECTED" : "LOCKED" })
+                const mkChart = (id, dataArr, color, label) => new Chart(document.getElementById(id), {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label,
+                            data: dataArr,
+                            borderColor: color,
+                            backgroundColor: color.replace(')', ',0.07)').replace('rgb', 'rgba'),
+                            fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: color
+                        }]
+                    },
+                    options: {
+                        responsive: true, animation: { duration: 300 },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: { color: '#444', maxTicksLimit: 5 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                            y: { ticks: { color: '#444' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                        }
+                    }
                 });
-                if (res.ok) {
-                    statusElem.textContent = isEjecting ? "EJECTED ⚠️" : "LOCKED";
-                    statusElem.style.color = isEjecting ? "#ef4444" : "#4ade80";
+
+                const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
+                const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
+                const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
+                const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
+
+                let lastTemp = null;
+                let fireAlertActive = false;
+                let lastSmokeState = false;
+                let lastSparkState = false;
+
+                // Voice alert function
+                function speakAlert(message) {
+                    if (!('speechSynthesis' in window)) return;
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(message);
+                    utterance.lang = 'en-IN';
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.2;
+                    utterance.volume = 1;
+                    window.speechSynthesis.speak(utterance);
                 }
-            } catch (err) {
-                console.error("Ejection control error:", err);
-            }
-        }
 
-        function updateReadOnlyDevice(name, isOn) {
-            const slider = document.getElementById(`slider-${name}`);
-            const status = document.getElementById(`${name}-status`);
-            const card = document.getElementById(`card-${name}`);
-            if (slider) slider.className = `slider-readonly${isOn ? " on" : ""}`;
-            if (status) { status.textContent = isOn ? "ON" : "OFF"; status.className = `status-text ${isOn ? "status-on" : "status-off"}`; }
-            if (card) card.className = `device-card${isOn ? " active" : ""}`;
-        }
+                // Simulate smoke & spark from sensor data
+                function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
+                    smokeDetected = smokeDetected !== undefined ? smokeDetected : temperature > 33;
+                    sparkDetected = sparkDetected !== undefined ? sparkDetected : temperature > 35;
+                    fireDetected = fireDetected !== undefined ? fireDetected : (smokeDetected && sparkDetected);
 
-        setInterval(fetchData, 5000);
-        fetchData();
+                    updateSmokeCard(smokeDetected, temperature);
+                    updateSparkCard(sparkDetected, temperature);
 
-        // Keep Render awake
-        setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
+                    fireDetected = smokeDetected && sparkDetected;
 
-        // BMS Toggle
-        window.toggleBMS = async () => {
-            try {
-                const res = await fetch(`${API}/toggle/bms`, { method: "POST" });
-                const d = await res.json();
-                const sw = document.getElementById("switch-bms");
-                const st = document.getElementById("bms-status");
-                const card = document.getElementById("card-bms");
-                if (sw) sw.checked = d.status;
-                if (st) { st.textContent = d.status ? "ON" : "OFF"; st.className = `status-text ${d.status ? "status-on" : "status-off"}`; }
-                if (card) card.className = `device-card bms-card${d.status ? " active" : ""}`;
-            } catch (e) { console.error(e); }
-        };
+                    if (fireDetected && !fireAlertActive) {
+                        fireAlertActive = true;
+                        triggerFireAlert();
+                    } else if (!fireDetected && fireAlertActive) {
+                        fireAlertActive = false;
+                        clearFireAlert();
+                    }
 
-        // Bill
-        window.calculateBill = async () => {
-            const h = document.getElementById("hours-input").value || 24;
-            try {
-                const res = await fetch(`${API}/bill?hours=${h}`);
-                const d = await res.json();
-                document.getElementById("bill-result").textContent = `₹ ${d.bill_inr}`;
-                document.getElementById("bill-kwh").textContent = `${d.kwh} kWh over ${h} hours`;
-            } catch (e) { }
-        };
+                    // Individual sensor alerts
+                    if (smokeDetected && !lastSmokeState) {
+                        speakAlert("Warning! Smoke detected in the device. Please check immediately.");
+                        addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
+                    }
+                    if (sparkDetected && !lastSparkState) {
+                        speakAlert("Warning! Spark or flame detected. Danger! Take immediate action.");
+                        addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
+                    }
 
-        window.calcMonthly = async () => {
-            try {
-                const res = await fetch(`${API}/bill?hours=720`);
-                const d = await res.json();
-                document.getElementById("bill-result").textContent = `₹ ${d.bill_inr}`;
-                document.getElementById("bill-kwh").textContent = `${d.kwh} kWh — monthly estimate`;
-            } catch (e) { }
-        };
+                    lastSmokeState = smokeDetected;
+                    lastSparkState = sparkDetected;
+                }
 
-        // Chat
-        window.sendChat = async () => {
-            const input = document.getElementById("chat-input");
-            const output = document.getElementById("chat-output");
-            const msg = input.value.trim();
-            if (!msg) return;
-            output.innerHTML += `<div class="msg-you">You: ${msg}</div>`;
-            input.value = "";
-            output.scrollTop = output.scrollHeight;
-            try {
-                const res = await fetch(`${API}/chat`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: msg })
-                });
-                const d = await res.json();
-                output.innerHTML += `<div class="msg-ai">🤖 ${d.reply}</div>`;
-                output.scrollTop = output.scrollHeight;
-                setTimeout(fetchData, 800);
-            } catch (e) {
-                output.innerHTML += `<div class="msg-ai">⚠️ BMS Agent is waking up, try again in 30s</div>`;
-            }
-        };
+                function updateSmokeCard(detected, temp) {
+                    const card = document.getElementById("smoke-card");
+                    const value = document.getElementById("smoke-value");
+                    const level = document.getElementById("smoke-level");
+                    if (detected) {
+                        card.className = "sensor-card danger";
+                        value.className = "sensor-value sensor-danger";
+                        value.textContent = "SMOKE!";
+                        level.textContent = `High smoke level detected (Temp: ${temp}°C)`;
+                    } else {
+                        card.className = "sensor-card safe";
+                        value.className = "sensor-value sensor-safe";
+                        value.textContent = "CLEAR";
+                        level.textContent = "No smoke detected";
+                    }
+                }
 
-        // Voice input
-        window.startVoice = () => {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert("Use Chrome for voice support!");
-                return;
-            }
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const rec = new SR();
-            rec.lang = 'en-IN';
-            rec.interimResults = false;
-            const btn = document.getElementById("voice-btn");
-            btn.classList.add("listening");
-            btn.textContent = "🔴";
-            rec.start();
-            rec.onresult = (e) => {
-                document.getElementById("chat-input").value = e.results[0][0].transcript;
-                btn.classList.remove("listening");
-                btn.textContent = "🎤";
-                window.sendChat();
-            };
-            rec.onerror = rec.onend = () => {
-                btn.classList.remove("listening");
-                btn.textContent = "🎤";
-            };
-        };
+                function updateSparkCard(detected, temp) {
+                    const card = document.getElementById("spark-card");
+                    const value = document.getElementById("spark-value");
+                    const level = document.getElementById("spark-level");
+                    if (detected) {
+                        card.className = "sensor-card danger";
+                        value.className = "sensor-value sensor-danger";
+                        value.textContent = "SPARK!";
+                        level.textContent = `Flame/Spark detected (Temp: ${temp}°C)`;
+                    } else {
+                        card.className = "sensor-card safe";
+                        value.className = "sensor-value sensor-safe";
+                        value.textContent = "CLEAR";
+                        level.textContent = "No spark detected";
+                    }
+                }
 
-        // Wake word
-        const startWakeWord = () => {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const rec = new SR();
-            rec.lang = 'en-IN';
-            rec.continuous = true;
-            rec.interimResults = false;
-            rec.onresult = (e) => {
-                const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
-                if (t.includes("bms") || t.includes("hey bms")) {
+                function triggerFireAlert() {
+                    const banner = document.getElementById("alert-banner");
+                    banner.style.display = "block";
+                    addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
+
+                    // Repeat voice alert 3 times
+                    speakAlert("Emergency! The device is on fire! Emergency! The device is on fire! Please evacuate immediately and call for help!");
+                    setTimeout(() => speakAlert("Warning! Fire detected! The device is on fire! Evacuate now!"), 4000);
+                    setTimeout(() => speakAlert("The device is on fire! The device is on fire! Take action immediately!"), 8000);
+                }
+
+                function clearFireAlert() {
+                    document.getElementById("alert-banner").style.display = "none";
+                    addChatAlert("✅ Safety sensors cleared. No fire detected.");
+                    speakAlert("All clear. Safety sensors show no fire detected.");
+                }
+
+                function addChatAlert(message) {
                     const output = document.getElementById("chat-output");
-                    output.innerHTML += `<div class="msg-ai">🎤 BMS Agent activated! Listening...</div>`;
+                    output.innerHTML += `<div class="msg-alert">🚨 ${message}</div>`;
                     output.scrollTop = output.scrollHeight;
-                    setTimeout(() => window.startVoice(), 500);
                 }
-            };
-            rec.onend = () => { try { rec.start(); } catch (e) { } };
-            try { rec.start(); } catch (e) { }
-        };
 
-        setTimeout(startWakeWord, 2000);
-    </script>
+                async function fetchData() {
+                    try {
+                        const res = await fetch(`${API}/data`);
+                        const d = await res.json();
+
+                        // Sensor cards
+                        document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
+                        document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
+                        document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
+                        document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
+
+                        // Trend
+                        if (lastTemp !== null) {
+                            const diff = (d.temperature - lastTemp).toFixed(1);
+                            document.getElementById("temp-trend").innerHTML =
+                                diff > 0 ? `<span style="color:#ff6644">▲ +${diff}°</span>` :
+                                    diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
+                        }
+                        lastTemp = d.temperature;
+
+                        // Charts
+                        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        if (labels.length >= maxPts) {
+                            labels.shift(); tempData.shift(); humData.shift();
+                            voltData.shift(); currData.shift();
+                        }
+                        labels.push(now);
+                        tempData.push(d.temperature);
+                        humData.push(d.humidity);
+                        voltData.push(d.voltage || 0);
+                        currData.push(d.current || 0);
+                        tChart.update(); hChart.update();
+                        vChart.update(); cChart.update();
+
+                        // Device status
+                        updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
+                        updateReadOnlyDevice('light', d.devices?.light?.status || false);
+
+                        // BMS device
+                        const bmsOn = d.devices?.bms?.status || false;
+                        const bmsSw = document.getElementById("switch-bms");
+                        const bmsSt = document.getElementById("bms-status");
+                        const bmsCard = document.getElementById("card-bms");
+                        if (bmsSw) bmsSw.checked = bmsOn;
+                        if (bmsSt) { bmsSt.textContent = bmsOn ? "ON" : "OFF"; bmsSt.className = `status-text ${bmsOn ? "status-on" : "status-off"}`; }
+                        if (bmsCard) bmsCard.className = `device-card bms-card${bmsOn ? " active" : ""}`;
+
+                        // Safety sensors
+                        const safety = d.safety || {};
+                        checkSafetySensors(
+                            d.temperature,
+                            d.humidity,
+                            safety.smoke,
+                            safety.spark || safety.flame,
+                            safety.fire
+                        );
+
+                    } catch (e) {
+                        console.error("Fetch error:", e);
+                    }
+                }
+
+                window.toggleEjection = async function (isEjecting) {
+                    const statusElem = document.getElementById("ejection-status");
+                    const switchElem = document.getElementById("switch-ejection");
+
+                    if (isEjecting) {
+                        const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
+                        if (!confirmEject) {
+                            if (switchElem) switchElem.checked = false;
+                            return;
+                        }
+                    }
+                    try {
+                        const res = await fetch(`${API}/control/ejection`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ state: isEjecting ? "EJECTED" : "LOCKED" })
+                        });
+                        if (res.ok) {
+                            statusElem.textContent = isEjecting ? "EJECTED ⚠️" : "LOCKED";
+                            statusElem.style.color = isEjecting ? "#ef4444" : "#4ade80";
+                        }
+                    } catch (err) {
+                        console.error("Ejection control error:", err);
+                    }
+                }
+
+                function updateReadOnlyDevice(name, isOn) {
+                    const slider = document.getElementById(`slider-${name}`);
+                    const status = document.getElementById(`${name}-status`);
+                    const card = document.getElementById(`card-${name}`);
+                    if (slider) slider.className = `slider-readonly${isOn ? " on" : ""}`;
+                    if (status) { status.textContent = isOn ? "ON" : "OFF"; status.className = `status-text ${isOn ? "status-on" : "status-off"}`; }
+                    if (card) card.className = `device-card${isOn ? " active" : ""}`;
+                }
+
+                setInterval(fetchData, 5000);
+                fetchData();
+
+                // Keep Render awake
+                setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
+
+                // BMS Toggle
+                window.toggleBMS = async () => {
+                    try {
+                        const res = await fetch(`${API}/toggle/bms`, { method: "POST" });
+                        const d = await res.json();
+                        const sw = document.getElementById("switch-bms");
+                        const st = document.getElementById("bms-status");
+                        const card = document.getElementById("card-bms");
+                        if (sw) sw.checked = d.status;
+                        if (st) { st.textContent = d.status ? "ON" : "OFF"; st.className = `status-text ${d.status ? "status-on" : "status-off"}`; }
+                        if (card) card.className = `device-card bms-card${d.status ? " active" : ""}`;
+                    } catch (e) { console.error(e); }
+                };
+
+                // Bill
+                window.calculateBill = async () => {
+                    const h = document.getElementById("hours-input").value || 24;
+                    try {
+                        const res = await fetch(`${API}/bill?hours=${h}`);
+                        const d = await res.json();
+                        document.getElementById("bill-result").textContent = `₹ ${d.bill_inr}`;
+                        document.getElementById("bill-kwh").textContent = `${d.kwh} kWh over ${h} hours`;
+                    } catch (e) { }
+                };
+
+                window.calcMonthly = async () => {
+                    try {
+                        const res = await fetch(`${API}/bill?hours=720`);
+                        const d = await res.json();
+                        document.getElementById("bill-result").textContent = `₹ ${d.bill_inr}`;
+                        document.getElementById("bill-kwh").textContent = `${d.kwh} kWh — monthly estimate`;
+                    } catch (e) { }
+                };
+
+                // Chat
+                window.sendChat = async () => {
+                    const input = document.getElementById("chat-input");
+                    const output = document.getElementById("chat-output");
+                    const msg = input.value.trim();
+                    if (!msg) return;
+                    output.innerHTML += `<div class="msg-you">You: ${msg}</div>`;
+                    input.value = "";
+                    output.scrollTop = output.scrollHeight;
+                    try {
+                        const res = await fetch(`${API}/chat`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ message: msg })
+                        });
+                        const d = await res.json();
+                        output.innerHTML += `<div class="msg-ai">🤖 ${d.reply}</div>`;
+                        output.scrollTop = output.scrollHeight;
+                        setTimeout(fetchData, 800);
+                    } catch (e) {
+                        output.innerHTML += `<div class="msg-ai">⚠️ BMS Agent is waking up, try again in 30s</div>`;
+                    }
+                };
+
+                // Voice input
+                window.startVoice = () => {
+                    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                        alert("Use Chrome for voice support!");
+                        return;
+                    }
+                    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const rec = new SR();
+                    rec.lang = 'en-IN';
+                    rec.interimResults = false;
+                    const btn = document.getElementById("voice-btn");
+                    btn.classList.add("listening");
+                    btn.textContent = "🔴";
+                    rec.start();
+                    rec.onresult = (e) => {
+                        document.getElementById("chat-input").value = e.results[0][0].transcript;
+                        btn.classList.remove("listening");
+                        btn.textContent = "🎤";
+                        window.sendChat();
+                    };
+                    rec.onerror = rec.onend = () => {
+                        btn.classList.remove("listening");
+                        btn.textContent = "🎤";
+                    };
+                };
+
+                // Wake word
+                const startWakeWord = () => {
+                    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+                    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const rec = new SR();
+                    rec.lang = 'en-IN';
+                    rec.continuous = true;
+                    rec.interimResults = false;
+                    rec.onresult = (e) => {
+                        const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+                        if (t.includes("bms") || t.includes("hey bms")) {
+                            const output = document.getElementById("chat-output");
+                            output.innerHTML += `<div class="msg-ai">🎤 BMS Agent activated! Listening...</div>`;
+                            output.scrollTop = output.scrollHeight;
+                            setTimeout(() => window.startVoice(), 500);
+                        }
+                    };
+                    rec.onend = () => { try { rec.start(); } catch (e) { } };
+                    try { rec.start(); } catch (e) { }
+                };
+
+                setTimeout(startWakeWord, 2000);
+            </script>
 </body>
 
 </html>
