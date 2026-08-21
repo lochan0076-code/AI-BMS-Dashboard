@@ -35,8 +35,8 @@ def generate_telemetry():
     needs_maintenance = (temp > 40.0 or voltage < 44.0)
 
     # Dynamic safety alerts
-    smoke = temp > 33.0
-    spark = temp > 35.0
+    smoke = temp > 50.0
+    spark = temp > 60.0
     flame = spark
     fire = smoke and spark
 

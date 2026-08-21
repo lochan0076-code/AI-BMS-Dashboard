@@ -1068,10 +1068,18 @@
                     speakAlert("All clear. Safety sensors show no fire detected.");
                 }
 
-                function addChatAlert(message) {
-                    const output = document.getElementById("chat-output");
-                    output.innerHTML += `<div class="msg-alert">🚨 ${message}</div>`;
-                    output.scrollTop = output.scrollHeight;
+                function addChatAlert(msg) {
+                    // Looks for 'chat-messages' first, then falls back to 'chat-box' or 'ai-chat-messages'
+                    const chatContainer = document.getElementById("chat-messages")
+                        || document.getElementById("chat-box")
+                        || document.querySelector(".chat-messages");
+
+                    if (!chatContainer) return; // Safely exits if element isn't found instead of throwing TypeError
+
+                    const div = document.createElement("div");
+                    div.className = "chat-msg alert-msg";
+                    div.innerHTML = msg;
+                    chatContainer.appendChild(div);
                 }
 
                 async function fetchData() {
