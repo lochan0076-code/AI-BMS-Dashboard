@@ -19,6 +19,8 @@ def _find_bms_data_path():
             return candidate
     return None
 
+    
+
 def generate_telemetry():
     """Generates complete telemetry with dynamic toggles and maintenance health logic."""
     fan_status = random.choice([True, False])
@@ -89,6 +91,20 @@ def toggle_device(name: str):
     except Exception as e:
         print(f"Error toggling BMS: {e}")
         return None
+
+# This was changed in 21/08/2026 at 8:28 PM
+FALLBACK_BMS_DATA = generate_telemetry()
+
+def get_sensor_data():
+    """Returns telemetry generated on demand or read from JSON."""
+    json_path = _find_bms_data_path()
+    if json_path and os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return generate_telemetry()
 
 if __name__ == "__main__":
     json_path = _find_bms_data_path() or "bms_data.json"

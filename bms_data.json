@@ -1,34 +1,39 @@
 {
-  "device_id": "AI-BMS-PI3B",
-  "timestamp": "2026-08-12T15:30:00+05:30",
-  "online": true,
-  "temperature": 28.6,
-  "humidity": 61.4,
-  "voltage": 51.8,
-  "current": 2.35,
-  "power": 121.73,
-  "battery_soc": 78.5,
-  "battery_status": "NORMAL",
-  "safety": {
-    "smoke": false,
-    "spark": false,
-    "flame": false,
-    "fire": false
-  },
-  "devices": {
-    "fan": {
-      "status": false,
-      "watts": 50
+    "device_id": "AI-BMS-PI3B",
+    "timestamp": "2026-08-21T20:30:04.984529+05:30",
+    "online": true,
+    "temperature": 39.5,
+    "humidity": 60.7,
+    "voltage": 45.9,
+    "current": 3.01,
+    "power": 121.73,
+    "battery_soc": 81,
+    "battery_status": "NORMAL",
+    "needs_maintenance": false,
+    "safety": {
+        "smoke": true,
+        "spark": true,
+        "flame": true,
+        "fire": true
     },
-    "light": {
-      "status": true,
-      "watts": 10
+    "devices": {
+        "fan": {
+            "status": false,
+            "watts": 50
+        },
+        "light": {
+            "status": true,
+            "watts": 10
+        },
+        "bms": {
+            "status": true,
+            "watts": 5
+        }
     },
-    "bms": {
-      "status": true,
-      "watts": 5
-    }
-  },
-  "alerts": [],
-  "test_mode": false
+    "alerts": [
+        "Smoke detected",
+        "Spark/Flame detected",
+        "CRITICAL: Fire Hazard Detected"
+    ],
+    "test_mode": false
 }

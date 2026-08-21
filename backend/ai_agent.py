@@ -1,6 +1,8 @@
 import os
+import time
 from google import genai
 from backend.pi_mock import get_sensor_data, toggle_device
+from google.api_core.exceptions import ServiceUnavailable
 
 # Initializes Google GenAI client using the GOOGLE_API_KEY environment variable
 client = genai.Client()
@@ -64,3 +66,16 @@ System Status:
 
     except Exception as e:
         return f"BMS Agent error: {str(e)}"
+
+def get_ai_response(prompt):
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            # Your model call here
+            response = model.generate_content(prompt)
+            return response.text
+        except ServiceUnavailable:
+            if attempt < max_retries - 1:
+                time.sleep(2)  # Wait 2 seconds before retrying
+                continue
+            return "The AI agent is currently busy due to high traffic. Please try again in a few moments."
