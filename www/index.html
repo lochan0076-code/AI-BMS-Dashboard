@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07071a">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+    <title>AI BMS Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #07071a;
+            font-family: 'Segoe UI', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 150, 255, 0.15);
+            padding: 14px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #0066ff, #00aaff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .nav-left h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .nav-left h1 span {
+            color: #00aaff;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 255, 100, 0.08);
+            border: 1px solid rgba(0, 255, 100, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #00ff88;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: scale(0.8)
+            }
+        }
+
+        #user-name {
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        #logout-btn {
+            background: rgba(255, 50, 50, 0.12);
+            border: 1px solid rgba(255, 50, 50, 0.25);
+            color: #ff6666;
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        #logout-btn:hover {
+            background: rgba(255, 50, 50, 0.25);
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 30, 30, 0.95);
+            border: 2px solid #ff0000;
+            border-radius: 16px;
+            padding: 16px 28px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            z-index: 9999;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            animation: alertPulse 0.8s infinite;
+            min-width: 320px;
+        }
+
+        @keyframes alertPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            }
+
+            50% {
+                box-shadow: 0 0 80px rgba(255, 0, 0, 0.9);
+            }
+        }
+
+        .container {
+            padding: 24px 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #444;
+            margin-bottom: 14px;
+            margin-top: 28px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.12);
+            border-radius: 16px;
+            padding: 22px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 150, 255, 0.35);
+            box-shadow: 0 0 25px rgba(0, 150, 255, 0.07);
+        }
+
+        .card-label {
+            color: #555;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .card-big {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .card-big span {
+            font-size: 16px;
+            color: #444;
+            font-weight: 400;
+        }
+
+        .card-sub {
+            color: #444;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .card.danger {
+            border-color: rgba(255, 50, 50, 0.6) !important;
+            background: rgba(255, 30, 30, 0.08) !important;
+            animation: alertPulse 1s infinite;
+        }
+
+        /* Sensor Status Cards */
+        .sensor-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.12);
+            border-radius: 16px;
+            padding: 22px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .sensor-card.safe {
+            border-color: rgba(0, 255, 100, 0.3);
+            background: rgba(0, 255, 100, 0.04);
+        }
+
+        .sensor-card.danger {
+            border-color: rgba(255, 50, 50, 0.6);
+            background: rgba(255, 30, 30, 0.1);
+            animation: alertPulse 0.8s infinite;
+        }
+
+        .sensor-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .sensor-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .sensor-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .sensor-safe {
+            color: #00ff88;
+        }
+
+        .sensor-danger {
+            color: #ff4444;
+        }
+
+        /* Device Cards */
+        .device-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.12);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .device-card.active {
+            border-color: rgba(0, 255, 100, 0.4);
+            background: rgba(0, 255, 100, 0.04);
+        }
+
+        .device-card.bms-card {
+            cursor: pointer;
+        }
+
+        .device-card.bms-card:hover {
+            border-color: rgba(0, 150, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .device-emoji {
+            font-size: 44px;
+            margin-bottom: 12px;
+        }
+
+        .device-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .device-watts {
+            color: #444;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        /* Read-only Toggle */
+        .switch-readonly {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+            pointer-events: none;
+        }
+
+        .switch-readonly input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider-readonly {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 28px;
+            transition: .3s;
+            background: rgba(255, 50, 50, 0.25);
+            border: 1px solid rgba(255, 50, 50, 0.5);
+        }
+
+        .slider-readonly:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: #ff4444;
+            box-shadow: 0 0 8px #ff4444;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        .slider-readonly.on {
+            background: rgba(0, 255, 100, 0.2);
+            border-color: rgba(0, 255, 100, 0.4);
+        }
+
+        .slider-readonly.on:before {
+            transform: translateX(26px);
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        /* Clickable Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 50, 50, 0.25);
+            border: 1px solid rgba(255, 50, 50, 0.5);
+            transition: .3s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: #ff4444;
+            box-shadow: 0 0 8px #ff4444;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background: rgba(0, 255, 100, 0.2);
+            border-color: rgba(0, 255, 100, 0.4);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .status-text {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .status-on {
+            color: #00ff88;
+        }
+
+        .status-off {
+            color: #ff4444;
+        }
+
+        /* Chart */
+        .chart-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 150, 255, 0.12);
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        canvas {
+            max-height: 170px;
+        }
+
+
+        /* AI Agent Container */
+        .ai-agent-card {
+            grid-column: 1 / -1;
+            /* Spans full dashboard width */
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 18px;
+            box-sizing: border-box;
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .agent-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #f8fafc;
+        }
+
+        .agent-badge {
+            background: rgba(37, 99, 235, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Chat Log Area */
+        .chat-box {
+            min-height: 180px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #020617;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bot-msg,
+        .user-msg {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            max-width: 85%;
+            word-break: break-word;
+        }
+
+        .bot-msg {
+            background: #1e293b;
+            color: #e2e8f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .user-msg {
+            background: #2563eb;
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        /* Input Controls Bar */
+        .chat-input-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #020617;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .chat-input-bar input:focus {
+            border-color: #2563eb;
+        }
+
+        .icon-btn,
+        .primary-btn {
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .icon-btn {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 12px 14px;
+            font-size: 1rem;
+        }
+
+        .icon-btn:hover {
+            background: #334155;
+        }
+
+        .primary-btn {
+            background: #2563eb;
+            color: #ffffff;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+        }
+
+        .primary-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Mobile Devices Breakpoint (Smartphones) */
+        @media (max-width: 640px) {
+            .ai-agent-card {
+                padding: 12px;
+            }
+
+            .chat-box {
+                min-height: 150px;
+                max-height: 220px;
+            }
+
+            .bot-msg,
+            .user-msg {
+                font-size: 0.85rem;
+                max-width: 90%;
+            }
+
+            .chat-input-bar input {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+
+            .primary-btn {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+
+            .icon-btn {
+                padding: 10px;
+            }
+        }
+
+        /* Chat */
+        .chat-messages {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.7;
+            scrollbar-width: thin;
+        }
+
+        .msg-you {
+            color: #00aaff;
+            margin-bottom: 6px;
+        }
+
+        .msg-ai {
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .msg-alert {
+            color: #ff4444;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-field {
+            flex: 1;
+            padding: 11px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .chat-field:focus {
+            border-color: #00aaff;
+        }
+
+        .send-btn {
+            padding: 11px 16px;
+            background: linear-gradient(135deg, #0055dd, #0099ff);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .voice-btn {
+            padding: 11px 14px;
+            background: rgba(255, 50, 50, 0.15);
+            border: 1px solid rgba(255, 50, 50, 0.25);
+            border-radius: 10px;
+            color: #ff6666;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .voice-btn.listening {
+            background: rgba(255, 50, 50, 0.35);
+            animation: voicePulse 1s infinite;
+        }
+
+        @keyframes voicePulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 50, 50, 0.4)
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(255, 50, 50, 0)
+            }
+        }
+
+        .wake-banner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 150, 255, 0.15);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 12px;
+            color: #00aaff;
+            backdrop-filter: blur(10px);
+            z-index: 998;
+        }
+
+        @media(max-width:768px) {
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            nav {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Fire Alert Banner -->
+    <div class="alert-banner" id="alert-banner">
+        🔥 DANGER! FIRE DETECTED! EVACUATE IMMEDIATELY! 🔥
+    </div>
+
+    <nav>
+        <div class="nav-left">
+            <div class="nav-logo">⚡</div>
+            <h1><span>BMS</span> AI Dashboard</h1>
+        </div>
+        <div class="nav-right">
+            <div class="live-badge">
+                <div class="live-dot"></div>Live
+            </div>
+            <span id="user-name"></span>
+            <button id="logout-btn">⏻ Logout</button>
+        </div>
+    </nav>
+
+    <div class="wake-banner">🎤 Say "<b>BMS</b>" to activate voice</div>
+
+    <div class="container">
+
+        <!-- Sensor Cards -->
+        <div class="section-label">📡 Live Sensor Data</div>
+        <div class="grid-4">
+            <div class="card">
+                <div class="card-label">🌡️ Temperature</div>
+                <div class="card-big" id="temperature">--<span>°C</span></div>
+                <div class="card-sub" id="temp-trend">Updating...</div>
+            </div>
+            <div class="card">
+                <div class="card-label">💧 Humidity</div>
+                <div class="card-big" id="humidity">--<span>%</span></div>
+                <div class="card-sub">Live reading</div>
+            </div>
+            <div class="card">
+                <div class="card-label">⚡ Voltage</div>
+                <div class="card-big" id="voltage">--<span>V</span></div>
+                <div class="card-sub">Supply voltage</div>
+            </div>
+            <div class="card">
+                <div class="card-label">🔋 Current</div>
+                <div class="card-big" id="current">--<span>A</span></div>
+                <div class="card-sub">Load current</div>
+            </div>
+        </div>
+
+        <!-- Smoke & Spark Sensors -->
+        <div class="section-label">🔥 Safety Sensors</div>
+        <div class="grid-2">
+            <div class="sensor-card safe" id="smoke-card">
+                <div class="sensor-icon">💨</div>
+                <div class="sensor-name">Smoke Sensor</div>
+                <div class="sensor-value sensor-safe" id="smoke-value">CLEAR</div>
+                <div style="font-size:12px;color:#555;margin-top:6px" id="smoke-level">No smoke detected</div>
+            </div>
+            <div class="sensor-card safe" id="spark-card">
+                <div class="sensor-icon">⚡</div>
+                <div class="sensor-name">Spark / Flame Sensor</div>
+                <div class="sensor-value sensor-safe" id="spark-value">CLEAR</div>
+                <div style="font-size:12px;color:#555;margin-top:6px" id="spark-level">No spark detected</div>
+            </div>
+        </div>
+
+        <!-- Graphs -->
+        <div class="section-label">📊 Live Graphs</div>
+        <div class="grid-2">
+            <div class="chart-card">
+                <div class="chart-title">🌡️ Temperature History</div>
+                <canvas id="tempChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">💧 Humidity History</div>
+                <canvas id="humChart"></canvas>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="chart-card">
+                <div class="chart-title">⚡ Voltage History</div>
+                <canvas id="voltChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">🔋 Current History</div>
+                <canvas id="currChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Device Status -->
+        <div class="section-label">🔌 Device Status & BMS Control</div>
+        <div class="grid-3">
+            <div class="device-card" id="card-fan">
+                <div class="device-emoji">🌀</div>
+                <div class="device-name">Fan</div>
+                <div class="device-watts">50W · Status Only</div>
+                <div class="switch-readonly">
+                    <input type="checkbox" id="switch-fan" disabled>
+                    <span class="slider-readonly" id="slider-fan"></span>
+                </div>
+                <div id="fan-status" class="status-text status-off">OFF</div>
+            </div>
+
+            <div class="device-card" id="card-light">
+                <div class="device-emoji">💡</div>
+                <div class="device-name">Light</div>
+                <div class="device-watts">10W · Status Only</div>
+                <div class="switch-readonly">
+                    <input type="checkbox" id="switch-light" disabled>
+                    <span class="slider-readonly" id="slider-light"></span>
+                </div>
+                <div id="light-status" class="status-text status-off">OFF</div>
+            </div>
+
+            <div class="card" id="card-ejection">
+                <h3>🔋 Battery Ejection System</h3>
+                <p style="font-size: 0.85rem; color: #888;">Emergency Mechanical Release</p>
+                <label class="switch">
+                    <input type="checkbox" id="switch-ejection" onchange="toggleEjection(this.checked)">
+                    <span class="slider round"></span>
+                </label>
+                <p>Status: <span id="ejection-status" style="font-weight: bold; color: #4ade80;">LOCKED</span></p>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="card ai-agent-card">
+                <div class="agent-header">
+                    <h3>🤖 BMS AI Agent</h3>
+                    <span class="agent-badge">Gemini 3.6 Flash</span>
+                </div>
+
+                <!-- Scrollable Chat History Box -->
+                <div id="chat-box" class="chat-box">
+                    <div class="bot-msg">
+                        👋 Hi! I am your BMS AI Agent. Say <b>"BMS"</b> or tap 🎤 to use voice. I monitor sensors,
+                        detect fire hazards, and control your BMS device!
+                    </div>
+                </div>
+
+                <!-- Single Unified Input Control Bar -->
+                <div class="chat-input-bar">
+                    <input type="text" id="chat-input" placeholder="Ask BMS anything..."
+                        onkeypress="if(event.key === 'Enter') sendMessage()" />
+                    <button id="mic-btn" class="icon-btn" onclick="startVoiceInput()" title="Voice Input">🎤</button>
+                    <button id="send-btn" class="primary-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+
+            <script type="module">
+                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+                import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+                const firebaseConfig = {
+                    apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
+                    authDomain: "ai-bms-dashboard.firebaseapp.com",
+                    projectId: "ai-bms-dashboard",
+                    storageBucket: "ai-bms-dashboard.firebasestorage.app",
+                    messagingSenderId: "706812934530",
+                    appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
+                };
+
+
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const API = "https://ai-bms-dashboard.onrender.com";
+
+                onAuthStateChanged(auth, user => {
+                    if (!user) { window.location.href = "login.html"; return; }
+                    document.getElementById("user-name").textContent = user.displayName || user.email;
+                });
+
+                document.getElementById("logout-btn").addEventListener("click", () => {
+                    signOut(auth).then(() => window.location.href = "login.html");
+                });
+
+                // Charts
+                const labels = [];
+                const tempData = [], humData = [], voltData = [], currData = [];
+                const maxPts = 20;
+
+                const mkChart = (id, dataArr, color, label) => new Chart(document.getElementById(id), {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label,
+                            data: dataArr,
+                            borderColor: color,
+                            backgroundColor: color.replace(')', ',0.07)').replace('rgb', 'rgba'),
+                            fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: color
+                        }]
+                    },
+                    options: {
+                        responsive: true, animation: { duration: 300 },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: { color: '#444', maxTicksLimit: 5 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                            y: { ticks: { color: '#444' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                        }
+                    }
+                });
+
+                const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
+                const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
+                const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
+                const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
+
+                let lastTemp = null;
+                let fireAlertActive = false;
+                let lastSmokeState = false;
+                let lastSparkState = false;
+
+                // Voice alert function
+                function speakAlert(message) {
+                    if (!('speechSynthesis' in window)) return;
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(message);
+                    utterance.lang = 'en-IN';
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.2;
+                    utterance.volume = 1;
+                    window.speechSynthesis.speak(utterance);
+                }
+
+                // Simulate smoke & spark from sensor data
+                function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
+                    smokeDetected = smokeDetected !== undefined ? smokeDetected : temperature > 33;
+                    sparkDetected = sparkDetected !== undefined ? sparkDetected : temperature > 35;
+                    fireDetected = fireDetected !== undefined ? fireDetected : (smokeDetected && sparkDetected);
+
+                    updateSmokeCard(smokeDetected, temperature);
+                    updateSparkCard(sparkDetected, temperature);
+
+                    fireDetected = smokeDetected && sparkDetected;
+
+                    if (fireDetected && !fireAlertActive) {
+                        fireAlertActive = true;
+                        triggerFireAlert();
+                    } else if (!fireDetected && fireAlertActive) {
+                        fireAlertActive = false;
+                        clearFireAlert();
+                    }
+
+                    // Individual sensor alerts
+                    if (smokeDetected && !lastSmokeState) {
+                        speakAlert("Warning! Smoke detected in the device. Please check immediately.");
+                        addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
+                    }
+                    if (sparkDetected && !lastSparkState) {
+                        speakAlert("Warning! Spark or flame detected. Danger! Take immediate action.");
+                        addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
+                    }
+
+                    lastSmokeState = smokeDetected;
+                    lastSparkState = sparkDetected;
+                }
+
+                function updateSmokeCard(detected, temp) {
+                    const card = document.getElementById("smoke-card");
+                    const value = document.getElementById("smoke-value");
+                    const level = document.getElementById("smoke-level");
+                    if (detected) {
+                        card.className = "sensor-card danger";
+                        value.className = "sensor-value sensor-danger";
+                        value.textContent = "SMOKE!";
+                        level.textContent = `High smoke level detected (Temp: ${temp}°C)`;
+                    } else {
+                        card.className = "sensor-card safe";
+                        value.className = "sensor-value sensor-safe";
+                        value.textContent = "CLEAR";
+                        level.textContent = "No smoke detected";
+                    }
+                }
+
+                function updateSparkCard(detected, temp) {
+                    const card = document.getElementById("spark-card");
+                    const value = document.getElementById("spark-value");
+                    const level = document.getElementById("spark-level");
+                    if (detected) {
+                        card.className = "sensor-card danger";
+                        value.className = "sensor-value sensor-danger";
+                        value.textContent = "SPARK!";
+                        level.textContent = `Flame/Spark detected (Temp: ${temp}°C)`;
+                    } else {
+                        card.className = "sensor-card safe";
+                        value.className = "sensor-value sensor-safe";
+                        value.textContent = "CLEAR";
+                        level.textContent = "No spark detected";
+                    }
+                }
+
+                function triggerFireAlert() {
+                    const banner = document.getElementById("alert-banner");
+                    banner.style.display = "block";
+                    addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
+
+                    // Repeat voice alert 3 times
+                    speakAlert("Emergency! The device is on fire! Emergency! The device is on fire! Please evacuate immediately and call for help!");
+                    setTimeout(() => speakAlert("Warning! Fire detected! The device is on fire! Evacuate now!"), 4000);
+                    setTimeout(() => speakAlert("The device is on fire! The device is on fire! Take action immediately!"), 8000);
+                }
+
+                function clearFireAlert() {
+                    document.getElementById("alert-banner").style.display = "none";
+                    addChatAlert("✅ Safety sensors cleared. No fire detected.");
+                    speakAlert("All clear. Safety sensors show no fire detected.");
+                }
+
+                function addChatAlert(message) {
+                    const output = document.getElementById("chat-output");
+                    output.innerHTML += `<div class="msg-alert">🚨 ${message}</div>`;
+                    output.scrollTop = output.scrollHeight;
+                }
+
+                async function fetchData() {
+                    try {
+                        const res = await fetch(`${API}/data`);
+                        const d = await res.json();
+
+                        // Sensor cards
+                        document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
+                        document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
+                        document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
+                        document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
+
+                        // Trend
+                        if (lastTemp !== null) {
+                            const diff = (d.temperature - lastTemp).toFixed(1);
+                            document.getElementById("temp-trend").innerHTML =
+                                diff > 0 ? `<span style="color:#ff6644">▲ +${diff}°</span>` :
+                                    diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
+                        }
+                        lastTemp = d.temperature;
+
+                        // Charts
+                        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        if (labels.length >= maxPts) {
+                            labels.shift(); tempData.shift(); humData.shift();
+                            voltData.shift(); currData.shift();
+                        }
+                        labels.push(now);
+                        tempData.push(d.temperature);
+                        humData.push(d.humidity);
+                        voltData.push(d.voltage || 0);
+                        currData.push(d.current || 0);
+                        tChart.update(); hChart.update();
+                        vChart.update(); cChart.update();
+
+                        // Device status
+                        updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
+                        updateReadOnlyDevice('light', d.devices?.light?.status || false);
+
+                        // BMS device
+                        const bmsOn = d.devices?.bms?.status || false;
+                        const bmsSw = document.getElementById("switch-bms");
+                        const bmsSt = document.getElementById("bms-status");
+                        const bmsCard = document.getElementById("card-bms");
+                        if (bmsSw) bmsSw.checked = bmsOn;
+                        if (bmsSt) { bmsSt.textContent = bmsOn ? "ON" : "OFF"; bmsSt.className = `status-text ${bmsOn ? "status-on" : "status-off"}`; }
+                        if (bmsCard) bmsCard.className = `device-card bms-card${bmsOn ? " active" : ""}`;
+
+                        // Safety sensors
+                        const safety = d.safety || {};
+                        checkSafetySensors(
+                            d.temperature,
+                            d.humidity,
+                            safety.smoke,
+                            safety.spark || safety.flame,
+                            safety.fire
+                        );
+
+                    } catch (e) {
+                        console.error("Fetch error:", e);
+                    }
+                }
+
+                window.toggleEjection = async function (isEjecting) {
+                    const statusElem = document.getElementById("ejection-status");
+                    const switchElem = document.getElementById("switch-ejection");
+
+                    if (isEjecting) {
+                        const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
+                        if (!confirmEject) {
+                            if (switchElem) switchElem.checked = false;
+                            return;
+                        }
+                    }
+                    try {
+                        const res = await fetch(`${API}/control/ejection`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ state: isEjecting ? "EJECTED" : "LOCKED" })
+                        });
+                        if (res.ok) {
+                            statusElem.textContent = isEjecting ? "EJECTED ⚠️" : "LOCKED";
+                            statusElem.style.color = isEjecting ? "#ef4444" : "#4ade80";
+                        }
+                    } catch (err) {
+                        console.error("Ejection control error:", err);
+                    }
+                }
+
+                function updateReadOnlyDevice(name, isOn) {
+                    const slider = document.getElementById(`slider-${name}`);
+                    const status = document.getElementById(`${name}-status`);
+                    const card = document.getElementById(`card-${name}`);
+                    if (slider) slider.className = `slider-readonly${isOn ? " on" : ""}`;
+                    if (status) { status.textContent = isOn ? "ON" : "OFF"; status.className = `status-text ${isOn ? "status-on" : "status-off"}`; }
+                    if (card) card.className = `device-card${isOn ? " active" : ""}`;
+                }
+
+                setInterval(fetchData, 5000);
+                fetchData();
+
+                // Keep Render awake
+                setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
+
+                // BMS Toggle
+                window.toggleBMS = async () => {
+                    try {
+                        const res = await fetch(`${API}/toggle/bms`, { method: "POST" });
+                        const d = await res.json();
+                        const sw = document.getElementById("switch-bms");
+                        const st = document.getElementById("bms-status");
+                        const card = document.getElementById("card-bms");
+                        if (sw) sw.checked = d.status;
+                        if (st) { st.textContent = d.status ? "ON" : "OFF"; st.className = `status-text ${d.status ? "status-on" : "status-off"}`; }
+                        if (card) card.className = `device-card bms-card${d.status ? " active" : ""}`;
+                    } catch (e) { console.error(e); }
+                };
+
+                // Bill
+                window.calculateBill = async () => {
+                    const h = document.getElementById("hours-input").value || 24;
+                    try {
+                        const res = await fetch(`${API}/bill?hours=${h}`);
+                        const d = await res.json();
+                        document.getElementById("bill-result").textContent = `₹ ${d.bill_inr}`;
+                        document.getElementById("bill-kwh").textContent = `${d.kwh} kWh over ${h} hours`;
+                    } catch (e) { }
+                };
+
+                window.calcMonthly = async () => {
+                    try {
+                        const res = await fetch(`${API}/bill?hours=720`);
+                        const d = await res.json();
+                        document.getElementById("bill-result").textContent = `₹ ${d.bill_inr}`;
+                        document.getElementById("bill-kwh").textContent = `${d.kwh} kWh — monthly estimate`;
+                    } catch (e) { }
+                };
+
+                // Send Chat Message Handler
+                window.sendMessage = async function () {
+                    const inputField = document.getElementById("chat-input");
+                    const chatBox = document.getElementById("chat-box");
+
+                    if (!inputField || !chatBox) return;
+
+                    const text = inputField.value.trim();
+                    if (!text) return;
+
+                    // Fixed: Using backticks (`) instead of single quotes (') for template literals
+                    const userDiv = document.createElement("div");
+                    userDiv.className = "user-msg";
+                    userDiv.style.margin = "8px 0";
+                    userDiv.style.textAlign = "right";
+                    userDiv.innerHTML = `<span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 8px; display: inline-block;">${text}</span>`;
+                    chatBox.appendChild(userDiv);
+
+                    inputField.value = "";
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    const botDiv = document.createElement("div");
+                    botDiv.className = "bot-msg";
+                    botDiv.style.margin = "8px 0";
+                    botDiv.innerHTML = `<span style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; display: inline-block;">Thinking...</span>`;
+                    chatBox.appendChild(botDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    try {
+                        const response = await fetch(`${API}/chat`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ message: text })
+                        });
+
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                        const data = await response.json();
+                        const reply = data.reply || data.response || "No response text received from backend.";
+                        botDiv.querySelector("span").textContent = reply;
+                    } catch (err) {
+                        console.error("Backend Error:", err);
+                        botDiv.querySelector("span").textContent = "⚠️ Could not connect to backend server.";
+                    }
+
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                };
+                // Web Speech API Voice Recognition
+
+                let recognitionInstance = null;
+
+                window.startVoiceInput = function () {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    if (!SpeechRecognition) {
+                        alert("Speech Recognition is not supported on this browser. Please use Chrome.");
+                        return;
+                    }
+
+                    if (recognitionInstance) {
+                        recognitionInstance.abort();
+                    }
+
+                    recognitionInstance = new SpeechRecognition();
+                    recognitionInstance.lang = 'en-US';
+                    recognitionInstance.interimResults = false;
+
+                    const micBtn = document.getElementById("mic-btn");
+
+                    recognitionInstance.onstart = () => {
+                        if (micBtn) micBtn.style.background = "#dc2626";
+                    };
+
+                    recognitionInstance.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        const inputField = document.getElementById("chat-input");
+                        if (inputField) {
+                            inputField.value = transcript;
+                            window.sendMessage();
+                        }
+                    };
+
+                    recognitionInstance.onerror = (err) => {
+                        if (err.error !== 'aborted') {
+                            console.error("Voice recognition error:", err);
+                        }
+                    };
+
+                    recognitionInstance.onend = () => {
+                        if (micBtn) micBtn.style.background = "";
+                        recognitionInstance = null;
+                    };
+
+                    recognitionInstance.start();
+                };
+                // Wake word listener
+                const startWakeWord = () => {
+                    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+                    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const rec = new SR();
+                    rec.lang = 'en-US';
+                    rec.continuous = true;
+                    rec.interimResults = false;
+
+                    rec.onresult = (e) => {
+                        const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+                        if (t.includes("bms") || t.includes("hey bms")) {
+                            const output = document.getElementById("chat-box"); // Fixed ID
+                            if (output) {
+                                const activationDiv = document.createElement("div");
+                                activationDiv.className = "bot-msg";
+                                activationDiv.innerHTML = "🎤 BMS Agent activated! Listening...";
+                                output.appendChild(activationDiv);
+                                output.scrollTop = output.scrollHeight;
+                            }
+                            rec.stop();
+                            setTimeout(() => {
+                                if (window.startVoiceInput) window.startVoiceInput(); // Fixed function name
+                            }, 500);
+                        }
+                    };
+
+                    rec.start();
+                };
+
+                // Initialize wake word listener on page load
+                window.addEventListener("DOMContentLoaded", () => {
+                    startWakeWord();
+                });
+            </script>
+</body>
+
+</html>

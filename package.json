@@ -1,0 +1,26 @@
+{
+  "name": "ai-bms-dashboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/lochan0076-code/AI-BMS-Dashboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lochan0076-code/AI-BMS-Dashboard/issues"
+  },
+  "homepage": "https://github.com/lochan0076-code/AI-BMS-Dashboard#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
+  }
+}
