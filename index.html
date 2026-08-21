@@ -1203,18 +1203,17 @@
                     const text = inputField.value.trim();
                     if (!text) return;
 
-                    // Display User Message
+                    // Fixed: Using backticks (`) instead of single quotes (') for template literals
                     const userDiv = document.createElement("div");
                     userDiv.className = "user-msg";
                     userDiv.style.margin = "8px 0";
                     userDiv.style.textAlign = "right";
-                    userDiv.innerHTML = '<span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius:  8px; display: inline-block;">${text}</span>';
+                    userDiv.innerHTML = `<span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 8px; display: inline-block;">${text}</span>`;
                     chatBox.appendChild(userDiv);
 
                     inputField.value = "";
                     chatBox.scrollTop = chatBox.scrollHeight;
 
-                    // Display Bot Typing State
                     const botDiv = document.createElement("div");
                     botDiv.className = "bot-msg";
                     botDiv.style.margin = "8px 0";
@@ -1235,51 +1234,58 @@
                         const reply = data.reply || data.response || "No response text received from backend.";
                         botDiv.querySelector("span").textContent = reply;
                     } catch (err) {
-                        console.error("Chat Error:", err);
-                        botDiv.querySelector("span").textContent = "⚠️ Could not connect to backend server.Check API orCORS.";
+                        console.error("Backend Error:", err);
+                        botDiv.querySelector("span").textContent = "⚠️ Could not connect to backend server.";
                     }
 
                     chatBox.scrollTop = chatBox.scrollHeight;
                 };
-
                 // Web Speech API Voice Recognition
+
+                let recognitionInstance = null;
+
                 window.startVoiceInput = function () {
                     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
                     if (!SpeechRecognition) {
-                        alert("Speech recognition is not supported in this browser. Please try Google Chrome.");
+                        alert("Speech Recognition is not supported on this browser. Please use Chrome.");
                         return;
                     }
 
-                    const recognition = new SpeechRecognition();
-                    recognition.lang = 'en-US';
-                    recognition.interimResults = false;
+                    if (recognitionInstance) {
+                        recognitionInstance.abort();
+                    }
+
+                    recognitionInstance = new SpeechRecognition();
+                    recognitionInstance.lang = 'en-US';
+                    recognitionInstance.interimResults = false;
 
                     const micBtn = document.getElementById("mic-btn");
 
-                    recognition.onstart = () => {
-                        if (micBtn) micBtn.style.background = "#dc2626"; // Highlight red while listening
+                    recognitionInstance.onstart = () => {
+                        if (micBtn) micBtn.style.background = "#dc2626";
                     };
 
-                    recognition.onresult = (event) => {
+                    recognitionInstance.onresult = (event) => {
                         const transcript = event.results[0][0].transcript;
                         const inputField = document.getElementById("chat-input");
                         if (inputField) {
                             inputField.value = transcript;
-                            window.sendMessage(); // Automatically send transcribed text
+                            window.sendMessage();
                         }
                     };
 
-                    recognition.onerror = (err) => {
-                        console.error("Voice Recognition error:", err);
-                        alert("Voice recognition error: " + err.error);
+                    recognitionInstance.onerror = (err) => {
+                        if (err.error !== 'aborted') {
+                            console.error("Voice recognition error:", err);
+                        }
                     };
 
-                    recognition.onend = () => {
+                    recognitionInstance.onend = () => {
                         if (micBtn) micBtn.style.background = "";
+                        recognitionInstance = null;
                     };
 
-                    recognition.start();
+                    recognitionInstance.start();
                 };
                 // Wake word
                 const startWakeWord = () => {
