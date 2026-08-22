@@ -873,13 +873,15 @@
 
                 <p style="margin-top: 10px;">Status: <span id="ejection-status"
                         style="font-weight: bold; color: #4ade80;">LOCKED</span></p>
-            </div>
 
-            <div style="margin-top: 15px; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 13px; color: #aaa;">Maintenance Needed:</span>
-                <span id="maint-light"
-                    style="height: 10px; width: 10px; border-radius: 50%; background-color: #00ff88; display: inline-block; box-shadow: 0 0 8px #00ff88"></span>
-                <strong id="maint-text style=" color: #00ff88; font-size: 13px;">NO</strong>
+                <!-- Maintenance Indicator Inside Card -->
+                <div
+                    style="margin-top: 15px; display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
+                    <span style="font-size: 13px; color: #aaa;">Maintenance Needed:</span>
+                    <span id="maint-light"
+                        style="height: 10px; width: 10px; border-radius: 50%; background-color: #00ff88; display: inline-block; box-shadow: 0 0 8px #00ff88;"></span>
+                    <strong id="maint-text" style="color: #00ff88; font-size: 13px;">NO</strong>
+                </div>
             </div>
         </div>
 
