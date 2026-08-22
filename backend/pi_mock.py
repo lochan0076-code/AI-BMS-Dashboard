@@ -99,19 +99,13 @@ def get_sensor_data():
     data["current"] = round(data["power"] / voltage, 2)
     
     # Dynamic safety alerts check (mocked / scalable for real hardware sensors)
-    #temp = data["temperature"]
-    #smoke = temp > 50.0 or data.get("safety", {}).get("smoke", False)
-    #spark = temp > 60.0 or data.get("safety", {}).get("spark", False)
-    #flame = spark or data.get("safety", {}).get("flame", False)
-    #fire = smoke and spark
-    
-    # Force stable safety status for normal baseline
     temp = data["temperature"]
-    smoke = False       
-    spark = False
-    flame = False
-    fire = False
-     
+    smoke = temp > 50.0 or data.get("safety", {}).get("smoke", False)
+    spark = temp > 60.0 or data.get("safety", {}).get("spark", False)
+    flame = spark or data.get("safety", {}).get("flame", False)
+    fire = smoke and spark
+    
+  
 
     data["safety"] = {
         "smoke": smoke,
