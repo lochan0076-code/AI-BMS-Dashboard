@@ -864,287 +864,302 @@
 
             <div class="card" id="card-ejection">
                 <h3>🔋 Battery Ejection System</h3>
-                <p style="font-size: 0.85rem; color: #888;">Emergency Mechanical Release</p>
+                <p style="font-size: 0.85rem; color: #888; margin-bottom: 12px;">Emergency Mechanical Release</p>
+
                 <label class="switch">
                     <input type="checkbox" id="switch-ejection" onchange="toggleEjection(this.checked)">
                     <span class="slider round"></span>
                 </label>
-                <p>Status: <span id="ejection-status" style="font-weight: bold; color: #4ade80;">LOCKED</span></p>
+
+                <p style="margin-top: 10px;">Status: <span id="ejection-status"
+                        style="font-weight: bold; color: #4ade80;">LOCKED</span></p>
             </div>
 
-            <!-- Place right below the Battery Ejection Switch container -->
-            <div class="maintenance-container"
-                style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div id="maintenance-indicator"
-                        style="width: 14px; height: 14px; border-radius: 50%; background-color: #00e676; box-shadow: 0 0 8px #00e676;">
-                    </div>
-                    <span id="maintenance-text" style="font-size: 0.9rem; font-weight: 600; color: #00e676;">Status:
-                        NORMAL</span>
-                </div>
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 13px; color: #aaa;">Maintenance Needed:</span>
+                <span id="maint-light"
+                    style="height: 10px; width: 10px; border-radius: 50%; background-color: #00ff88; display: inline-block; box-shadow: 0 0 8px #00ff88"></span>
+                <strong id="maint-text style=" color: #00ff88; font-size: 13px;">NO</strong>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="card ai-agent-card">
+            <div class="agent-header">
+                <h3>🤖 BMS AI Agent</h3>
+                <span class="agent-badge">Gemini 3.6 Flash</span>
             </div>
 
-            <!-- Chat Section -->
-            <div class="card ai-agent-card">
-                <div class="agent-header">
-                    <h3>🤖 BMS AI Agent</h3>
-                    <span class="agent-badge">Gemini 3.6 Flash</span>
-                </div>
-
-                <!-- Scrollable Chat History Box -->
-                <div id="chat-box" class="chat-box">
-                    <div class="bot-msg">
-                        👋 Hi! I am your BMS AI Agent. Say <b>"BMS"</b> or tap 🎤 to use voice. I monitor sensors,
-                        detect fire hazards, and control your BMS device!
-                    </div>
-                </div>
-
-                <!-- Single Unified Input Control Bar -->
-                <div class="chat-input-bar">
-                    <input type="text" id="chat-input" placeholder="Ask BMS anything..."
-                        onkeypress="if(event.key === 'Enter') sendMessage()" />
-                    <button id="mic-btn" class="icon-btn" onclick="startVoiceInput()" title="Voice Input">🎤</button>
-                    <button id="send-btn" class="primary-btn" onclick="sendMessage()">Send</button>
+            <!-- Scrollable Chat History Box -->
+            <div id="chat-box" class="chat-box">
+                <div class="bot-msg">
+                    👋 Hi! I am your BMS AI Agent. Say <b>"BMS"</b> or tap 🎤 to use voice. I monitor sensors,
+                    detect fire hazards, and control your BMS device!
                 </div>
             </div>
 
-            <script type="module">
-                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-                import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+            <!-- Single Unified Input Control Bar -->
+            <div class="chat-input-bar">
+                <input type="text" id="chat-input" placeholder="Ask BMS anything..."
+                    onkeypress="if(event.key === 'Enter') sendMessage()" />
+                <button id="mic-btn" class="icon-btn" onclick="startVoiceInput()" title="Voice Input">🎤</button>
+                <button id="send-btn" class="primary-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
 
-                const firebaseConfig = {
-                    apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
-                    authDomain: "ai-bms-dashboard.firebaseapp.com",
-                    projectId: "ai-bms-dashboard",
-                    storageBucket: "ai-bms-dashboard.firebasestorage.app",
-                    messagingSenderId: "706812934530",
-                    appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
-                };
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+            import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
+                authDomain: "ai-bms-dashboard.firebaseapp.com",
+                projectId: "ai-bms-dashboard",
+                storageBucket: "ai-bms-dashboard.firebasestorage.app",
+                messagingSenderId: "706812934530",
+                appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
+            };
 
 
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                const API = "https://ai-bms-dashboard.onrender.com";
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const API = "https://ai-bms-dashboard.onrender.com";
 
-                onAuthStateChanged(auth, user => {
-                    if (!user) { window.location.href = "login.html"; return; }
-                    document.getElementById("user-name").textContent = user.displayName || user.email;
-                });
+            onAuthStateChanged(auth, user => {
+                if (!user) { window.location.href = "login.html"; return; }
+                document.getElementById("user-name").textContent = user.displayName || user.email;
+            });
 
-                document.getElementById("logout-btn").addEventListener("click", () => {
-                    signOut(auth).then(() => window.location.href = "login.html");
-                });
+            document.getElementById("logout-btn").addEventListener("click", () => {
+                signOut(auth).then(() => window.location.href = "login.html");
+            });
 
-                // Charts
-                const labels = [];
-                const tempData = [], humData = [], voltData = [], currData = [];
-                const maxPts = 20;
+            // Charts
+            const labels = [];
+            const tempData = [], humData = [], voltData = [], currData = [];
+            const maxPts = 20;
 
-                const mkChart = (id, dataArr, color, label) => new Chart(document.getElementById(id), {
-                    type: 'line',
-                    data: {
-                        labels,
-                        datasets: [{
-                            label,
-                            data: dataArr,
-                            borderColor: color,
-                            backgroundColor: color.replace(')', ',0.07)').replace('rgb', 'rgba'),
-                            fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: color
-                        }]
-                    },
-                    options: {
-                        responsive: true, animation: { duration: 300 },
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { ticks: { color: '#444', maxTicksLimit: 5 }, grid: { color: 'rgba(255,255,255,0.04)' } },
-                            y: { ticks: { color: '#444' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+            const mkChart = (id, dataArr, color, label) => new Chart(document.getElementById(id), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label,
+                        data: dataArr,
+                        borderColor: color,
+                        backgroundColor: color.replace(')', ',0.07)').replace('rgb', 'rgba'),
+                        fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: color
+                    }]
+                },
+                options: {
+                    responsive: true, animation: { duration: 300 },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#444', maxTicksLimit: 5 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                        y: { ticks: { color: '#444' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    }
+                }
+            });
+
+            const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
+            const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
+            const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
+            const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
+
+            let lastTemp = null;
+            let fireAlertActive = false;
+            let lastSmokeState = false;
+            let lastSparkState = false;
+
+            // Voice alert function
+            function speakAlert(message) {
+                if (!('speechSynthesis' in window)) return;
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'en-IN';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.2;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+
+            // Simulate smoke & spark from sensor data
+            function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
+                smokeDetected = smokeDetected !== undefined ? smokeDetected : temperature > 33;
+                sparkDetected = sparkDetected !== undefined ? sparkDetected : temperature > 35;
+                fireDetected = fireDetected !== undefined ? fireDetected : (smokeDetected && sparkDetected);
+
+                updateSmokeCard(smokeDetected, temperature);
+                updateSparkCard(sparkDetected, temperature);
+
+                fireDetected = smokeDetected && sparkDetected;
+
+                if (fireDetected && !fireAlertActive) {
+                    fireAlertActive = true;
+                    triggerFireAlert();
+                } else if (!fireDetected && fireAlertActive) {
+                    fireAlertActive = false;
+                    clearFireAlert();
+                }
+
+                // Individual sensor alerts
+                if (smokeDetected && !lastSmokeState) {
+                    speakAlert("Warning! Smoke detected in the device. Please check immediately.");
+                    addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
+                }
+                if (sparkDetected && !lastSparkState) {
+                    speakAlert("Warning! Spark or flame detected. Danger! Take immediate action.");
+                    addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
+                }
+
+                lastSmokeState = smokeDetected;
+                lastSparkState = sparkDetected;
+            }
+
+            function updateSmokeCard(detected, temp) {
+                const card = document.getElementById("smoke-card");
+                const value = document.getElementById("smoke-value");
+                const level = document.getElementById("smoke-level");
+                if (detected) {
+                    card.className = "sensor-card danger";
+                    value.className = "sensor-value sensor-danger";
+                    value.textContent = "SMOKE!";
+                    level.textContent = `High smoke level detected (Temp: ${temp}°C)`;
+                } else {
+                    card.className = "sensor-card safe";
+                    value.className = "sensor-value sensor-safe";
+                    value.textContent = "CLEAR";
+                    level.textContent = "No smoke detected";
+                }
+            }
+
+            function updateSparkCard(detected, temp) {
+                const card = document.getElementById("spark-card");
+                const value = document.getElementById("spark-value");
+                const level = document.getElementById("spark-level");
+                if (detected) {
+                    card.className = "sensor-card danger";
+                    value.className = "sensor-value sensor-danger";
+                    value.textContent = "SPARK!";
+                    level.textContent = `Flame/Spark detected (Temp: ${temp}°C)`;
+                } else {
+                    card.className = "sensor-card safe";
+                    value.className = "sensor-value sensor-safe";
+                    value.textContent = "CLEAR";
+                    level.textContent = "No spark detected";
+                }
+            }
+
+            function triggerFireAlert() {
+                const banner = document.getElementById("alert-banner");
+                banner.style.display = "block";
+                addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
+
+                // Repeat voice alert 3 times
+                speakAlert("Emergency! The device is on fire! Emergency! The device is on fire! Please evacuate immediately and call for help!");
+                setTimeout(() => speakAlert("Warning! Fire detected! The device is on fire! Evacuate now!"), 4000);
+                setTimeout(() => speakAlert("The device is on fire! The device is on fire! Take action immediately!"), 8000);
+            }
+
+            function clearFireAlert() {
+                document.getElementById("alert-banner").style.display = "none";
+                addChatAlert("✅ Safety sensors cleared. No fire detected.");
+                speakAlert("All clear. Safety sensors show no fire detected.");
+            }
+
+            function addChatAlert(msg) {
+                // Looks for 'chat-messages' first, then falls back to 'chat-box' or 'ai-chat-messages'
+                const chatContainer = document.getElementById("chat-messages")
+                    || document.getElementById("chat-box")
+                    || document.querySelector(".chat-messages");
+
+                if (!chatContainer) return; // Safely exits if element isn't found instead of throwing TypeError
+
+                const div = document.createElement("div");
+                div.className = "chat-msg alert-msg";
+                div.innerHTML = msg;
+                chatContainer.appendChild(div);
+            }
+
+            async function fetchData() {
+                try {
+                    const res = await fetch(`${API}/data`);
+                    const d = await res.json();
+
+                    // Sensor cards
+                    document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
+                    document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
+                    document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
+                    document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
+
+                    // Trend
+                    if (lastTemp !== null) {
+                        const diff = (d.temperature - lastTemp).toFixed(1);
+                        document.getElementById("temp-trend").innerHTML =
+                            diff > 0 ? `<span style="color:#ff6644">▲ +${diff}°</span>` :
+                                diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
+                    }
+                    lastTemp = d.temperature;
+
+                    // Charts
+                    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    if (labels.length >= maxPts) {
+                        labels.shift(); tempData.shift(); humData.shift();
+                        voltData.shift(); currData.shift();
+                    }
+                    labels.push(now);
+                    tempData.push(d.temperature);
+                    humData.push(d.humidity);
+                    voltData.push(d.voltage || 0);
+                    currData.push(d.current || 0);
+                    tChart.update(); hChart.update();
+                    vChart.update(); cChart.update();
+
+                    // Device status
+                    updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
+                    updateReadOnlyDevice('light', d.devices?.light?.status || false);
+
+                    const maintLight = document.getElementById("maint-light");
+                    const maintText = document.getElementById("maint-text");
+                    if (maintLight && maintText) {
+                        if (d.needs_maintenance) {
+                            maintLight.style.backgroundColor = "#ff4d4d";
+                            maintLight.style.boxShadow = "0 0 10px #ff4d4d";
+                            maintText.innerText = "REQUIRED";
+                            maintText.style.color = "#ff4d4d";
+                        } else {
+                            maintLight.style.backgroundColor = "#00ff88";
+                            maintLight.style.boxShadow = "0 0 8px #00ff88";
+                            maintText.innerText = "NO";
+                            maintText.style.color = "#00ff88";
                         }
                     }
-                });
 
-                const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
-                const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
-                const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
-                const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
+                    // BMS device
+                    const bmsOn = d.devices?.bms?.status || false;
+                    const bmsSw = document.getElementById("switch-bms");
+                    const bmsSt = document.getElementById("bms-status");
+                    const bmsCard = document.getElementById("card-bms");
+                    if (bmsSw) bmsSw.checked = bmsOn;
+                    if (bmsSt) { bmsSt.textContent = bmsOn ? "ON" : "OFF"; bmsSt.className = `status-text ${bmsOn ? "status-on" : "status-off"}`; }
+                    if (bmsCard) bmsCard.className = `device-card bms-card${bmsOn ? " active" : ""}`;
 
-                let lastTemp = null;
-                let fireAlertActive = false;
-                let lastSmokeState = false;
-                let lastSparkState = false;
+                    // Safety sensors
+                    const safety = d.safety || {};
+                    checkSafetySensors(
+                        d.temperature,
+                        d.humidity,
+                        safety.smoke,
+                        safety.spark || safety.flame,
+                        safety.fire
+                    );
 
-                // Voice alert function
-                function speakAlert(message) {
-                    if (!('speechSynthesis' in window)) return;
-                    window.speechSynthesis.cancel();
-                    const utterance = new SpeechSynthesisUtterance(message);
-                    utterance.lang = 'en-IN';
-                    utterance.rate = 0.9;
-                    utterance.pitch = 1.2;
-                    utterance.volume = 1;
-                    window.speechSynthesis.speak(utterance);
-                }
+                    const datasheetModal = document.getElementById('datasheet-modal');
+                    if (datasheetModal && datasheetModal.style.display === 'flex') {
+                        const tbody = document.getElementById('datasheet-tbody');
+                        const now = new Date().toLocaleTimeString();
 
-                // Simulate smoke & spark from sensor data
-                function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
-                    smokeDetected = smokeDetected !== undefined ? smokeDetected : temperature > 33;
-                    sparkDetected = sparkDetected !== undefined ? sparkDetected : temperature > 35;
-                    fireDetected = fireDetected !== undefined ? fireDetected : (smokeDetected && sparkDetected);
-
-                    updateSmokeCard(smokeDetected, temperature);
-                    updateSparkCard(sparkDetected, temperature);
-
-                    fireDetected = smokeDetected && sparkDetected;
-
-                    if (fireDetected && !fireAlertActive) {
-                        fireAlertActive = true;
-                        triggerFireAlert();
-                    } else if (!fireDetected && fireAlertActive) {
-                        fireAlertActive = false;
-                        clearFireAlert();
-                    }
-
-                    // Individual sensor alerts
-                    if (smokeDetected && !lastSmokeState) {
-                        speakAlert("Warning! Smoke detected in the device. Please check immediately.");
-                        addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
-                    }
-                    if (sparkDetected && !lastSparkState) {
-                        speakAlert("Warning! Spark or flame detected. Danger! Take immediate action.");
-                        addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
-                    }
-
-                    lastSmokeState = smokeDetected;
-                    lastSparkState = sparkDetected;
-                }
-
-                function updateSmokeCard(detected, temp) {
-                    const card = document.getElementById("smoke-card");
-                    const value = document.getElementById("smoke-value");
-                    const level = document.getElementById("smoke-level");
-                    if (detected) {
-                        card.className = "sensor-card danger";
-                        value.className = "sensor-value sensor-danger";
-                        value.textContent = "SMOKE!";
-                        level.textContent = `High smoke level detected (Temp: ${temp}°C)`;
-                    } else {
-                        card.className = "sensor-card safe";
-                        value.className = "sensor-value sensor-safe";
-                        value.textContent = "CLEAR";
-                        level.textContent = "No smoke detected";
-                    }
-                }
-
-                function updateSparkCard(detected, temp) {
-                    const card = document.getElementById("spark-card");
-                    const value = document.getElementById("spark-value");
-                    const level = document.getElementById("spark-level");
-                    if (detected) {
-                        card.className = "sensor-card danger";
-                        value.className = "sensor-value sensor-danger";
-                        value.textContent = "SPARK!";
-                        level.textContent = `Flame/Spark detected (Temp: ${temp}°C)`;
-                    } else {
-                        card.className = "sensor-card safe";
-                        value.className = "sensor-value sensor-safe";
-                        value.textContent = "CLEAR";
-                        level.textContent = "No spark detected";
-                    }
-                }
-
-                function triggerFireAlert() {
-                    const banner = document.getElementById("alert-banner");
-                    banner.style.display = "block";
-                    addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
-
-                    // Repeat voice alert 3 times
-                    speakAlert("Emergency! The device is on fire! Emergency! The device is on fire! Please evacuate immediately and call for help!");
-                    setTimeout(() => speakAlert("Warning! Fire detected! The device is on fire! Evacuate now!"), 4000);
-                    setTimeout(() => speakAlert("The device is on fire! The device is on fire! Take action immediately!"), 8000);
-                }
-
-                function clearFireAlert() {
-                    document.getElementById("alert-banner").style.display = "none";
-                    addChatAlert("✅ Safety sensors cleared. No fire detected.");
-                    speakAlert("All clear. Safety sensors show no fire detected.");
-                }
-
-                function addChatAlert(msg) {
-                    // Looks for 'chat-messages' first, then falls back to 'chat-box' or 'ai-chat-messages'
-                    const chatContainer = document.getElementById("chat-messages")
-                        || document.getElementById("chat-box")
-                        || document.querySelector(".chat-messages");
-
-                    if (!chatContainer) return; // Safely exits if element isn't found instead of throwing TypeError
-
-                    const div = document.createElement("div");
-                    div.className = "chat-msg alert-msg";
-                    div.innerHTML = msg;
-                    chatContainer.appendChild(div);
-                }
-
-                async function fetchData() {
-                    try {
-                        const res = await fetch(`${API}/data`);
-                        const d = await res.json();
-
-                        // Sensor cards
-                        document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
-                        document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
-                        document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
-                        document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
-
-                        // Trend
-                        if (lastTemp !== null) {
-                            const diff = (d.temperature - lastTemp).toFixed(1);
-                            document.getElementById("temp-trend").innerHTML =
-                                diff > 0 ? `<span style="color:#ff6644">▲ +${diff}°</span>` :
-                                    diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
-                        }
-                        lastTemp = d.temperature;
-
-                        // Charts
-                        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                        if (labels.length >= maxPts) {
-                            labels.shift(); tempData.shift(); humData.shift();
-                            voltData.shift(); currData.shift();
-                        }
-                        labels.push(now);
-                        tempData.push(d.temperature);
-                        humData.push(d.humidity);
-                        voltData.push(d.voltage || 0);
-                        currData.push(d.current || 0);
-                        tChart.update(); hChart.update();
-                        vChart.update(); cChart.update();
-
-                        // Device status
-                        updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
-                        updateReadOnlyDevice('light', d.devices?.light?.status || false);
-
-                        // BMS device
-                        const bmsOn = d.devices?.bms?.status || false;
-                        const bmsSw = document.getElementById("switch-bms");
-                        const bmsSt = document.getElementById("bms-status");
-                        const bmsCard = document.getElementById("card-bms");
-                        if (bmsSw) bmsSw.checked = bmsOn;
-                        if (bmsSt) { bmsSt.textContent = bmsOn ? "ON" : "OFF"; bmsSt.className = `status-text ${bmsOn ? "status-on" : "status-off"}`; }
-                        if (bmsCard) bmsCard.className = `device-card bms-card${bmsOn ? " active" : ""}`;
-
-                        // Safety sensors
-                        const safety = d.safety || {};
-                        checkSafetySensors(
-                            d.temperature,
-                            d.humidity,
-                            safety.smoke,
-                            safety.spark || safety.flame,
-                            safety.fire
-                        );
-
-                        const datasheetModal = document.getElementById('datasheet-modal');
-                        if (datasheetModal && datasheetModal.style.display === 'flex') {
-                            const tbody = document.getElementById('datasheet-tbody');
-                            const now = new Date().toLocaleTimeString();
-
-                            const newRowHtml = `
+                        const newRowHtml = `
                                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,255,136,0.05);">
                                     <td style="padding: 8px 10px;">${now}</td>
                                     <td style="padding: 8px 10px;">${d.voltage || '--'}V</td>
@@ -1153,198 +1168,198 @@
                                     <td style="padding: 8px 10px;">${d.devices?.light?.status ? 'ON' : 'OFF'}</td>
                                     <td style="padding: 8px 10px;">NORMAL</td>
                                 </tr>`;
-                            if (tbody) tbody.insertAdjacentHTML('afterbegin', newRowHtml);
-                        }
-
-                    } catch (e) {
-                        console.error("Fetch error:", e);
+                        if (tbody) tbody.insertAdjacentHTML('afterbegin', newRowHtml);
                     }
+
+                } catch (e) {
+                    console.error("Fetch error:", e);
                 }
+            }
 
-                window.toggleEjection = async function (isEjecting) {
-                    const statusElem = document.getElementById("ejection-status");
-                    const switchElem = document.getElementById("switch-ejection");
+            window.toggleEjection = async function (isEjecting) {
+                const statusElem = document.getElementById("ejection-status");
+                const switchElem = document.getElementById("switch-ejection");
 
-                    if (isEjecting) {
-                        const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
-                        if (!confirmEject) {
-                            if (switchElem) switchElem.checked = false;
-                            return;
-                        }
-                    }
-                    try {
-                        const res = await fetch(`${API}/control/ejection`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ state: isEjecting ? "EJECTED" : "LOCKED" })
-                        });
-                        if (res.ok) {
-                            statusElem.textContent = isEjecting ? "EJECTED ⚠️" : "LOCKED";
-                            statusElem.style.color = isEjecting ? "#ef4444" : "#4ade80";
-                        }
-                    } catch (err) {
-                        console.error("Ejection control error:", err);
-                    }
-                }
-
-                function updateReadOnlyDevice(name, isOn) {
-                    const slider = document.getElementById(`slider-${name}`);
-                    const status = document.getElementById(`${name}-status`);
-                    const card = document.getElementById(`card-${name}`);
-                    if (slider) slider.className = `slider-readonly${isOn ? " on" : ""}`;
-                    if (status) { status.textContent = isOn ? "ON" : "OFF"; status.className = `status-text ${isOn ? "status-on" : "status-off"}`; }
-                    if (card) card.className = `device-card${isOn ? " active" : ""}`;
-                }
-
-                setInterval(fetchData, 5000);
-                fetchData();
-
-                // Keep Render awake
-                setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
-
-                // BMS Toggle
-                window.toggleBMS = async () => {
-                    try {
-                        const res = await fetch(`${API}/toggle/bms`, { method: "POST" });
-                        const d = await res.json();
-                        const sw = document.getElementById("switch-bms");
-                        const st = document.getElementById("bms-status");
-                        const card = document.getElementById("card-bms");
-                        if (sw) sw.checked = d.status;
-                        if (st) { st.textContent = d.status ? "ON" : "OFF"; st.className = `status-text ${d.status ? "status-on" : "status-off"}`; }
-                        if (card) card.className = `device-card bms-card${d.status ? " active" : ""}`;
-                    } catch (e) { console.error(e); }
-                };
-
-                // Send Chat Message Handler
-                window.sendMessage = async function () {
-                    const inputField = document.getElementById("chat-input");
-                    const chatBox = document.getElementById("chat-box");
-
-                    if (!inputField || !chatBox) return;
-
-                    const text = inputField.value.trim();
-                    if (!text) return;
-
-                    // Fixed: Using backticks (`) instead of single quotes (') for template literals
-                    const userDiv = document.createElement("div");
-                    userDiv.className = "user-msg";
-                    userDiv.style.margin = "8px 0";
-                    userDiv.style.textAlign = "right";
-                    userDiv.innerHTML = `<span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 8px; display: inline-block;">${text}</span>`;
-                    chatBox.appendChild(userDiv);
-
-                    inputField.value = "";
-                    chatBox.scrollTop = chatBox.scrollHeight;
-
-                    const botDiv = document.createElement("div");
-                    botDiv.className = "bot-msg";
-                    botDiv.style.margin = "8px 0";
-                    botDiv.innerHTML = `<span style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; display: inline-block;">Thinking...</span>`;
-                    chatBox.appendChild(botDiv);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-
-                    try {
-                        const response = await fetch(`${API}/chat`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ message: text })
-                        });
-
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-                        const data = await response.json();
-                        const reply = data.reply || data.response || "No response text received from backend.";
-                        botDiv.querySelector("span").textContent = reply;
-                    } catch (err) {
-                        console.error("Backend Error:", err);
-                        botDiv.querySelector("span").textContent = "⚠️ Could not connect to backend server.";
-                    }
-
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                };
-                // Web Speech API Voice Recognition
-
-                let recognitionInstance = null;
-
-                window.startVoiceInput = function () {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    if (!SpeechRecognition) {
-                        alert("Speech Recognition is not supported on this browser. Please use Chrome.");
+                if (isEjecting) {
+                    const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
+                    if (!confirmEject) {
+                        if (switchElem) switchElem.checked = false;
                         return;
                     }
-
-                    if (recognitionInstance) {
-                        recognitionInstance.abort();
+                }
+                try {
+                    const res = await fetch(`${API}/control/ejection`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ state: isEjecting ? "EJECTED" : "LOCKED" })
+                    });
+                    if (res.ok) {
+                        statusElem.textContent = isEjecting ? "EJECTED ⚠️" : "LOCKED";
+                        statusElem.style.color = isEjecting ? "#ef4444" : "#4ade80";
                     }
+                } catch (err) {
+                    console.error("Ejection control error:", err);
+                }
+            }
 
-                    recognitionInstance = new SpeechRecognition();
-                    recognitionInstance.lang = 'en-US';
-                    recognitionInstance.interimResults = false;
+            function updateReadOnlyDevice(name, isOn) {
+                const slider = document.getElementById(`slider-${name}`);
+                const status = document.getElementById(`${name}-status`);
+                const card = document.getElementById(`card-${name}`);
+                if (slider) slider.className = `slider-readonly${isOn ? " on" : ""}`;
+                if (status) { status.textContent = isOn ? "ON" : "OFF"; status.className = `status-text ${isOn ? "status-on" : "status-off"}`; }
+                if (card) card.className = `device-card${isOn ? " active" : ""}`;
+            }
 
-                    const micBtn = document.getElementById("mic-btn");
+            setInterval(fetchData, 5000);
+            fetchData();
 
-                    recognitionInstance.onstart = () => {
-                        if (micBtn) micBtn.style.background = "#dc2626";
-                    };
+            // Keep Render awake
+            setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
 
-                    recognitionInstance.onresult = (event) => {
-                        const transcript = event.results[0][0].transcript;
-                        const inputField = document.getElementById("chat-input");
-                        if (inputField) {
-                            inputField.value = transcript;
-                            window.sendMessage();
-                        }
-                    };
+            // BMS Toggle
+            window.toggleBMS = async () => {
+                try {
+                    const res = await fetch(`${API}/toggle/bms`, { method: "POST" });
+                    const d = await res.json();
+                    const sw = document.getElementById("switch-bms");
+                    const st = document.getElementById("bms-status");
+                    const card = document.getElementById("card-bms");
+                    if (sw) sw.checked = d.status;
+                    if (st) { st.textContent = d.status ? "ON" : "OFF"; st.className = `status-text ${d.status ? "status-on" : "status-off"}`; }
+                    if (card) card.className = `device-card bms-card${d.status ? " active" : ""}`;
+                } catch (e) { console.error(e); }
+            };
 
-                    recognitionInstance.onerror = (err) => {
-                        if (err.error !== 'aborted') {
-                            console.error("Voice recognition error:", err);
-                        }
-                    };
+            // Send Chat Message Handler
+            window.sendMessage = async function () {
+                const inputField = document.getElementById("chat-input");
+                const chatBox = document.getElementById("chat-box");
 
-                    recognitionInstance.onend = () => {
-                        if (micBtn) micBtn.style.background = "";
-                        recognitionInstance = null;
-                    };
+                if (!inputField || !chatBox) return;
 
-                    recognitionInstance.start();
+                const text = inputField.value.trim();
+                if (!text) return;
+
+                // Fixed: Using backticks (`) instead of single quotes (') for template literals
+                const userDiv = document.createElement("div");
+                userDiv.className = "user-msg";
+                userDiv.style.margin = "8px 0";
+                userDiv.style.textAlign = "right";
+                userDiv.innerHTML = `<span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 8px; display: inline-block;">${text}</span>`;
+                chatBox.appendChild(userDiv);
+
+                inputField.value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                const botDiv = document.createElement("div");
+                botDiv.className = "bot-msg";
+                botDiv.style.margin = "8px 0";
+                botDiv.innerHTML = `<span style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; display: inline-block;">Thinking...</span>`;
+                chatBox.appendChild(botDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                try {
+                    const response = await fetch(`${API}/chat`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: text })
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    const data = await response.json();
+                    const reply = data.reply || data.response || "No response text received from backend.";
+                    botDiv.querySelector("span").textContent = reply;
+                } catch (err) {
+                    console.error("Backend Error:", err);
+                    botDiv.querySelector("span").textContent = "⚠️ Could not connect to backend server.";
+                }
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+            };
+            // Web Speech API Voice Recognition
+
+            let recognitionInstance = null;
+
+            window.startVoiceInput = function () {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    alert("Speech Recognition is not supported on this browser. Please use Chrome.");
+                    return;
+                }
+
+                if (recognitionInstance) {
+                    recognitionInstance.abort();
+                }
+
+                recognitionInstance = new SpeechRecognition();
+                recognitionInstance.lang = 'en-US';
+                recognitionInstance.interimResults = false;
+
+                const micBtn = document.getElementById("mic-btn");
+
+                recognitionInstance.onstart = () => {
+                    if (micBtn) micBtn.style.background = "#dc2626";
                 };
-                // Wake word listener
-                const startWakeWord = () => {
-                    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
-                    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    const rec = new SR();
-                    rec.lang = 'en-US';
-                    rec.continuous = true;
-                    rec.interimResults = false;
 
-                    rec.onresult = (e) => {
-                        const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
-                        if (t.includes("bms") || t.includes("hey bms")) {
-                            const output = document.getElementById("chat-box"); // Fixed ID
-                            if (output) {
-                                const activationDiv = document.createElement("div");
-                                activationDiv.className = "bot-msg";
-                                activationDiv.innerHTML = "🎤 BMS Agent activated! Listening...";
-                                output.appendChild(activationDiv);
-                                output.scrollTop = output.scrollHeight;
-                            }
-                            rec.stop();
-                            setTimeout(() => {
-                                if (window.startVoiceInput) window.startVoiceInput(); // Fixed function name
-                            }, 500);
-                        }
-                    };
-
-                    rec.start();
+                recognitionInstance.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    const inputField = document.getElementById("chat-input");
+                    if (inputField) {
+                        inputField.value = transcript;
+                        window.sendMessage();
+                    }
                 };
 
-                window.renderDatasheetRows = function (dataArray) {
-                    const tbody = document.getElementById('datasheet-tbody');
-                    if (!tbody) return;
+                recognitionInstance.onerror = (err) => {
+                    if (err.error !== 'aborted') {
+                        console.error("Voice recognition error:", err);
+                    }
+                };
 
-                    tbody.innerHTML = dataArray.map(row => `
+                recognitionInstance.onend = () => {
+                    if (micBtn) micBtn.style.background = "";
+                    recognitionInstance = null;
+                };
+
+                recognitionInstance.start();
+            };
+            // Wake word listener
+            const startWakeWord = () => {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const rec = new SR();
+                rec.lang = 'en-US';
+                rec.continuous = true;
+                rec.interimResults = false;
+
+                rec.onresult = (e) => {
+                    const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+                    if (t.includes("bms") || t.includes("hey bms")) {
+                        const output = document.getElementById("chat-box"); // Fixed ID
+                        if (output) {
+                            const activationDiv = document.createElement("div");
+                            activationDiv.className = "bot-msg";
+                            activationDiv.innerHTML = "🎤 BMS Agent activated! Listening...";
+                            output.appendChild(activationDiv);
+                            output.scrollTop = output.scrollHeight;
+                        }
+                        rec.stop();
+                        setTimeout(() => {
+                            if (window.startVoiceInput) window.startVoiceInput(); // Fixed function name
+                        }, 500);
+                    }
+                };
+
+                rec.start();
+            };
+
+            window.renderDatasheetRows = function (dataArray) {
+                const tbody = document.getElementById('datasheet-tbody');
+                if (!tbody) return;
+
+                tbody.innerHTML = dataArray.map(row => `
                         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                             <td style="padding: 8px 10px;">${row.timestamp || '--'}</td>
                             <td style="padding: 8px 10px;">${row.voltage || '--'}V</td>
@@ -1354,59 +1369,58 @@
                             <td style="padding: 8px 10px;">${row.maintenance || 'NORMAL'}</td>
                         </tr>
                     `).join('');
-                };
+            };
 
-                window.toggleDatasheetModal = async function () {
-                    const modal = document.getElementById('datasheet-modal');
-                    if (!modal) return;
+            window.toggleDatasheetModal = async function () {
+                const modal = document.getElementById('datasheet-modal');
+                if (!modal) return;
 
-                    const isOpening = (modal.style.display === 'none' || !modal.style.display);
-                    modal.style.display = isOpening ? 'flex' : 'none';
+                const isOpening = (modal.style.display === 'none' || !modal.style.display);
+                modal.style.display = isOpening ? 'flex' : 'none';
 
-                    if (isOpening) {
-                        try {
-                            const res = await fetch(`${API}/logs`);
-                            const logs = await res.json();
-                            window.renderDatasheetRows(logs);
-                        } catch (err) {
-                            console.error("Failed to load datasheet history:", err);
-                        }
+                if (isOpening) {
+                    try {
+                        const res = await fetch(`${API}/logs`);
+                        const logs = await res.json();
+                        window.renderDatasheetRows(logs);
+                    } catch (err) {
+                        console.error("Failed to load datasheet history:", err);
                     }
-                };
+                }
+            };
 
-                // Initialize wake word listener on page load
-                window.addEventListener("DOMContentLoaded", () => {
-                    startWakeWord();
-                });
-            </script>
+            // Initialize wake word listener on page load
+            window.addEventListener("DOMContentLoaded", () => {
+                startWakeWord();
+            });
+        </script>
 
-            <div id="datasheet-modal"
-                style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
-                <div
-                    style="background: #181825; border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 900px; max-height: 80vh; border-radius: 12px; padding: 24px; overflow-y: auto; color: #fff;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2 style="margin: 0; font-size: 1.4rem;">Battery Historical & Live Datasheet</h2>
-                        <button onclick="toggleDatasheetModal()"
-                            style="background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
-                    </div>
-                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
-                        <thead>
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.2); color: #93c5fd;">
-                                <th style="padding: 10px;">Timestamp</th>
-                                <th style="padding: 10px;">Voltage</th>
-                                <th style="padding: 10px;">Temp</th>
-                                <th style="padding: 10px;">Fan</th>
-                                <th style="padding: 10px;">Light</th>
-                                <th style="padding: 10px;">Maintenance</th>
-                            </tr>
-                        </thead>
-                        <tbody id="datasheet-tbody">
-                            <!-- Dynamically populated rows -->
-                        </tbody>
-                    </table>
+        <div id="datasheet-modal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
+            <div
+                style="background: #181825; border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 900px; max-height: 80vh; border-radius: 12px; padding: 24px; overflow-y: auto; color: #fff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 1.4rem;">Battery Historical & Live Datasheet</h2>
+                    <button onclick="toggleDatasheetModal()"
+                        style="background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
                 </div>
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.2); color: #93c5fd;">
+                            <th style="padding: 10px;">Timestamp</th>
+                            <th style="padding: 10px;">Voltage</th>
+                            <th style="padding: 10px;">Temp</th>
+                            <th style="padding: 10px;">Fan</th>
+                            <th style="padding: 10px;">Light</th>
+                            <th style="padding: 10px;">Maintenance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="datasheet-tbody">
+                        <!-- Dynamically populated rows -->
+                    </tbody>
+                </table>
             </div>
+        </div>
 </body>
 
 </html>
