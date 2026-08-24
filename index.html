@@ -987,9 +987,9 @@
 
             // Simulate smoke & spark from sensor data
             function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
-                smokeDetected = smokeDetected !== undefined ? smokeDetected : temperature > 33;
-                sparkDetected = sparkDetected !== undefined ? sparkDetected : temperature > 35;
-                fireDetected = fireDetected !== undefined ? fireDetected : (smokeDetected && sparkDetected);
+                smokeDetected = Boolean(smokeDetected);
+                sparkDetected = Boolean(sparkDetected);
+                fireDetected = Boolean(fireDetected) || (smokeDetected && sparkDetected);
 
                 updateSmokeCard(smokeDetected, temperature);
                 updateSparkCard(sparkDetected, temperature);
