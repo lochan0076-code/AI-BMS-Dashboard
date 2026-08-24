@@ -989,7 +989,7 @@
             function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
                 smokeDetected = Boolean(smokeDetected);
                 sparkDetected = Boolean(sparkDetected);
-                fireDetected = Boolean(fireDetected) || (smokeDetected && sparkDetected);
+                fireDetected = Boolean(fireDetected);
 
                 updateSmokeCard(smokeDetected, temperature);
                 updateSparkCard(sparkDetected, temperature);
@@ -1016,40 +1016,31 @@
                 lastSparkState = sparkDetected;
             }
 
-            function updateSmokeCard(detected, temp) {
-                const card = document.getElementById("smoke-card");
-                const value = document.getElementById("smoke-value");
-                const level = document.getElementById("smoke-level");
-                if (detected) {
-                    card.className = "sensor-card danger";
-                    value.className = "sensor-value sensor-danger";
-                    value.textContent = "SMOKE!";
-                    level.textContent = `High smoke level detected (Temp: ${temp}°C)`;
+            function updateSmokeCard(smokeDetected, temp) {
+                const card = document.getElementById('smokeCard'); // or your element ID
+                const status = document.getElementById('smokeStatus');
+
+                if (smokeDetected) {
+                    if (status) status.innerText = "SMOKE!";
+                    // add red glow / alert styling
                 } else {
-                    card.className = "sensor-card safe";
-                    value.className = "sensor-value sensor-safe";
-                    value.textContent = "CLEAR";
-                    level.textContent = "No smoke detected";
+                    if (status) status.innerText = "CLEAR";
+                    // remove red glow styling
                 }
             }
 
-            function updateSparkCard(detected, temp) {
-                const card = document.getElementById("spark-card");
-                const value = document.getElementById("spark-value");
-                const level = document.getElementById("spark-level");
-                if (detected) {
-                    card.className = "sensor-card danger";
-                    value.className = "sensor-value sensor-danger";
-                    value.textContent = "SPARK!";
-                    level.textContent = `Flame/Spark detected (Temp: ${temp}°C)`;
+            function updateSparkCard(sparkDetected, temp) {
+                const card = document.getElementById('sparkCard'); // or your element ID
+                const status = document.getElementById('sparkStatus');
+
+                if (sparkDetected) {
+                    if (status) status.innerText = "SPARK!";
+                    // add red glow / alert styling
                 } else {
-                    card.className = "sensor-card safe";
-                    value.className = "sensor-value sensor-safe";
-                    value.textContent = "CLEAR";
-                    level.textContent = "No spark detected";
+                    if (status) status.innerText = "CLEAR";
+                    // remove red glow styling
                 }
             }
-
             function triggerFireAlert() {
                 const banner = document.getElementById("alert-banner");
                 banner.style.display = "block";
