@@ -994,8 +994,6 @@
                 updateSmokeCard(smokeDetected, temperature);
                 updateSparkCard(sparkDetected, temperature);
 
-                fireDetected = smokeDetected && sparkDetected;
-
                 if (fireDetected && !fireAlertActive) {
                     fireAlertActive = true;
                     triggerFireAlert();
