@@ -36,7 +36,7 @@ def generate_telemetry():
 
     # Dynamic safety alerts
     smoke = temp > 50.0
-    spark = temp > 60.0
+    spark = temp > 60.0 
     flame = spark
     fire = smoke and spark
 
