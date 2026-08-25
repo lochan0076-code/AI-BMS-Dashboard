@@ -994,15 +994,18 @@
                 updateSmokeCard(smokeDetected, temperature);
                 updateSparkCard(sparkDetected, temperature);
 
-                if (fireDetected && !fireAlertActive) {
-                    fireAlertActive = true;
-                    triggerFireAlert();
-                } else if (!fireDetected && fireAlertActive) {
+                // Fire Banner Logic
+                if (fireDetected) {
+                    if (!fireAlertActive) {
+                        fireAlertActive = true;
+                        triggerFireAlert();
+                    }
+                } else {
                     fireAlertActive = false;
-                    clearFireAlert();
+                    clearFireAlert(); // Always call this when fireDetected is false to hide the banner
                 }
 
-                // Individual sensor alerts
+                // Individual sensor audio & chat alerts
                 if (smokeDetected && !lastSmokeState) {
                     speakAlert("Warning! Smoke detected in the device. Please check immediately.");
                     addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
@@ -1041,9 +1044,12 @@
                     // remove red glow styling
                 }
             }
+
             function triggerFireAlert() {
-                const banner = document.getElementById("alert-banner");
-                banner.style.display = "block";
+                const banner = document.getElementById("alert-banner") || document.getElementById("fireAlert");
+                if (banner) {
+                    banner.style.display = "block";
+                }
                 addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
 
                 // Repeat voice alert 3 times
@@ -1053,9 +1059,10 @@
             }
 
             function clearFireAlert() {
-                document.getElementById("alert-banner").style.display = "none";
-                addChatAlert("✅ Safety sensors cleared. No fire detected.");
-                speakAlert("All clear. Safety sensors show no fire detected.");
+                const banner = document.getElementById("alert-banner") || document.getElementById("fireAlert");
+                if (banner) {
+                    banner.style.display = "none";
+                }
             }
 
             function addChatAlert(msg) {
