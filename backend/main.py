@@ -1,49 +1,49 @@
-from datetime import datetime
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.pi_mock import generate_telemetry, toggle_device, _find_bms_data_path
-import json
+from backend.pi_mock import get_sensor_data, toggle_device, calculate_bill
+from backend.ai_agent import ask_agent
+from datetime import datetime
 
-app = FastAPI()
+app = FastAPI(title="AI BMS Dashboard API")
 
-# Global in-memory list to store telemetry log history
+# Global in-memory storage for live hardware data & historical logs
+latest_hardware_data = {}
 telemetry_logs = []
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
-def get_sensor_data():
-    """Reads telemetry from bms_data.json or falls back to live generated data."""
-    json_path = _find_bms_data_path()
-    if json_path:
-        try:
-            with open(json_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return generate_telemetry()
 
 @app.get("/")
 def root():
-    return {"status": "BMS AI Backend Running ✅"}
+    return {"status": "AI BMS Backend Running"}
+
 
 @app.get("/data")
 def data():
-    sensor_data = get_sensor_data()
+    # Return live Raspberry Pi hardware data if available; fallback to mock data
+    if latest_hardware_data:
+        return latest_hardware_data
+    return get_sensor_data()
+
+
+@app.post("/update_sensor_data")
+def update_sensor_data(data: dict):
+    global latest_hardware_data, telemetry_logs
+    latest_hardware_data = data
     
-    # Extract values for the log table
-    voltage = sensor_data.get("voltage", 0)
-    temperature = sensor_data.get("temperature", 0)
-    
-    devices = sensor_data.get("devices", {})
+    # Extract values for the datasheet log table
+    voltage = data.get("voltage", 0)
+    temperature = data.get("temperature", 0)
+    devices = data.get("devices", {})
     fan_status = devices.get("fan", {}).get("status", False)
     light_status = devices.get("light", {}).get("status", False)
-    needs_maintenance = sensor_data.get("needs_maintenance", False)
-    
+    needs_maintenance = data.get("needs_maintenance", False)
+
     # Format log entry
     log_entry = {
         "timestamp": datetime.now().strftime("%I:%M:%S %p"),
@@ -53,33 +53,43 @@ def data():
         "light": light_status,
         "maintenance": "MAINTENANCE_REQUIRED" if needs_maintenance else "NORMAL"
     }
-    
-    # Keep latest 100 entries
+
+    # Keep latest 100 entries for datasheet view
     telemetry_logs.insert(0, log_entry)
     if len(telemetry_logs) > 100:
         telemetry_logs.pop()
-        
-    return sensor_data
+
+    return {"status": "success"}
+
 
 @app.get("/logs")
 def get_logs():
-    """Returns historical telemetry logs for the frontend datasheet modal."""
     return telemetry_logs
+
 
 @app.post("/toggle/{device}")
 def toggle(device: str):
-    if device.lower() != "bms":
-        return {"error": "Only BMS device can be toggled"}
-    result = toggle_device(device)
+    result = toggle_device(device.lower())
+
     if result is None:
-        return {"error": "Toggle failed"}
+        return {"error": f"Device '{device}' not found"}
+
     return result
+
+
+@app.get("/bill")
+def bill(hours: float = 24.0):
+    return calculate_bill(hours)
+
 
 @app.post("/chat")
 def chat(body: dict):
-    # Place holder if ai_agent is imported separately
-    from backend.ai_agent import ask_agent
-    return {"reply": ask_agent(body["message"])}
+    message = body.get("message", "")
+
+    if not message:
+        return {"reply": "Please provide a valid message."}
+
+    return {"reply": ask_agent(message)}
 
 @app.post("/control/ejection")
 async def control_ejection(request: Request):
