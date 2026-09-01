@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.pi_mock import get_sensor_data, toggle_device, calculate_bill
+from backend.pi_mock import get_sensor_data, toggle_device
 from backend.ai_agent import ask_agent
 from datetime import datetime
 
