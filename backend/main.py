@@ -76,12 +76,6 @@ def toggle(device: str):
 
     return result
 
-
-@app.get("/bill")
-def bill(hours: float = 24.0):
-    return calculate_bill(hours)
-
-
 @app.post("/chat")
 def chat(body: dict):
     message = body.get("message", "")
