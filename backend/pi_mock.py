@@ -61,6 +61,7 @@ def load_bms_data():
 _base_data = load_bms_data()
 devices = _base_data.get("devices", {
     "fan": {"status": True, "watts": 50},
+    
     "light": {"status": True, "watts": 10},
     "bms": {"status": True, "watts": 5}
 })
@@ -99,13 +100,19 @@ def get_sensor_data():
     data["current"] = round(data["power"] / voltage, 2)
     
     # Dynamic safety alerts check (mocked / scalable for real hardware sensors)
-    temp = data["temperature"]
-    smoke = temp > 50.0 or data.get("safety", {}).get("smoke", False)
-    spark = temp > 60.0 or data.get("safety", {}).get("spark", False)
-    flame = spark or data.get("safety", {}).get("flame", False)
-    fire = smoke and spark
+    #temp = data["temperature"]
+    #smoke = temp > 50.0 or data.get("safety", {}).get("smoke", False)
+    #spark = temp > 60.0 or data.get("safety", {}).get("spark", False)
+    #flame = spark or data.get("safety", {}).get("flame", False)
+    #fire = smoke and spark
     
-  
+    # Force stable safety status for normal baseline
+    temp = data["temperature"]
+    smoke = False       
+    spark = False
+    flame = False
+    fire = False
+     
 
     data["safety"] = {
         "smoke": smoke,
@@ -114,7 +121,7 @@ def get_sensor_data():
         "fire": fire
     }
     
-    # Dynamic alerts array
+    
     # Dynamic alerts array
     alerts = []
     if smoke: alerts.append("Smoke detected")
