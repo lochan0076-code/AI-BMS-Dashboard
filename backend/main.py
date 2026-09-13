@@ -1,49 +1,44 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.pi_mock import get_sensor_data, toggle_device, calculate_bill
-from backend.ai_agent import ask_agent
+from pydantic import BaseModel
+from typing import Optional, Dict, List
 
 app = FastAPI(title="AI BMS Dashboard API")
 
+latest_hardware_data = {}
+telemetry_logs = []
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/")
 def root():
     return {"status": "AI BMS Backend Running"}
 
+@app.post("/update_sensor_data")
+def update_sensor_data(data: dict):
+    global latest_hardware_data, telemetry_logs
+    latest_hardware_data = data
+    telemetry_logs.append(data)
+    if len(telemetry_logs) > 100:
+        telemetry_logs.pop(0)
+    return {"status": "success", "received": data}
 
 @app.get("/data")
-def data():
-    return get_sensor_data()
-
-
-@app.post("/toggle/{device}")
-def toggle(device: str):
-    result = toggle_device(device.lower())
-
-    if result is None:
-        return {"error": f"Device '{device}' not found"}
-
-    return result
-
-
-@app.get("/bill")
-def bill(hours: float = 24.0):
-    return calculate_bill(hours)
-
-
-@app.post("/chat")
-def chat(body: dict):
-    message = body.get("message", "")
-
-    if not message:
-        return {"reply": "Please provide a valid message."}
-
-    return {"reply": ask_agent(message)}
+def get_data():
+    if not latest_hardware_data:
+        return {
+            "voltage": 0.0,
+            "current": 0.0,
+            "temperature": 0.0,
+            "soc": 0,
+            "soh": 100,
+            "rul": "N/A",
+            "alerts": []
+        }
+    return latest_hardware_data
