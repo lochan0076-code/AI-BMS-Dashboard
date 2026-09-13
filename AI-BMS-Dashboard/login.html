@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI BMS Dashboard - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+            background-image: radial-gradient(ellipse at 20% 50%, #1a1a3e 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, #0d2137 0%, transparent 50%);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            width: 380px;
+            box-shadow: 0 0 40px rgba(0, 150, 255, 0.1);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            font-size: 48px;
+        }
+
+        .logo h1 {
+            color: #00aaff;
+            font-size: 22px;
+            margin-top: 10px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 13px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: #00aaff;
+            box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #0066ff, #00aaff);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 150, 255, 0.4);
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.6);
+        }
+
+        #error-msg {
+            color: #ff4444;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="logo">
+            <div class="logo-icon">🏠</div>
+            <h1>AI BMS Dashboard</h1>
+            <p>Smart Home Control System</p>
+        </div>
+        <input type="email" id="email" placeholder="Email address" />
+        <input type="password" id="password" placeholder="Password" />
+        <button id="login-btn" onclick="login()">Sign In</button>
+        <p id="error-msg"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
+            authDomain: "ai-bms-dashboard.firebaseapp.com",
+            projectId: "ai-bms-dashboard",
+            storageBucket: "ai-bms-dashboard.firebasestorage.app",
+            messagingSenderId: "706812934530",
+            appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.login = async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const btn = document.getElementById("login-btn");
+            btn.textContent = "Signing in...";
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = "index.html";
+            } catch (err) {
+                document.getElementById("error-msg").textContent = "Invalid email or password.";
+                btn.textContent = "Sign In";
+            }
+        };
+    </script>
+</body>
+
+</html>
