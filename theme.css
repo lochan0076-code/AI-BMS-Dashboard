@@ -7,6 +7,7 @@
   --text-muted: #94a3b8;
   --border-color: #1e293b;
   --accent-color: #3b82f6;
+  --card-value-color: #ffffff;
 }
 
 [data-theme="light"] {
@@ -18,6 +19,7 @@
   --text-muted: #64748b;
   --border-color: #e2e8f0;
   --accent-color: #2563eb;
+  --card-value-color: #0f172a;
 }
 
 /* Global Reset for Smooth Theme Switching */
@@ -25,4 +27,23 @@ body {
   background-color: var(--bg-main);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Force high-contrast text color for metric cards */
+.sensor-card,
+.stat-card,
+.card {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+.sensor-card .value,
+.sensor-card .metric-value,
+.stat-card .value,
+.stat-card .metric-value,
+.metric-card .value,
+.value,
+.metric-value,
+h1, h2, h3, h4, h5, h6 {
+  color: var(--card-value-color) !important;
 }
