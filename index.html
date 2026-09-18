@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#07071a">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="theme.css">
     <meta name="theme-color" content="#0f172a">
@@ -16,11 +15,6 @@
     <title>AI BMS Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
         :root {
     --bg-main: #07071a;
@@ -218,13 +212,9 @@ nav {
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(0, 150, 255, 0.12);
-            border-radius: 16px;
-            padding: 22px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
+  background: var(--card-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+}
 
         .card:hover {
             border-color: rgba(0, 150, 255, 0.35);
@@ -240,6 +230,8 @@ nav {
         }
 
         .card-big {
+  color: var(--text-main, #ffffff);
+}.card-big {
             font-size: 36px;
             font-weight: 700;
             color: #fff;
@@ -252,10 +244,8 @@ nav {
         }
 
         .card-sub {
-            color: #444;
-            font-size: 12px;
-            margin-top: 6px;
-        }
+  color: var(--text-sub, #888888);
+}
 
         .card.danger {
             border-color: rgba(255, 50, 50, 0.6) !important;
@@ -803,45 +793,50 @@ nav {
 
         <!-- Sensor Cards -->
         <div class="section-label">📡 Live Sensor Data</div>
-        <div class="grid-4">
-            <div class="card">
-                <div class="card-label">🌡️ Temperature</div>
-                <div class="card-big" id="temperature">--<span>°C</span></div>
-                <div class="card-sub" id="temp-trend">Updating...</div>
-            </div>
-            <div class="card">
-                <div class="card-label">💧 Humidity</div>
-                <div class="card-big" id="humidity">--<span>%</span></div>
-                <div class="card-sub">Live reading</div>
-            </div>
-            <div class="card">
-                <div class="card-label">⚡ Voltage</div>
-                <div class="card-big" id="voltage">--<span>V</span></div>
-                <div class="card-sub">Supply voltage</div>
-            </div>
-            <div class="card">
-                <div class="card-label">🔋 Current</div>
-                <div class="card-big" id="current">--<span>A</span></div>
-                <div class="card-sub">Load current</div>
-            </div>
-        </div>
+<div class="grid-4">
+    <div class="card">
+        <div class="card-label">🌡️ Temperature</div>
+        <div class="card-big" id="temperature">--<span>°C</span></div>
+        <div class="card-sub" id="temp-trend">Updating...</div>
+    </div>
+    <div class="card">
+        <div class="card-label">💧 Humidity</div>
+        <div class="card-big" id="humidity">--<span>%</span></div>
+        <div class="card-sub">Relative Humidity</div>
+    </div>
+    <div class="card">
+        <div class="card-label">⚡ Voltage</div>
+        <div class="card-big" id="voltage">--<span>V</span></div>
+        <div class="card-sub">Supply Bus</div>
+    </div>
+    <div class="card">
+        <div class="card-label">🔋 Current</div>
+        <div class="card-big" id="current">--<span>A</span></div>
+        <div class="card-sub">Active Load</div>
+    </div>
+</div>
 
         <!-- Smoke & Spark Sensors -->
         <div class="section-label">🔥 Safety Sensors</div>
-        <div class="grid-2">
-            <div class="sensor-card safe" id="smoke-card">
-                <div class="sensor-icon">💨</div>
-                <div class="sensor-name">Smoke Sensor</div>
-                <div class="sensor-value sensor-safe" id="smoke-value">CLEAR</div>
-                <div style="font-size:12px;color:#555;margin-top:6px" id="smoke-level">No smoke detected</div>
-            </div>
-            <div class="sensor-card safe" id="spark-card">
-                <div class="sensor-icon">⚡</div>
-                <div class="sensor-name">Spark / Flame Sensor</div>
-                <div class="sensor-value sensor-safe" id="spark-value">CLEAR</div>
-                <div style="font-size:12px;color:#555;margin-top:6px" id="spark-level">No spark detected</div>
-            </div>
+<div class="grid-2">
+    <div class="sensor-card safe" id="smoke-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 28px;">💨</span>
+            <span class="device-badge status-off" id="smoke-value">CLEAR</span>
         </div>
+        <div class="sensor-name">Smoke Detector</div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="smoke-level">Ambient levels normal</div>
+    </div>
+    
+    <div class="sensor-card safe" id="spark-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 28px;">⚡</span>
+            <span class="device-badge status-off" id="spark-value">CLEAR</span>
+        </div>
+        <div class="sensor-name">Spark / Flame Sensor</div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="spark-level">No optical arc detected</div>
+    </div>
+</div>
 
         <!-- Graphs -->
         <div class="section-label">📊 Live Graphs</div>
@@ -867,52 +862,67 @@ nav {
         </div>
 
         <!-- Device Status -->
-        <div class="section-label">🔌 Device Status & BMS Control</div>
-        <div class="grid-3">
-            <div class="device-card" id="card-fan">
-                <div class="device-emoji">🌀</div>
-                <div class="device-name">Fan</div>
-                <div class="device-watts">50W · Status Only</div>
-                <div class="switch-readonly">
-                    <input type="checkbox" id="switch-fan" disabled>
-                    <span class="slider-readonly" id="slider-fan"></span>
-                </div>
-                <div id="fan-status" class="status-text status-off">OFF</div>
-            </div>
-
-            <div class="device-card" id="card-light">
-                <div class="device-emoji">💡</div>
-                <div class="device-name">Light</div>
-                <div class="device-watts">10W · Status Only</div>
-                <div class="switch-readonly">
-                    <input type="checkbox" id="switch-light" disabled>
-                    <span class="slider-readonly" id="slider-light"></span>
-                </div>
-                <div id="light-status" class="status-text status-off">OFF</div>
-            </div>
-
-            <div class="card" id="card-ejection">
-                <h3>🔋 Battery Ejection System</h3>
-                <p style="font-size: 0.85rem; color: #888; margin-bottom: 12px;">Emergency Mechanical Release</p>
-
-                <label class="switch">
-                    <input type="checkbox" id="switch-ejection" onchange="toggleEjection(this.checked)">
-                    <span class="slider round"></span>
-                </label>
-
-                <p style="margin-top: 10px;">Status: <span id="ejection-status"
-                        style="font-weight: bold; color: #4ade80;">LOCKED</span></p>
-
-                <!-- Maintenance Indicator Inside Card -->
-                <div
-                    style="margin-top: 15px; display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;">
-                    <span style="font-size: 13px; color: #aaa;">Maintenance Needed:</span>
-                    <span id="maint-light"
-                        style="height: 10px; width: 10px; border-radius: 50%; background-color: #00ff88; display: inline-block; box-shadow: 0 0 8px #00ff88;"></span>
-                    <strong id="maint-text" style="color: #00ff88; font-size: 13px;">NO</strong>
-                </div>
+<div class="section-label">🔌 Device Status & BMS Control</div>
+<div class="grid-3">
+    <!-- Modernized Fan Card -->
+    <div class="device-card" id="card-fan">
+        <div class="device-header">
+            <span class="device-emoji">🌀</span>
+            <span class="device-badge status-off" id="fan-badge">OFF</span>
+        </div>
+        <div class="device-info">
+            <div class="device-name">Cooling Fan</div>
+            <div class="device-watts">50W · Status Monitoring</div>
+        </div>
+        <div class="device-control">
+            <div class="switch-readonly">
+                <input type="checkbox" id="switch-fan" disabled>
+                <span class="slider-readonly" id="slider-fan"></span>
             </div>
         </div>
+    </div>
+
+    <!-- Modernized Light Card -->
+    <div class="device-card" id="card-light">
+        <div class="device-header">
+            <span class="device-emoji">💡</span>
+            <span class="device-badge status-off" id="light-badge">OFF</span>
+        </div>
+        <div class="device-info">
+            <div class="device-name">Cabinet Light</div>
+            <div class="device-watts">10W · Status Monitoring</div>
+        </div>
+        <div class="device-control">
+            <div class="switch-readonly">
+                <input type="checkbox" id="switch-light" disabled>
+                <span class="slider-readonly" id="slider-light"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modernized Ejection Card -->
+    <div class="device-card danger-card" id="card-ejection">
+        <div class="device-header">
+            <span class="device-emoji">🔋</span>
+            <span class="device-badge danger-badge" id="ejection-status">NORMAL</span>
+        </div>
+        <div class="device-info">
+            <div class="device-name">Battery Ejection</div>
+            <div class="device-watts">Emergency Release</div>
+        </div>
+        <div class="device-control">
+            <label class="switch">
+                <input type="checkbox" id="switch-ejection" onchange="toggleEjection(this.checked)">
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="maint-bar">
+            <span>Maintenance:</span>
+            <span id="maint-light" class="maint-dot"></span>
+            <strong id="maint-text">NO</strong>
+        </div>
+    </div>
+</div>
 
         <!-- Chat Section -->
         <div class="card ai-agent-card">
@@ -954,7 +964,7 @@ nav {
 
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
-            const API = "https://ai-bms-dashboard.onrender.com/data";
+            const API = "https://ai-bms-dashboard.onrender.com";
 
             onAuthStateChanged(auth, user => {
                 if (!user) { window.location.href = "login.html"; return; }
@@ -988,27 +998,38 @@ if (themeBtn) {
             const tempData = [], humData = [], voltData = [], currData = [];
             const maxPts = 20;
 
-            const mkChart = (id, dataArr, color, label) => new Chart(document.getElementById(id), {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        label,
-                        data: dataArr,
-                        borderColor: color,
-                        backgroundColor: color.replace(')', ',0.07)').replace('rgb', 'rgba'),
-                        fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: color
-                    }]
-                },
-                options: {
-                    responsive: true, animation: { duration: 300 },
-                    plugins: { legend: { display: false } },
-                    scales: {
-    x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-muted') }, grid: { color: 'rgba(255,255,255,0.04)' } },
-    y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-muted') }, grid: { color: 'rgba(255,255,255,0.04)' } }
-}   
-                }
-            });
+            const mkChart = (id, dataArr, color, label) => {
+    const ctx = document.getElementById(id).getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 160);
+    gradient.addColorStop(0, color.replace('rgb', 'rgba').replace(')', ',0.3)'));
+    gradient.addColorStop(1, color.replace('rgb', 'rgba').replace(')', ',0.0)'));
+
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label,
+                data: dataArr,
+                borderColor: color,
+                borderWidth: 2,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 0,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#64748b', font: { family: 'Inter' } }, grid: { display: false } },
+                y: { ticks: { color: '#64748b', font: { family: 'Inter' } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+            }
+        }
+    });
+};
 
             const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
             const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
@@ -1279,20 +1300,6 @@ if (themeBtn) {
 
             // Keep Render awake
             setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
-
-            // BMS Toggle
-            window.toggleBMS = async () => {
-                try {
-                    const res = await fetch(`${API}/toggle/bms`, { method: "POST" });
-                    const d = await res.json();
-                    const sw = document.getElementById("switch-bms");
-                    const st = document.getElementById("bms-status");
-                    const card = document.getElementById("card-bms");
-                    if (sw) sw.checked = d.status;
-                    if (st) { st.textContent = d.status ? "ON" : "OFF"; st.className = `status-text ${d.status ? "status-on" : "status-off"}`; }
-                    if (card) card.className = `device-card bms-card${d.status ? " active" : ""}`;
-                } catch (e) { console.error(e); }
-            };
 
             // Send Chat Message Handler
             window.sendMessage = async function () {

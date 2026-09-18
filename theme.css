@@ -1,49 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  /* Dark Mode (Default) */
-  --bg-main: #0b0f19;
-  --bg-card: #0f172a;
-  --bg-input: #020617;
-  --text-primary: #f8fafc;
-  --text-muted: #94a3b8;
-  --border-color: #1e293b;
-  --accent-color: #3b82f6;
-  --card-value-color: #ffffff;
+    --bg-main: #090d16;
+    --bg-card: rgba(18, 24, 38, 0.65);
+    --bg-card-hover: rgba(25, 33, 52, 0.85);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(0, 170, 255, 0.3);
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-glow: 0 8px 32px 0 rgba(0, 170, 255, 0.12);
 }
 
 [data-theme="light"] {
-  /* Light Mode Overrides */
-  --bg-main: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-input: #f1f5f9;
-  --text-primary: #0f172a;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  --accent-color: #2563eb;
-  --card-value-color: #0f172a;
+    --bg-main: #f8fafc;
+    --bg-card: rgba(255, 255, 255, 0.85);
+    --bg-card-hover: #ffffff;
+    --border-color: rgba(203, 213, 225, 0.6);
+    --border-glow: rgba(14, 165, 233, 0.4);
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --accent-blue: #0284c7;
+    --accent-glow: 0 8px 30px 0 rgba(0, 0, 0, 0.04);
 }
 
-/* Global Reset for Smooth Theme Switching */
 body {
-  background-color: var(--bg-main);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+    background: var(--bg-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    min-height: 100vh;
+    transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Force high-contrast text color for metric cards */
-.sensor-card,
-.stat-card,
-.card {
-  background-color: var(--bg-card) !important;
-  border-color: var(--border-color) !important;
+.card, .sensor-card, .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 22px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--accent-glow);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sensor-card .value,
-.sensor-card .metric-value,
-.stat-card .value,
-.stat-card .metric-value,
-.metric-card .value,
-.value,
-.metric-value,
-h1, h2, h3, h4, h5, h6 {
-  color: var(--card-value-color) !important;
+.card:hover, .sensor-card:hover, .chart-card:hover {
+    border-color: var(--border-glow);
+    background: var(--bg-card-hover);
+    transform: translateY(-3px);
+}
+
+.card-label {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.card-big {
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    color: var(--text-primary);
+}
+
+.card-big span {
+    font-size: 18px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-left: 2px;
 }
