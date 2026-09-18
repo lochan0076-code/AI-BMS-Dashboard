@@ -1,6 +1,9 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from datetime import datetime
+import os
 
 # Optional: keep ask_agent if backend/ai_agent.py exists; otherwise remove
 try:
@@ -17,6 +20,8 @@ def calculate_rul(voltage, temperature):
 
 app = FastAPI(title="AI BMS Dashboard API")
 
+app.mount("/static", StaticFiles(directory="."), name="static")
+
 latest_hardware_data = {}
 telemetry_logs = []
 
@@ -29,7 +34,7 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"status": "AI BMS Backend Running"}
+    return FileResponse("index.html")
 
 @app.get("/data")
 def data():
