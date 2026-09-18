@@ -1,186 +1,82 @@
-from groq import Groq
-import json
 import os
-from pathlib import Path
-from dotenv import load_dotenv
+import time
+from google import genai
+from backend.pi_mock import get_sensor_data, toggle_device
+from google.api_core.exceptions import ServiceUnavailable
 
-from backend.pi_mock import (
-    get_sensor_data,
-    toggle_device,
-    calculate_bill,
-)
+# Initializes Google GenAI client using the GOOGLE_API_KEY environment variable
+client = genai.Client()
 
+SYSTEM_PROMPT = """You are the BMS AI Agent — an intelligent Battery Management System assistant 
+connected to a Raspberry Pi 3B+.
 
-# ---------------------------------------------------------
-# LOAD ENVIRONMENT VARIABLES
-# ---------------------------------------------------------
+Your capabilities:
+- Read live sensor data (temperature, humidity, voltage, current, power, battery SOC)
+- Monitor safety sensors (smoke, spark, flame, fire detectors)
+- Trigger the Battery Ejection System in emergency scenarios
+- Report battery state of charge (SOC) and thermal status
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ENV_FILE = PROJECT_ROOT / ".env"
-
-load_dotenv(dotenv_path=ENV_FILE)
-
-api_key = os.getenv("GROQ_API_KEY")
-
-if not api_key:
-    raise RuntimeError(
-        "GROQ_API_KEY is not set. Please add it to the .env file."
-    )
-
-client = Groq(api_key=api_key)
-
-
-# ---------------------------------------------------------
-# AI SYSTEM PROMPT
-# ---------------------------------------------------------
-
-SYSTEM = """You are the AI assistant for an AI-based Battery Management System (AI-BMS) dashboard.
-
-You monitor a Raspberry Pi-based battery management system.
-
-You can:
-- Read battery temperature
-- Read humidity
-- Read voltage
-- Read current
-- Read power
-- Read battery state of charge (SOC)
-- Read battery status
-- Read safety conditions
-- Read the ON/OFF status of the BMS, fan, and light
-- Calculate electricity usage and bill
-- Control the BMS ON/OFF state
-
-IMPORTANT DEVICE CONTROL RULES:
-
-- The BMS is the ONLY device that can be controlled.
-- The fan is MONITORING ONLY.
-- The light is MONITORING ONLY.
-- Never attempt to turn the fan ON or OFF.
-- Never attempt to turn the light ON or OFF.
-- If the user asks to control the fan or light, explain that these devices are monitoring-only and cannot be controlled from the dashboard.
-- Never claim that a device was changed unless the backend actually changed it.
-
-Reply concisely and clearly.
+Rules:
+- Always respond helpfully and concisely (under 3 sentences unless explaining something complex)
+- When fire, smoke, or spark is detected, respond with URGENT warnings and suggest ejecting the battery module if unsafe
+- Always confirm status changes clearly
 """
 
-
-# ---------------------------------------------------------
-# AI AGENT
-# ---------------------------------------------------------
-
 def ask_agent(user_msg: str) -> str:
-
-    state = json.dumps(
-        get_sensor_data(),
-        indent=2
-    )
-
-    bill = json.dumps(
-        calculate_bill(),
-        indent=2
-    )
-
-    context = (
-        f"Current sensor state:\n{state}\n\n"
-        f"Current bill (24h):\n{bill}"
-    )
-
-    user_lower = user_msg.lower()
-
-    # -----------------------------------------------------
-    # BMS CONTROL ONLY
-    # -----------------------------------------------------
-
-    if "bms" in user_lower:
-
-        control_words = [
-            "on",
-            "off",
-            "toggle",
-            "turn",
-            "switch",
-        ]
-
-        if any(
-            word in user_lower
-            for word in control_words
-        ):
-
-            result = toggle_device("bms")
-
-            if result is not None:
-
-                status = (
-                    "ON"
-                    if result.get("status")
-                    else "OFF"
-                )
-
-                return f"BMS is now {status}."
-
-    # -----------------------------------------------------
-    # FAN / LIGHT ARE MONITORING ONLY
-    # -----------------------------------------------------
-
-    if (
-        "fan" in user_lower
-        or "light" in user_lower
-    ):
-
-        requested_device = (
-            "fan"
-            if "fan" in user_lower
-            else "light"
-        )
-
-        control_words = [
-            "on",
-            "off",
-            "toggle",
-            "turn",
-            "switch",
-        ]
-
-        if any(
-            word in user_lower
-            for word in control_words
-        ):
-
-            return (
-                f"The {requested_device} is "
-                "monitoring-only and cannot be "
-                "controlled from the dashboard."
-            )
-
-    # -----------------------------------------------------
-    # GROQ AI RESPONSE
-    # -----------------------------------------------------
-
     try:
+        state = get_sensor_data()
 
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        SYSTEM
-                        + "\n\n"
-                        + context
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": user_msg,
-                },
-            ],
+        context = f"""
+Live BMS Sensor Data:
+- Temperature: {state.get('temperature', 'N/A')}°C
+- Humidity: {state.get('humidity', 'N/A')}%
+- Voltage: {state.get('voltage', 'N/A')}V
+- Current: {state.get('current', 'N/A')}A
+- Power: {state.get('power', 'N/A')}W
+- Battery SOC: {state.get('battery_soc', 'N/A')}%
+- Battery Status: {state.get('battery_status', 'N/A')}
+- Remaining Useful Life (RUL): {state.get('rul', 'N/A')}
+
+Safety Status:
+- Smoke: {'DETECTED ⚠️' if state.get('safety', {}).get('smoke') else 'Clear'}
+- Spark: {'DETECTED ⚠️' if state.get('safety', {}).get('spark') else 'Clear'}
+- Flame: {'DETECTED ⚠️' if state.get('safety', {}).get('flame') else 'Clear'}
+- Fire:  {'🔥 CRITICAL' if state.get('safety', {}).get('fire') else 'Clear'}
+
+System Status:
+- Battery Ejection System: {state.get('ejection_status', 'LOCKED')}
+"""
+
+        msg_lower = user_msg.lower()
+
+        # Handle Battery Ejection commands
+        if any(w in msg_lower for w in ["eject", "ejection", "release", "disconnect"]):
+            result = toggle_device("ejection")
+            if result:
+                status = "EJECTED ⚠️" if result.get("status") else "LOCKED"
+                return f"🚨 Battery Ejection System status updated: **{status}**."
+
+        # Build full prompt for Gemini 2.5
+        prompt = f"{SYSTEM_PROMPT}\n\nCurrent Context:\n{context}\n\nUser Question: {user_msg}\n\nBMS AI Agent:"
+
+        response = client.models.generate_content(
+            model='gemini-3.6-flash',
+            contents=prompt,
         )
-
-        return response.choices[0].message.content
+        return response.text.strip()
 
     except Exception as e:
+        return f"BMS Agent error: {str(e)}"
 
-        return (
-            f"AI Agent response unavailable: {e}"
-        )
+def get_ai_response(prompt):
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            # Your model call here
+            response = model.generate_content(prompt)
+            return response.text
+        except ServiceUnavailable:
+            if attempt < max_retries - 1:
+                time.sleep(2)  # Wait 2 seconds before retrying
+                continue
+            return "The AI agent is currently busy due to high traffic. Please try again in a few moments."
