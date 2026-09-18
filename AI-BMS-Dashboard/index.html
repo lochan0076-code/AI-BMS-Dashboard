@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#07071a">
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="theme.css">
     <meta name="theme-color" content="#0f172a">
     <script>
         if ('serviceWorker' in navigator) {
@@ -21,25 +22,50 @@
             box-sizing: border-box;
         }
 
-        body {
-            background: #07071a;
-            font-family: 'Segoe UI', sans-serif;
-            color: #fff;
-            min-height: 100vh;
-        }
+        :root {
+    --bg-main: #07071a;
+    --bg-nav: rgba(255, 255, 255, 0.04);
+    --bg-card: rgba(255, 255, 255, 0.04);
+    --border-color: rgba(0, 150, 255, 0.15);
+    --text-primary: #ffffff;
+    --text-muted: #aaaaaa;
+}
 
-        nav {
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 150, 255, 0.15);
-            padding: 14px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+[data-theme="light"] {
+    --bg-main: #f1f5f9;
+    --bg-nav: rgba(255, 255, 255, 0.9);
+    --bg-card: #ffffff;
+    --border-color: rgba(0, 150, 255, 0.3);
+    --text-primary: #0f172a;
+    --text-muted: #475569;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-main);
+    font-family: 'Segoe UI', sans-serif;
+    color: var(--text-primary);
+    min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+nav {
+    background: var(--bg-nav);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 14px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
 
         .nav-left {
             display: flex;
@@ -59,7 +85,7 @@
         }
 
         .nav-left h1 {
-            color: #fff;
+            color: var(--text-primary);
             font-size: 18px;
             font-weight: 700;
         }
@@ -468,8 +494,8 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
-            background: #0f172a;
-            border: 1px solid #1e293b;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 18px;
             box-sizing: border-box;
@@ -502,7 +528,7 @@
             min-height: 180px;
             max-height: 280px;
             overflow-y: auto;
-            background: #020617;
+            background: rgba(0, 0, 0, 0.2);
             border: 1px solid #1e293b;
             border-radius: 8px;
             padding: 12px;
@@ -548,8 +574,8 @@
             padding: 12px 14px;
             border-radius: 8px;
             border: 1px solid #334155;
-            background: #020617;
-            color: #f8fafc;
+            background: var(--bg-card);
+            color: var(--text-primary);
             font-size: 0.9rem;
             outline: none;
         }
@@ -750,23 +776,26 @@
     </div>
 
     <nav>
-        <div class="nav-left">
-            <div class="nav-logo">⚡</div>
-            <h1><span>BMS</span> AI Dashboard</h1>
+    <div class="nav-left">
+        <div class="nav-logo">⚡</div>
+        <h1><span>BMS</span> AI Dashboard</h1>
+    </div>
+    <div class="nav-right">
+        <div class="live-badge">
+            <div class="live-dot"></div>Live
         </div>
-        <div class="nav-right">
-            <div class="live-badge">
-                <div class="live-dot"></div>Live
-            </div>
 
-            <button onclick="toggleDatasheetModal()"
-                style="background: #2563eb; color: #ffffff; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">View
-                Datasheet</button>
+        <button onclick="toggleDatasheetModal()"
+            style="background: #2563eb; color: #ffffff; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">View
+            Datasheet</button>
 
-            <span id="user-name"></span>
-            <button id="logout-btn">⏻ Logout</button>
-        </div>
-    </nav>
+        <!-- INSERT THE BUTTON HERE -->
+        <button id="theme-toggle" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;">🌙</button>
+
+        <span id="user-name"></span>
+        <button id="logout-btn">⏻ Logout</button>
+    </div>
+</nav>
 
     <div class="wake-banner">🎤 Say "<b>BMS</b>" to activate voice</div>
 
@@ -936,6 +965,24 @@
                 signOut(auth).then(() => window.location.href = "login.html");
             });
 
+            // Theme Toggle Initialization and Event Listener
+const themeBtn = document.getElementById("theme-toggle");
+const savedTheme = localStorage.getItem("theme") || "dark";
+
+document.documentElement.setAttribute("data-theme", savedTheme);
+if (themeBtn) themeBtn.textContent = savedTheme === "dark" ? "🌙" : "☀️";
+
+if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+        const currentTheme = document.documentElement.getAttribute("data-theme");
+        const nextTheme = currentTheme === "dark" ? "light" : "dark";
+        
+        document.documentElement.setAttribute("data-theme", nextTheme);
+        localStorage.setItem("theme", nextTheme);
+        themeBtn.textContent = nextTheme === "dark" ? "🌙" : "☀️";
+    });
+}
+
             // Charts
             const labels = [];
             const tempData = [], humData = [], voltData = [], currData = [];
@@ -957,9 +1004,9 @@
                     responsive: true, animation: { duration: 300 },
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { ticks: { color: '#444', maxTicksLimit: 5 }, grid: { color: 'rgba(255,255,255,0.04)' } },
-                        y: { ticks: { color: '#444' }, grid: { color: 'rgba(255,255,255,0.04)' } }
-                    }
+    x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-muted') }, grid: { color: 'rgba(255,255,255,0.04)' } },
+    y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-muted') }, grid: { color: 'rgba(255,255,255,0.04)' } }
+}   
                 }
             });
 
