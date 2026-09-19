@@ -791,8 +791,8 @@ nav {
 
     <div class="container">
 
-        <!-- Sensor Cards -->
-        <div class="section-label">📡 Live Sensor Data</div>
+       <!-- Live Sensor & Battery Data Cards -->
+<div class="section-label">📡 Live Sensor & Battery Data</div>
 <div class="grid-4">
     <div class="card">
         <div class="card-label">🌡️ Temperature</div>
@@ -810,9 +810,24 @@ nav {
         <div class="card-sub">Supply Bus</div>
     </div>
     <div class="card">
-        <div class="card-label">🔋 Current</div>
+        <div class="card-label">🔌 Current</div>
         <div class="card-big" id="current">--<span>A</span></div>
-        <div class="card-sub">Active Load</div>
+        <div class="card-sub">Load Current</div>
+    </div>
+    <div class="card">
+        <div class="card-label">🔋 State of Charge (SOC)</div>
+        <div class="card-big" id="soc">--<span>%</span></div>
+        <div class="card-sub">Battery Level</div>
+    </div>
+    <div class="card">
+        <div class="card-label">🩺 State of Health (SOH)</div>
+        <div class="card-big" id="soh">--<span>%</span></div>
+        <div class="card-sub">Health Percentage</div>
+    </div>
+    <div class="card">
+        <div class="card-label">⏳ Remaining Useful Life</div>
+        <div class="card-big" id="rul-value">--</div>
+        <div class="card-sub">Estimated Health RUL</div>
     </div>
 </div>
 
@@ -1175,6 +1190,13 @@ if (themeBtn) {
                     document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
                     document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
                     document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
+                    document.getElementById("soc").innerHTML = `${d.soc ?? '--'}<span>%</span>`;
+                    document.getElementById("soh").innerHTML = `${d.soh ?? '--'}<span>%</span>`;
+                    
+                    const rulElem = document.getElementById("rul-value");
+                    if (rulElem) {
+                        rulElem.innerHTML = d.rul ?? "--";
+                    }
 
                     // Trend
                     if (lastTemp !== null) {

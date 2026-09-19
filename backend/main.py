@@ -5,7 +5,6 @@ from fastapi.staticfiles import StaticFiles
 from datetime import datetime
 import os
 
-# Optional: keep ask_agent if backend/ai_agent.py exists; otherwise remove
 try:
     from backend.ai_agent import ask_agent
 except ImportError:
@@ -15,8 +14,11 @@ def calculate_rul(voltage, temperature):
     base_rul_hours = 1200
     temp_penalty = max(0, (temperature - 25) * 15)
     volt_penalty = max(0, (48.0 - voltage) * 20)
-    estimated_rul = max(0, int(base_rul_hours - temp_penalty - volt_penalty))
-    return f"{estimated_rul} hrs"
+    estimated_rul_hours = max(0, int(base_rul_hours - temp_penalty - volt_penalty))
+    
+    # Calculate RUL Percentage
+    rul_percentage = max(0, min(100, int((estimated_rul_hours / base_rul_hours) * 100)))
+    return f"{rul_percentage}%"
 
 app = FastAPI(title="AI BMS Dashboard API")
 
@@ -46,14 +48,14 @@ def data():
             "current": 0.0,
             "soc": 0.0,
             "soh": 0.0,
-            "rul": 0,
+            "rul": "0%",
             "needs_maintenance": False,
             "devices": {"fan": {"status": False}, "light": {"status": False}, "bms": {"status": False}},
             "safety": {"smoke": False, "spark": False, "fire": False}
         }
     
     d = dict(latest_hardware_data)
-    if "rul" not in d:
+    if "rul" not in d or isinstance(d["rul"], (int, float)):
         d["rul"] = calculate_rul(d.get("voltage", 0.0), d.get("temperature", 0.0))
     return d
 
@@ -98,7 +100,7 @@ def chat(body: dict):
     if not message:
         return {"reply": "Please provide a valid message."}
     if ask_agent:
-        return {"reply": ask_agent(message)}
+        return {"reply": ask_agent(message, latest_hardware_data)}
     return {"reply": "AI Agent offline."}
 
 @app.post("/control/ejection")

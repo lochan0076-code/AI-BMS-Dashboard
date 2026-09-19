@@ -1,71 +1,58 @@
 import os
-import time
 from google import genai
-from google.api_core.exceptions import ServiceUnavailable
-from backend.pi_mock import get_sensor_data, toggle_device
 
-client = genai.Client()
-
-SYSTEM_PROMPT = """You are the BMS AI Agent — an intelligent Battery Management System assistant 
-connected to a Raspberry Pi 3B+.
+SYSTEM_PROMPT = """You are the BMS AI Agent — an intelligent Battery Management System assistant connected directly to live hardware sensors.
 
 Your capabilities:
-- Read live sensor data (temperature, humidity, voltage, current, power, battery SOC)
+- Read live sensor data (temperature, humidity, voltage, current, battery SOC, RUL)
 - Monitor safety sensors (smoke, spark, flame, fire detectors)
-- Trigger the Battery Ejection System in emergency scenarios
-- Report battery state of charge (SOC) and thermal status
+- Report battery state of charge, thermal status, and life remaining
 
 Rules:
-- Always respond helpfully and concisely (under 3 sentences unless explaining something complex)
-- When fire, smoke, or spark is detected, respond with URGENT warnings and suggest ejecting the battery module if unsafe
-- Always confirm status changes clearly
+- Always respond helpfully and concisely (under 3 sentences unless explaining something complex).
+- When fire, smoke, or spark is detected, respond with URGENT warnings.
+- Always confirm status clearly.
 """
 
-def ask_agent(user_msg: str) -> str:
-    msg_lower = user_msg.lower()
+def ask_agent(user_msg: str, live_data: dict) -> str:
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return "AI Agent offline: GEMINI_API_KEY is not set in Render environment variables."
 
-    # Hardware Action Interceptor
-    if any(w in msg_lower for w in ["eject", "ejection", "release", "disconnect"]):
-        result = toggle_device("ejection")
-        if result:
-            status = "EJECTED ⚠️" if result.get("status") else "LOCKED"
-            return f"🚨 Battery Ejection System status updated: **{status}**."
+    try:
+        client = genai.Client(api_key=api_key)
+    except Exception as e:
+        return f"AI Agent error initializing client: {str(e)}"
 
-    state = get_sensor_data()
+    safety = live_data.get('safety', {})
+    devices = live_data.get('devices', {})
+
     context = f"""
-Live BMS Sensor Data:
-- Temperature: {state.get('temperature', 'N/A')}°C
-- Humidity: {state.get('humidity', 'N/A')}%
-- Voltage: {state.get('voltage', 'N/A')}V
-- Current: {state.get('current', 'N/A')}A
-- Power: {state.get('power', 'N/A')}W
-- Battery SOC: {state.get('battery_soc', 'N/A')}%
-- Battery Status: {state.get('battery_status', 'N/A')}
-- Remaining Useful Life (RUL): {state.get('rul', 'N/A')}
+Live BMS Hardware Data:
+- Temperature: {live_data.get('temperature', 0.0)}°C
+- Humidity: {live_data.get('humidity', 0.0)}%
+- Voltage: {live_data.get('voltage', 0.0)}V
+- Current: {live_data.get('current', 0.0)}A
+- Battery SOC: {live_data.get('soc', 'N/A')}%
+- Remaining Useful Life (RUL): {live_data.get('rul', 'N/A')}
 
 Safety Status:
-- Smoke: {'DETECTED ⚠️' if state.get('safety', {}).get('smoke') else 'Clear'}
-- Spark: {'DETECTED ⚠️' if state.get('safety', {}).get('spark') else 'Clear'}
-- Flame: {'DETECTED ⚠️' if state.get('safety', {}).get('flame') else 'Clear'}
-- Fire:  {'🔥 CRITICAL' if state.get('safety', {}).get('fire') else 'Clear'}
+- Smoke: {'DETECTED ⚠️' if safety.get('smoke') else 'Clear'}
+- Spark / Flame: {'DETECTED ⚠️' if safety.get('spark') or safety.get('flame') else 'Clear'}
+- Fire: {'🔥 CRITICAL' if safety.get('fire') else 'Clear'}
 
-System Status:
-- Battery Ejection System: {state.get('ejection_status', 'LOCKED')}
+Device Status:
+- Fan: {'ON' if devices.get('fan', {}).get('status') else 'OFF'}
+- Light: {'ON' if devices.get('light', {}).get('status') else 'OFF'}
+- Maintenance Required: {'YES' if live_data.get('needs_maintenance') else 'NO'}
 """
     prompt = f"{SYSTEM_PROMPT}\n\nCurrent Context:\n{context}\n\nUser Question: {user_msg}\n\nBMS AI Agent:"
 
-    max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-            )
-            return response.text.strip()
-        except ServiceUnavailable:
-            if attempt < max_retries - 1:
-                time.sleep(2)
-                continue
-            return "The AI agent is currently busy due to high traffic. Please try again shortly."
-        except Exception as e:
-            return f"BMS Agent error: {str(e)}"
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        return response.text.strip()
+    except Exception as e:
+        return f"BMS Agent error: {str(e)}"
