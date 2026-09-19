@@ -74,3 +74,10 @@ body {
     font-weight: 500;
     margin-left: 2px;
 }
+
+/* Ensure sensor telemetry numbers remain readable in Light Theme */
+[data-theme="light"] .sensor-value,
+[data-theme="light"] .sensor-card h2,
+[data-theme="light"] .sensor-card .value {
+    color: #0f172a !important; /* Deep dark slate for maximum contrast */
+}
