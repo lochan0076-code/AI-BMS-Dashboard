@@ -75,9 +75,28 @@ body {
     margin-left: 2px;
 }
 
-/* Ensure sensor telemetry numbers remain readable in Light Theme */
-[data-theme="light"] .sensor-value,
-[data-theme="light"] .sensor-card h2,
-[data-theme="light"] .sensor-card .value {
-    color: #0f172a !important; /* Deep dark slate for maximum contrast */
+/* Dark theme default values */
+.card-big, 
+.card-big span,
+[id$="-val"], 
+[id*="temp"], 
+[id*="hum"], 
+[id*="volt"], 
+[id*="curr"] {
+    color: var(--text-primary);
+}
+
+/* Light theme high-contrast force for sensor numbers */
+[data-theme="light"] .card-big,
+[data-theme="light"] .card-big span,
+[data-theme="light"] [id$="-val"],
+[data-theme="light"] #temp-val,
+[data-theme="light"] #hum-val,
+[data-theme="light"] #volt-val,
+[data-theme="light"] #curr-val,
+[data-theme="light"] #temp-display,
+[data-theme="light"] #humidity-display,
+[data-theme="light"] #voltage-display,
+[data-theme="light"] #current-display {
+    color: #0f172a !important; /* Deep dark black/slate for light theme */
 }
