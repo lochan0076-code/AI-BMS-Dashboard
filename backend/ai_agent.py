@@ -36,7 +36,9 @@ Live BMS Hardware Data:
 - Voltage: {live_data.get('voltage', 0.0)}V
 - Current: {live_data.get('current', 0.0)}A
 - Battery SOC: {live_data.get('soc', 'N/A')}%
-- Remaining Useful Life (RUL): {live_data.get('rul', 'N/A')}
+- Estimated RUL (Hours): {live_data.get('rul', 'N/A')}
+- Predicted RUL (Days): {live_data.get('predicted_rul', 'N/A')}
+"""
 
 Safety Status:
 - Smoke: {'DETECTED ⚠️' if safety.get('smoke') else 'Clear'}
