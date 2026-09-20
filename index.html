@@ -182,13 +182,14 @@ nav {
         }
 
         .section-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #444;
-            margin-bottom: 14px;
-            margin-top: 28px;
-        }
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted); /* Changed from #444 */
+    margin-bottom: 14px;
+    margin-top: 28px;
+}
+
 
         .grid-2 {
             display: grid;
@@ -230,18 +231,16 @@ nav {
         }
 
         .card-big {
-  color: var(--text-main, #ffffff);
-}.card-big {
-            font-size: 36px;
-            font-weight: 700;
-            color: #fff;
-        }
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
 
         .card-big span {
-            font-size: 16px;
-            color: #444;
-            font-weight: 400;
-        }
+    font-size: 16px;
+    color: var(--text-muted); /* Changed from #444 */
+    font-weight: 400;
+}
 
         .card-sub {
   color: var(--text-sub, #888888);
@@ -255,13 +254,13 @@ nav {
 
         /* Sensor Status Cards */
         .sensor-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(0, 150, 255, 0.12);
-            border-radius: 16px;
-            padding: 22px;
-            text-align: center;
-            transition: all 0.3s;
-        }
+    background: var(--bg-card); /* Changed from hardcoded rgba(255,255,255,0.04) */
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 22px;
+    text-align: center;
+    transition: all 0.3s;
+}
 
         .sensor-card.safe {
             border-color: rgba(0, 255, 100, 0.3);
@@ -301,13 +300,13 @@ nav {
 
         /* Device Cards */
         .device-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(0, 150, 255, 0.12);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            transition: all 0.3s;
-        }
+    background: var(--bg-card); /* Changed from hardcoded rgba(255,255,255,0.04) */
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 22px;
+    text-align: center;
+    transition: all 0.3s;
+}
 
         .device-card.active {
             border-color: rgba(0, 255, 100, 0.4);
@@ -754,6 +753,25 @@ nav {
             nav {
                 padding: 12px 16px;
             }
+            .maint-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.maint-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: #00ff88;
+    box-shadow: 0 0 8px #00ff88;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
         }
     </style>
 </head>
@@ -883,7 +901,7 @@ nav {
     <div class="device-card" id="card-fan">
         <div class="device-header">
             <span class="device-emoji">🌀</span>
-            <span class="device-badge status-off" id="fan-badge">OFF</span>
+            <span class="device-badge status-off" id="fan-status">OFF</span>
         </div>
         <div class="device-info">
             <div class="device-name">Cooling Fan</div>
@@ -901,7 +919,7 @@ nav {
     <div class="device-card" id="card-light">
         <div class="device-header">
             <span class="device-emoji">💡</span>
-            <span class="device-badge status-off" id="light-badge">OFF</span>
+            <span class="device-badge status-off" id="light-status">OFF</span>
         </div>
         <div class="device-info">
             <div class="device-name">Cabinet Light</div>
@@ -1167,18 +1185,19 @@ if (themeBtn) {
             }
 
             function addChatAlert(msg) {
-                // Looks for 'chat-messages' first, then falls back to 'chat-box' or 'ai-chat-messages'
-                const chatContainer = document.getElementById("chat-messages")
-                    || document.getElementById("chat-box")
-                    || document.querySelector(".chat-messages");
+    const chatContainer = document.getElementById("chat-box");
+    if (!chatContainer) return;
 
-                if (!chatContainer) return; // Safely exits if element isn't found instead of throwing TypeError
-
-                const div = document.createElement("div");
-                div.className = "chat-msg alert-msg";
-                div.innerHTML = msg;
-                chatContainer.appendChild(div);
-            }
+    const div = document.createElement("div");
+    div.className = "msg-alert"; // Match CSS class name
+    div.style.padding = "8px 12px";
+    div.style.borderRadius = "8px";
+    div.style.background = "rgba(255, 50, 50, 0.15)";
+    div.style.border = "1px solid rgba(255, 50, 50, 0.4)";
+    div.innerHTML = msg;
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 
             async function fetchData() {
                 try {
@@ -1427,22 +1446,22 @@ if (themeBtn) {
                 rec.interimResults = false;
 
                 rec.onresult = (e) => {
-                    const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
-                    if (t.includes("bms") || t.includes("hey bms")) {
-                        const output = document.getElementById("chat-box"); // Fixed ID
-                        if (output) {
-                            const activationDiv = document.createElement("div");
-                            activationDiv.className = "bot-msg";
-                            activationDiv.innerHTML = "🎤 BMS Agent activated! Listening...";
-                            output.appendChild(activationDiv);
-                            output.scrollTop = output.scrollHeight;
-                        }
-                        rec.stop();
-                        setTimeout(() => {
-                            if (window.startVoiceInput) window.startVoiceInput(); // Fixed function name
-                        }, 500);
-                    }
-                };
+    const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+    if (t.includes("bms") || t.includes("hey bms")) {
+        const output = document.getElementById("chat-box");
+        if (output) {
+            const activationDiv = document.createElement("div");
+            activationDiv.className = "bot-msg";
+            activationDiv.innerHTML = "🎤 BMS Agent activated! Listening...";
+            output.appendChild(activationDiv);
+            output.scrollTop = output.scrollHeight;
+        }
+        rec.stop(); // Stops background listener before opening active mic input
+        setTimeout(() => {
+            if (window.startVoiceInput) window.startVoiceInput();
+        }, 500);
+    }
+};
 
                 rec.start();
             };
