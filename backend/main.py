@@ -16,9 +16,9 @@ def calculate_rul(voltage, temperature):
     volt_penalty = max(0, (48.0 - voltage) * 20)
     estimated_rul_hours = max(0, int(base_rul_hours - temp_penalty - volt_penalty))
     
-    # Calculate RUL Percentage
-    rul_percentage = max(0, min(100, int((estimated_rul_hours / base_rul_hours) * 100)))
-    return f"{rul_percentage}%"
+    # CHANGE 1: Convert hours to days
+    estimated_rul_days = round(estimated_rul_hours / 24, 1)
+    return f"{estimated_rul_days} Days"
 
 app = FastAPI(title="AI BMS Dashboard API")
 
@@ -48,13 +48,14 @@ def data():
             "current": 0.0,
             "soc": 0.0,
             "soh": 0.0,
-            "rul": "0%",
+            "rul": "0 Days",
             "needs_maintenance": False,
             "devices": {"fan": {"status": False}, "light": {"status": False}, "bms": {"status": False}},
             "safety": {"smoke": False, "spark": False, "fire": False}
         }
     
     d = dict(latest_hardware_data)
+    # Recalculate RUL in days if missing or if incoming data provides raw numerical values
     if "rul" not in d or isinstance(d["rul"], (int, float)):
         d["rul"] = calculate_rul(d.get("voltage", 0.0), d.get("temperature", 0.0))
     return d
@@ -100,7 +101,11 @@ def chat(body: dict):
     if not message:
         return {"reply": "Please provide a valid message."}
     if ask_agent:
-        return {"reply": ask_agent(message, latest_hardware_data)}
+        # CHANGE 2: Ensure live_data contains the calculated RUL before asking the agent
+        payload = dict(latest_hardware_data)
+        if "rul" not in payload or isinstance(payload["rul"], (int, float)):
+            payload["rul"] = calculate_rul(payload.get("voltage", 0.0), payload.get("temperature", 0.0))
+        return {"reply": ask_agent(message, payload)}
     return {"reply": "AI Agent offline."}
 
 @app.post("/control/ejection")
