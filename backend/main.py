@@ -53,7 +53,7 @@ def data():
             "current": 0.0,
             "soc": 0.0,
             "soh": 0.0,
-            "rul": "0%",
+            "rul": "0",
             "predicted_rul": "0 Days",
             "needs_maintenance": False,
             "devices": {"fan": {"status": False}, "light": {"status": False}, "bms": {"status": False}},
