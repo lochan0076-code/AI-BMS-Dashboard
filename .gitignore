@@ -4,6 +4,7 @@ www/
 __pycache__/
 *.pyc
 .env
-
-.env
+bms_data.json
+*.pyc
+*_backup.html
 backend/.env
