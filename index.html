@@ -213,8 +213,11 @@ nav {
         }
 
         .card {
-  background: var(--card-bg, rgba(255, 255, 255, 0.04));
-  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+    background: var(--card-bg, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
 }
 
         .card:hover {
@@ -854,6 +857,7 @@ nav {
         <div class="card-big" id="predicted-rul-value">--</div>
         <div class="card-sub">Model Predicted Lifespan</div>
     </div>
+</div>
 
         <!-- Smoke & Spark Sensors -->
         <div class="section-label">🔥 Safety Sensors</div>

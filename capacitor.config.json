@@ -1,0 +1,6 @@
+{
+  "appId": "com.bms.aidashboard",
+  "appName": "BMS AI Dashboard",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
