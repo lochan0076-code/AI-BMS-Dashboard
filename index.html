@@ -845,12 +845,12 @@ nav {
         <div class="card-big" id="soh">--<span>%</span></div>
         <div class="card-sub">Health Percentage</div>
     </div>
-    <!-- Original RUL Card (Hours) -->
-    <div class="card">
-        <div class="card-label">⏳ Remaining Useful Life</div>
-        <div class="card-big" id="rul-value">--</div>
-        <div class="card-sub">Estimated Health RUL (Hours)</div>
-    </div>
+    <!-- Remaining Useful Life Card -->
+<div class="card">
+    <div class="card-label">⏳ Remaining Useful Life</div>
+    <div class="card-big" id="rul-value">--<span>%</span></div>
+    <div class="card-sub">Estimated Health RUL Percentage</div>
+</div>
     <!-- New AI Predicted RUL Card (Days) -->
     <div class="card">
         <div class="card-label">🤖 AI Predicted RUL</div>
@@ -1223,9 +1223,9 @@ if (themeBtn) {
                     document.getElementById("soh").innerHTML = `${d.soh ?? '--'}<span>%</span>`;
                     
                     const rulElem = document.getElementById("rul-value");
-    if (rulElem) {
-        rulElem.innerHTML = d.rul ?? "--";
-    }
+                    if (rulElem) {
+                        rulElem.innerHTML = `${d.rul ?? "--"}<span>%</span>`;
+                    }
 
     const predictedRulElem = document.getElementById("predicted-rul-value");
     if (predictedRulElem) {
