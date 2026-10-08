@@ -15,51 +15,53 @@
     <title>AI BMS Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <style>
-
         :root {
-    --bg-main: #07071a;
-    --bg-nav: rgba(255, 255, 255, 0.04);
-    --bg-card: rgba(255, 255, 255, 0.04);
-    --border-color: rgba(0, 150, 255, 0.15);
-    --text-primary: #ffffff;
-    --text-muted: #aaaaaa;
-}
+            --bg-main: #07071a;
+            --bg-nav: rgba(255, 255, 255, 0.04);
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --border-color: rgba(0, 150, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-muted: #aaaaaa;
+        }
 
-[data-theme="light"] {
-    --bg-main: #f1f5f9;
-    --bg-nav: rgba(255, 255, 255, 0.9);
-    --bg-card: #ffffff;
-    --border-color: rgba(0, 150, 255, 0.3);
-    --text-primary: #0f172a;
-    --text-muted: #475569;
-}
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-nav: rgba(255, 255, 255, 0.9);
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 150, 255, 0.3);
+            --text-primary: #0f172a;
+            --text-muted: #475569;
+        }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-    background: var(--bg-main);
-    font-family: 'Segoe UI', sans-serif;
-    color: var(--text-primary);
-    min-height: 100vh;
-    transition: background 0.3s ease, color 0.3s ease;
-}
+        body {
+            background: var(--bg-main);
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
 
-nav {
-    background: var(--bg-nav);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-color);
-    padding: 14px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
+        nav {
+            background: var(--bg-nav);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
         .nav-left {
             display: flex;
@@ -86,6 +88,12 @@ nav {
 
         .nav-left h1 span {
             color: #00aaff;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .live-badge {
@@ -182,25 +190,24 @@ nav {
         }
 
         .section-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-muted); /* Changed from #444 */
-    margin-bottom: 14px;
-    margin-top: 28px;
-}
-
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            margin-top: 28px;
+        }
 
         .grid-2 {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 18px;
             margin-bottom: 18px;
         }
 
         .grid-3 {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 18px;
             margin-bottom: 18px;
         }
@@ -213,12 +220,15 @@ nav {
         }
 
         .card {
-    background: var(--card-bg, rgba(255, 255, 255, 0.04));
-    border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-    border-radius: 16px;
-    padding: 20px;
-    transition: all 0.3s ease;
-}
+            background: var(--card-bg, rgba(255, 255, 255, 0.04));
+            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
         .card:hover {
             border-color: rgba(0, 150, 255, 0.35);
@@ -234,20 +244,20 @@ nav {
         }
 
         .card-big {
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
 
         .card-big span {
-    font-size: 16px;
-    color: var(--text-muted); /* Changed from #444 */
-    font-weight: 400;
-}
+            font-size: 16px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
 
         .card-sub {
-  color: var(--text-sub, #888888);
-}
+            color: var(--text-sub, #888888);
+        }
 
         .card.danger {
             border-color: rgba(255, 50, 50, 0.6) !important;
@@ -257,13 +267,13 @@ nav {
 
         /* Sensor Status Cards */
         .sensor-card {
-    background: var(--bg-card); /* Changed from hardcoded rgba(255,255,255,0.04) */
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 22px;
-    text-align: center;
-    transition: all 0.3s;
-}
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px;
+            text-align: center;
+            transition: all 0.3s;
+        }
 
         .sensor-card.safe {
             border-color: rgba(0, 255, 100, 0.3);
@@ -303,13 +313,18 @@ nav {
 
         /* Device Cards */
         .device-card {
-    background: var(--bg-card); /* Changed from hardcoded rgba(255,255,255,0.04) */
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 22px;
-    text-align: center;
-    transition: all 0.3s;
-}
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px;
+            text-align: center;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 200px;
+        }
 
         .device-card.active {
             border-color: rgba(0, 255, 100, 0.4);
@@ -478,11 +493,9 @@ nav {
             max-height: 170px;
         }
 
-
         /* AI Agent Container */
         .ai-agent-card {
             grid-column: 1 / -1;
-            /* Spans full dashboard width */
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -607,7 +620,49 @@ nav {
             background: #1d4ed8;
         }
 
-        /* Mobile Devices Breakpoint (Smartphones) */
+        .maint-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .maint-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            background-color: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            nav {
+                padding: 12px 16px;
+            }
+        }
+
         @media (max-width: 640px) {
             .ai-agent-card {
                 padding: 12px;
@@ -638,144 +693,6 @@ nav {
                 padding: 10px;
             }
         }
-
-        /* Chat */
-        .chat-messages {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 14px;
-            height: 200px;
-            overflow-y: auto;
-            margin-bottom: 12px;
-            font-size: 13px;
-            line-height: 1.7;
-            scrollbar-width: thin;
-        }
-
-        .msg-you {
-            color: #00aaff;
-            margin-bottom: 6px;
-        }
-
-        .msg-ai {
-            color: #aaa;
-            margin-bottom: 6px;
-        }
-
-        .msg-alert {
-            color: #ff4444;
-            margin-bottom: 6px;
-            font-weight: 700;
-        }
-
-        .chat-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .chat-field {
-            flex: 1;
-            padding: 11px 14px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(0, 150, 255, 0.2);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 13px;
-            outline: none;
-        }
-
-        .chat-field:focus {
-            border-color: #00aaff;
-        }
-
-        .send-btn {
-            padding: 11px 16px;
-            background: linear-gradient(135deg, #0055dd, #0099ff);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .voice-btn {
-            padding: 11px 14px;
-            background: rgba(255, 50, 50, 0.15);
-            border: 1px solid rgba(255, 50, 50, 0.25);
-            border-radius: 10px;
-            color: #ff6666;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .voice-btn.listening {
-            background: rgba(255, 50, 50, 0.35);
-            animation: voicePulse 1s infinite;
-        }
-
-        @keyframes voicePulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 50, 50, 0.4)
-            }
-
-            50% {
-                box-shadow: 0 0 0 8px rgba(255, 50, 50, 0)
-            }
-        }
-
-        .wake-banner {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 150, 255, 0.15);
-            border: 1px solid rgba(0, 150, 255, 0.3);
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-size: 12px;
-            color: #00aaff;
-            backdrop-filter: blur(10px);
-            z-index: 998;
-        }
-
-        @media(max-width:768px) {
-
-            .grid-2,
-            .grid-3,
-            .grid-4 {
-                grid-template-columns: 1fr;
-            }
-
-            .container {
-                padding: 16px;
-            }
-
-            nav {
-                padding: 12px 16px;
-            }
-            .maint-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.maint-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    background-color: #00ff88;
-    box-shadow: 0 0 8px #00ff88;
-    transition: background-color 0.3s, box-shadow 0.3s;
-}
-        }
     </style>
 </head>
 
@@ -787,99 +704,97 @@ nav {
     </div>
 
     <nav>
-    <div class="nav-left">
-        <div class="nav-logo">⚡</div>
-        <h1><span>BMS</span> AI Dashboard</h1>
-    </div>
-    <div class="nav-right">
-        <div class="live-badge">
-            <div class="live-dot"></div>Live
+        <div class="nav-left">
+            <div class="nav-logo">⚡</div>
+            <h1><span>BMS</span> AI Dashboard</h1>
         </div>
+        <div class="nav-right">
+            <div class="live-badge">
+                <div class="live-dot"></div>Live
+            </div>
 
-        <button onclick="toggleDatasheetModal()"
-            style="background: #2563eb; color: #ffffff; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">View
-            Datasheet</button>
+            <button onclick="toggleDatasheetModal()"
+                style="background: #2563eb; color: #ffffff; border: none; padding: 7px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">View
+                Datasheet</button>
 
-        <!-- INSERT THE BUTTON HERE -->
-        <button id="theme-toggle" style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;">🌙</button>
+            <button id="theme-toggle"
+                style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;">🌙</button>
 
-        <span id="user-name"></span>
-        <button id="logout-btn">⏻ Logout</button>
-    </div>
-</nav>
+            <span id="user-name"></span>
+            <button id="logout-btn">⏻ Logout</button>
+        </div>
+    </nav>
 
     <div class="wake-banner">🎤 Say "<b>BMS</b>" to activate voice</div>
 
     <div class="container">
 
-       <!-- Live Sensor & Battery Data Cards -->
-<div class="section-label">📡 Live Sensor & Battery Data</div>
-<div class="grid-4">
-    <div class="card">
-        <div class="card-label">🌡️ Temperature</div>
-        <div class="card-big" id="temperature">--<span>°C</span></div>
-        <div class="card-sub" id="temp-trend">Updating...</div>
-    </div>
-    <div class="card">
-        <div class="card-label">💧 Humidity</div>
-        <div class="card-big" id="humidity">--<span>%</span></div>
-        <div class="card-sub">Relative Humidity</div>
-    </div>
-    <div class="card">
-        <div class="card-label">⚡ Voltage</div>
-        <div class="card-big" id="voltage">--<span>V</span></div>
-        <div class="card-sub">Supply Bus</div>
-    </div>
-    <div class="card">
-        <div class="card-label">🔌 Current</div>
-        <div class="card-big" id="current">--<span>A</span></div>
-        <div class="card-sub">Load Current</div>
-    </div>
-    <div class="card">
-        <div class="card-label">🔋 State of Charge (SOC)</div>
-        <div class="card-big" id="soc">--<span>%</span></div>
-        <div class="card-sub">Battery Level</div>
-    </div>
-    <div class="card">
-        <div class="card-label">🩺 State of Health (SOH)</div>
-        <div class="card-big" id="soh">--<span>%</span></div>
-        <div class="card-sub">Health Percentage</div>
-    </div>
-    <!-- Remaining Useful Life Card -->
-<div class="card">
-    <div class="card-label">⏳ Remaining Useful Life</div>
-    <div class="card-big" id="rul-value">--<span>%</span></div>
-    <div class="card-sub">Estimated Health RUL Percentage</div>
-</div>
-    <!-- New AI Predicted RUL Card (Days) -->
-    <div class="card">
-        <div class="card-label">🤖 AI Predicted RUL</div>
-        <div class="card-big" id="predicted-rul-value">--</div>
-        <div class="card-sub">Model Predicted Lifespan</div>
-    </div>
-
+        <!-- Live Sensor & Battery Data Cards -->
+        <div class="section-label">📡 Live Sensor & Battery Data</div>
+        <div class="grid-4">
+            <div class="card">
+                <div class="card-label">🌡️ Temperature</div>
+                <div class="card-big" id="temperature">--<span>°C</span></div>
+                <div class="card-sub" id="temp-trend">Updating...</div>
+            </div>
+            <div class="card">
+                <div class="card-label">💧 Humidity</div>
+                <div class="card-big" id="humidity">--<span>%</span></div>
+                <div class="card-sub">Relative Humidity</div>
+            </div>
+            <div class="card">
+                <div class="card-label">⚡ Voltage</div>
+                <div class="card-big" id="voltage">--<span>V</span></div>
+                <div class="card-sub">Supply Bus</div>
+            </div>
+            <div class="card">
+                <div class="card-label">🔌 Current</div>
+                <div class="card-big" id="current">--<span>A</span></div>
+                <div class="card-sub">Load Current</div>
+            </div>
+            <div class="card">
+                <div class="card-label">🔋 State of Charge (SOC)</div>
+                <div class="card-big" id="soc">--<span>%</span></div>
+                <div class="card-sub">Battery Level</div>
+            </div>
+            <div class="card">
+                <div class="card-label">🩺 State of Health (SOH)</div>
+                <div class="card-big" id="soh">--<span>%</span></div>
+                <div class="card-sub">Health Percentage</div>
+            </div>
+            <div class="card">
+                <div class="card-label">⏳ Remaining Useful Life</div>
+                <div class="card-big" id="rul-value">--<span>%</span></div>
+                <div class="card-sub">Estimated Health RUL Percentage</div>
+            </div>
+            <div class="card">
+                <div class="card-label">🤖 AI Predicted RUL</div>
+                <div class="card-big" id="predicted-rul-value">--</div>
+                <div class="card-sub">Model Predicted Lifespan</div>
+            </div>
+        </div>
 
         <!-- Smoke & Spark Sensors -->
         <div class="section-label">🔥 Safety Sensors</div>
-<div class="grid-2">
-    <div class="sensor-card safe" id="smoke-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <span style="font-size: 28px;">💨</span>
-            <span class="device-badge status-off" id="smoke-value">CLEAR</span>
+        <div class="grid-2">
+            <div class="sensor-card safe" id="smoke-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 28px;">💨</span>
+                    <span class="device-badge status-off" id="smoke-value">CLEAR</span>
+                </div>
+                <div class="sensor-name">Smoke Detector</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="smoke-level">Ambient levels normal</div>
+            </div>
+
+            <div class="sensor-card safe" id="spark-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 28px;">⚡</span>
+                    <span class="device-badge status-off" id="spark-value">CLEAR</span>
+                </div>
+                <div class="sensor-name">Spark / Flame Sensor</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="spark-level">No optical arc detected</div>
+            </div>
         </div>
-        <div class="sensor-name">Smoke Detector</div>
-        <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="smoke-level">Ambient levels normal</div>
-    </div>
-    
-    <div class="sensor-card safe" id="spark-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <span style="font-size: 28px;">⚡</span>
-            <span class="device-badge status-off" id="spark-value">CLEAR</span>
-        </div>
-        <div class="sensor-name">Spark / Flame Sensor</div>
-        <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="spark-level">No optical arc detected</div>
-    </div>
-</div>
 
         <!-- Graphs -->
         <div class="section-label">📊 Live Graphs</div>
@@ -905,67 +820,64 @@ nav {
         </div>
 
         <!-- Device Status -->
-<div class="section-label">🔌 Device Status & BMS Control</div>
-<div class="grid-3">
-    <!-- Modernized Fan Card -->
-    <div class="device-card" id="card-fan">
-        <div class="device-header">
-            <span class="device-emoji">🌀</span>
-            <span class="device-badge status-off" id="fan-status">OFF</span>
-        </div>
-        <div class="device-info">
-            <div class="device-name">Cooling Fan</div>
-            <div class="device-watts">50W · Status Monitoring</div>
-        </div>
-        <div class="device-control">
-            <div class="switch-readonly">
-                <input type="checkbox" id="switch-fan" disabled>
-                <span class="slider-readonly" id="slider-fan"></span>
+        <div class="section-label">🔌 Device Status & BMS Control</div>
+        <div class="grid-3">
+            <div class="device-card" id="card-fan">
+                <div class="device-header">
+                    <span class="device-emoji">🌀</span>
+                    <span class="device-badge status-off" id="fan-status">OFF</span>
+                </div>
+                <div class="device-info">
+                    <div class="device-name">Cooling Fan</div>
+                    <div class="device-watts">50W · Status Monitoring</div>
+                </div>
+                <div class="device-control">
+                    <div class="switch-readonly">
+                        <input type="checkbox" id="switch-fan" disabled>
+                        <span class="slider-readonly" id="slider-fan"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="device-card" id="card-light">
+                <div class="device-header">
+                    <span class="device-emoji">💡</span>
+                    <span class="device-badge status-off" id="light-status">OFF</span>
+                </div>
+                <div class="device-info">
+                    <div class="device-name">Cabinet Light</div>
+                    <div class="device-watts">10W · Status Monitoring</div>
+                </div>
+                <div class="device-control">
+                    <div class="switch-readonly">
+                        <input type="checkbox" id="switch-light" disabled>
+                        <span class="slider-readonly" id="slider-light"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="device-card danger-card" id="card-ejection">
+                <div class="device-header">
+                    <span class="device-emoji">🔋</span>
+                    <span class="device-badge danger-badge" id="ejection-status">NORMAL</span>
+                </div>
+                <div class="device-info">
+                    <div class="device-name">Battery Ejection</div>
+                    <div class="device-watts">Emergency Release</div>
+                </div>
+                <div class="device-control">
+                    <label class="switch">
+                        <input type="checkbox" id="switch-ejection" onchange="toggleEjection(this.checked)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="maint-bar">
+                    <span>Maintenance:</span>
+                    <span id="maint-light" class="maint-dot"></span>
+                    <strong id="maint-text">NO</strong>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Modernized Light Card -->
-    <div class="device-card" id="card-light">
-        <div class="device-header">
-            <span class="device-emoji">💡</span>
-            <span class="device-badge status-off" id="light-status">OFF</span>
-        </div>
-        <div class="device-info">
-            <div class="device-name">Cabinet Light</div>
-            <div class="device-watts">10W · Status Monitoring</div>
-        </div>
-        <div class="device-control">
-            <div class="switch-readonly">
-                <input type="checkbox" id="switch-light" disabled>
-                <span class="slider-readonly" id="slider-light"></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modernized Ejection Card -->
-    <div class="device-card danger-card" id="card-ejection">
-        <div class="device-header">
-            <span class="device-emoji">🔋</span>
-            <span class="device-badge danger-badge" id="ejection-status">NORMAL</span>
-        </div>
-        <div class="device-info">
-            <div class="device-name">Battery Ejection</div>
-            <div class="device-watts">Emergency Release</div>
-        </div>
-        <div class="device-control">
-            <label class="switch">
-                <input type="checkbox" id="switch-ejection" onchange="toggleEjection(this.checked)">
-                <span class="slider round"></span>
-            </label>
-        </div>
-        <div class="maint-bar">
-            <span>Maintenance:</span>
-            <span id="maint-light" class="maint-dot"></span>
-            <strong id="maint-text">NO</strong>
-        </div>
-    </div>
-</div>
 
         <!-- Chat Section -->
         <div class="card ai-agent-card">
@@ -974,7 +886,6 @@ nav {
                 <span class="agent-badge">Gemini 3.6 Flash</span>
             </div>
 
-            <!-- Scrollable Chat History Box -->
             <div id="chat-box" class="chat-box">
                 <div class="bot-msg">
                     👋 Hi! I am your BMS AI Agent. Say <b>"BMS"</b> or tap 🎤 to use voice. I monitor sensors,
@@ -982,7 +893,6 @@ nav {
                 </div>
             </div>
 
-            <!-- Single Unified Input Control Bar -->
             <div class="chat-input-bar">
                 <input type="text" id="chat-input" placeholder="Ask BMS anything..."
                     onkeypress="if(event.key === 'Enter') sendMessage()" />
@@ -990,629 +900,606 @@ nav {
                 <button id="send-btn" class="primary-btn" onclick="sendMessage()">Send</button>
             </div>
         </div>
+    </div>
 
-        <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-            import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-            const firebaseConfig = {
-                apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
-                authDomain: "ai-bms-dashboard.firebaseapp.com",
-                projectId: "ai-bms-dashboard",
-                storageBucket: "ai-bms-dashboard.firebasestorage.app",
-                messagingSenderId: "706812934530",
-                appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
-            };
+        const firebaseConfig = {
+            apiKey: "AIzaSyD1H0cOVyZQKttHD3lF8u9Xx3bQKYu9WGg",
+            authDomain: "ai-bms-dashboard.firebaseapp.com",
+            projectId: "ai-bms-dashboard",
+            storageBucket: "ai-bms-dashboard.firebasestorage.app",
+            messagingSenderId: "706812934530",
+            appId: "1:706812934530:web:4f6cd2e618b670eca2f79b"
+        };
 
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const API = "https://ai-bms-dashboard.onrender.com";
 
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const API = "https://ai-bms-dashboard.onrender.com";
+        onAuthStateChanged(auth, user => {
+            if (!user) { window.location.href = "login.html"; return; }
+            document.getElementById("user-name").textContent = user.displayName || user.email;
+        });
 
-            onAuthStateChanged(auth, user => {
-                if (!user) { window.location.href = "login.html"; return; }
-                document.getElementById("user-name").textContent = user.displayName || user.email;
-            });
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            signOut(auth).then(() => window.location.href = "login.html");
+        });
 
-            document.getElementById("logout-btn").addEventListener("click", () => {
-                signOut(auth).then(() => window.location.href = "login.html");
-            });
+        const themeBtn = document.getElementById("theme-toggle");
+        const savedTheme = localStorage.getItem("theme") || "dark";
 
-            // Theme Toggle Initialization and Event Listener
-const themeBtn = document.getElementById("theme-toggle");
-const savedTheme = localStorage.getItem("theme") || "dark";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        if (themeBtn) themeBtn.textContent = savedTheme === "dark" ? "🌙" : "☀️";
 
-document.documentElement.setAttribute("data-theme", savedTheme);
-if (themeBtn) themeBtn.textContent = savedTheme === "dark" ? "🌙" : "☀️";
+        if (themeBtn) {
+            themeBtn.addEventListener("click", () => {
+                const currentTheme = document.documentElement.getAttribute("data-theme");
+                const nextTheme = currentTheme === "dark" ? "light" : "dark";
 
-if (themeBtn) {
-    themeBtn.addEventListener("click", () => {
-        const currentTheme = document.documentElement.getAttribute("data-theme");
-        const nextTheme = currentTheme === "dark" ? "light" : "dark";
-        
-        document.documentElement.setAttribute("data-theme", nextTheme);
-        localStorage.setItem("theme", nextTheme);
-        themeBtn.textContent = nextTheme === "dark" ? "🌙" : "☀️";
-    });
-}
-
-            // Charts
-            const labels = [];
-            const tempData = [], humData = [], voltData = [], currData = [];
-            const maxPts = 20;
-
-            const mkChart = (id, dataArr, color, label) => {
-    const ctx = document.getElementById(id).getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, 0, 160);
-    gradient.addColorStop(0, color.replace('rgb', 'rgba').replace(')', ',0.3)'));
-    gradient.addColorStop(1, color.replace('rgb', 'rgba').replace(')', ',0.0)'));
-
-    return new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [{
-                label,
-                data: dataArr,
-                borderColor: color,
-                borderWidth: 2,
-                backgroundColor: gradient,
-                fill: true,
-                tension: 0.35,
-                pointRadius: 0,
-                pointHoverRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { ticks: { color: '#64748b', font: { family: 'Inter' } }, grid: { display: false } },
-                y: { ticks: { color: '#64748b', font: { family: 'Inter' } }, grid: { color: 'rgba(255,255,255,0.04)' } }
-            }
-        }
-    });
-};
-
-            const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
-            const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
-            const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
-            const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
-
-            let lastTemp = null;
-            let fireAlertActive = false;
-            let lastSmokeState = false;
-            let lastSparkState = false;
-
-            // Add above speakAlert(message) inside <script type="module">
-function playBeep(frequency = 880, duration = 0.15, count = 1) {
-    try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
-
-        for (let i = 0; i < count; i++) {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = frequency;
-
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            const startTime = ctx.currentTime + (i * (duration + 0.1));
-            osc.start(startTime);
-            gain.gain.setValueAtTime(0.3, startTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-            osc.stop(startTime + duration);
-        }
-    } catch (e) {
-        console.error("Audio Context error:", e);
-    }
-}
-
-            // Voice alert function
-            function speakAlert(message) {
-                if (!('speechSynthesis' in window)) return;
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(message);
-                utterance.lang = 'en-IN';
-                utterance.rate = 0.9;
-                utterance.pitch = 1.2;
-                utterance.volume = 1;
-                window.speechSynthesis.speak(utterance);
-            }
-
-            // Request Notification Permission on initialization
-if ("Notification" in window && Notification.permission !== "granted") {
-    Notification.requestPermission();
-}
-
-function sendDeviceNotification(title, message) {
-    if ("Notification" in window && Notification.permission === "granted") {
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.ready.then(reg => {
-                reg.showNotification(title, {
-                    body: message,
-                    vibrate: [200, 100, 200, 100, 200],
-                    tag: 'bms-alert',
-                    renotify: true
-                });
-            });
-        } else {
-            new Notification(title, {
-                body: message,
-                vibrate: [200, 100, 200]
+                document.documentElement.setAttribute("data-theme", nextTheme);
+                localStorage.setItem("theme", nextTheme);
+                themeBtn.textContent = nextTheme === "dark" ? "🌙" : "☀️";
             });
         }
-    }
-}
 
-            // Simulate smoke & spark from sensor data
-            function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
-    smokeDetected = Boolean(smokeDetected);
-    sparkDetected = Boolean(sparkDetected);
-    fireDetected = Boolean(fireDetected);
+        const labels = [];
+        const tempData = [], humData = [], voltData = [], currData = [];
+        const maxPts = 20;
 
-    updateSmokeCard(smokeDetected, temperature);
-    updateSparkCard(sparkDetected, temperature);
+        const mkChart = (id, dataArr, color, label) => {
+            const ctx = document.getElementById(id).getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 160);
+            gradient.addColorStop(0, color.replace('rgb', 'rgba').replace(')', ',0.3)'));
+            gradient.addColorStop(1, color.replace('rgb', 'rgba').replace(')', ',0.0)'));
 
-    // Fire Banner & Combined Fire Logic
-    if (fireDetected || (smokeDetected && sparkDetected)) {
-        if (!fireAlertActive) {
-            fireAlertActive = true;
-            triggerFireAlert();
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label,
+                        data: dataArr,
+                        borderColor: color,
+                        borderWidth: 2,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 0,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { family: 'Inter' } }, grid: { display: false } },
+                        y: { ticks: { color: '#64748b', font: { family: 'Inter' } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                    }
+                }
+            });
+        };
+
+        const tChart = mkChart('tempChart', tempData, 'rgb(255,100,68)', 'Temp');
+        const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
+        const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
+        const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
+
+        let lastTemp = null;
+        let fireAlertActive = false;
+        let lastSmokeState = false;
+        let lastSparkState = false;
+
+        function playBeep(frequency = 880, duration = 0.15, count = 1) {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+
+                for (let i = 0; i < count; i++) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = frequency;
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    const startTime = ctx.currentTime + (i * (duration + 0.1));
+                    osc.start(startTime);
+                    gain.gain.setValueAtTime(0.3, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                    osc.stop(startTime + duration);
+                }
+            } catch (e) {
+                console.error("Audio Context error:", e);
+            }
         }
-    } else {
-        fireAlertActive = false;
-        clearFireAlert();
-    }
 
-    // 1. Smoke Sensor Triggered Individually
-    if (smokeDetected && !sparkDetected && !lastSmokeState) {
-        playBeep(750, 0.18, 2);
-        speakAlert("Warning! Smoke detected in the device. Please check immediately.");
-        addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
-        sendDeviceNotification("⚠️ BMS Alert: Smoke Detected", "Smoke level threshold exceeded on your BMS!");
-    }
+        function speakAlert(message) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = 'en-IN';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.2;
+            utterance.volume = 1;
+            window.speechSynthesis.speak(utterance);
+        }
 
-    // 2. Spark Sensor Triggered Individually
-    if (sparkDetected && !smokeDetected && !lastSparkState) {
-        playBeep(950, 0.18, 2);
-        speakAlert("Warning! Spark or optical arc detected. Take immediate action.");
-        addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
-        sendDeviceNotification("⚡ BMS Alert: Spark Detected", "Optical spark or arc detected in the battery system!");
-    }
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
 
-    // 3. Both Sensors Triggered Together
-    if (smokeDetected && sparkDetected && (!lastSmokeState || !lastSparkState)) {
-        playBeep(1200, 0.1, 4);
-        speakAlert("Emergency Alert! Both smoke and spark detected together! High risk of fire!");
-        addChatAlert("🔥 CRITICAL ALERT! Smoke and spark detected together! High fire danger!");
-        sendDeviceNotification("🔥 BMS CRITICAL ALERT", "Smoke and Spark detected simultaneously!");
-    }
-
-    lastSmokeState = smokeDetected;
-    lastSparkState = sparkDetected;
-}
-
-            function updateSmokeCard(smokeDetected, temp) {
-                const card = document.getElementById('smoke-card');
-                const status = document.getElementById('smoke-value');
-                const level = document.getElementById('smoke-level');
-
-                if (smokeDetected) {
-                    if (card) card.className = "sensor-card danger";
-                    if (status) {
-                        status.innerText = "SMOKE DETECTED!";
-                        status.className = "sensor-value sensor-danger";
-                    }
-                    if (level) level.innerText = "Smoke threshold exceeded!";
-                } else {
-                    if (card) card.className = "sensor-card safe";
-                    if (status) {
-                        status.innerText = "CLEAR";
-                        status.className = "sensor-value sensor-safe";
-                    }
-                    if (level) level.innerText = "No smoke detected";
-                }
-            }
-
-            function updateSparkCard(sparkDetected, temp) {
-                const card = document.getElementById('spark-card');
-                const status = document.getElementById('spark-value');
-                const level = document.getElementById('spark-level');
-
-                if (sparkDetected) {
-                    if (card) card.className = "sensor-card danger";
-                    if (status) {
-                        status.innerText = "SPARK DETECTED!";
-                        status.className = "sensor-value sensor-danger";
-                    }
-                    if (level) level.innerText = "Spark/flame threshold exceeded!";
-                } else {
-                    if (card) card.className = "sensor-card safe";
-                    if (status) {
-                        status.innerText = "CLEAR";
-                        status.className = "sensor-value sensor-safe";
-                    }
-                    if (level) level.innerText = "No spark detected";
-                }
-            }
-
-            function triggerFireAlert() {
-                const banner = document.getElementById("alert-banner") || document.getElementById("fireAlert");
-                if (banner) {
-                    banner.style.display = "block";
-                }
-                addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
-
-                // Repeat voice alert 3 times
-                speakAlert("Emergency! The device is on fire! Emergency! The device is on fire! Please evacuate immediately and call for help!");
-                setTimeout(() => speakAlert("Warning! Fire detected! The device is on fire! Evacuate now!"), 4000);
-                setTimeout(() => speakAlert("The device is on fire! The device is on fire! Take action immediately!"), 8000);
-            }
-
-            function clearFireAlert() {
-                const banner = document.getElementById("alert-banner") || document.getElementById("fireAlert");
-                if (banner) {
-                    banner.style.display = "none";
-                }
-            }
-
-            function addChatAlert(msg) {
-    const chatContainer = document.getElementById("chat-box");
-    if (!chatContainer) return;
-
-    const div = document.createElement("div");
-    div.className = "msg-alert"; // Match CSS class name
-    div.style.padding = "8px 12px";
-    div.style.borderRadius = "8px";
-    div.style.background = "rgba(255, 50, 50, 0.15)";
-    div.style.border = "1px solid rgba(255, 50, 50, 0.4)";
-    div.innerHTML = msg;
-    chatContainer.appendChild(div);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-            async function fetchData() {
-                try {
-                    const res = await fetch(`${API}/data`);
-                    const d = await res.json();
-
-                    // Sensor cards
-                    document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
-                    document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
-                    document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
-                    document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
-                    document.getElementById("soc").innerHTML = `${d.soc ?? '--'}<span>%</span>`;
-                    document.getElementById("soh").innerHTML = `${d.soh ?? '--'}<span>%</span>`;
-                    
-                    const rulElem = document.getElementById("rul-value");
-                    if (rulElem) {
-                        rulElem.innerHTML = `${d.rul ?? "--"}<span>%</span>`;
-                    }
-
-    const predictedRulElem = document.getElementById("predicted-rul-value");
-    if (predictedRulElem) {
-        predictedRulElem.innerHTML = d.predicted_rul ?? "--";
-    }
-
-                    // Trend
-                    if (lastTemp !== null) {
-                        const diff = (d.temperature - lastTemp).toFixed(1);
-                        document.getElementById("temp-trend").innerHTML =
-                            diff > 0 ? `<span style="color:#ff6644">▲ +${diff}°</span>` :
-                                diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
-                    }
-                    lastTemp = d.temperature;
-
-                    // Charts
-                    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    if (labels.length >= maxPts) {
-                        labels.shift(); tempData.shift(); humData.shift();
-                        voltData.shift(); currData.shift();
-                    }
-                    labels.push(now);
-                    tempData.push(d.temperature);
-                    humData.push(d.humidity);
-                    voltData.push(d.voltage || 0);
-                    currData.push(d.current || 0);
-                    tChart.update(); hChart.update();
-                    vChart.update(); cChart.update();
-
-                    // Device status
-                    updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
-                    updateReadOnlyDevice('light', d.devices?.light?.status || false);
-
-                    const maintLight = document.getElementById("maint-light");
-                    const maintText = document.getElementById("maint-text");
-                    if (maintLight && maintText) {
-                        if (d.needs_maintenance) {
-                            maintLight.style.backgroundColor = "#ff4d4d";
-                            maintLight.style.boxShadow = "0 0 10px #ff4d4d";
-                            maintText.innerText = "REQUIRED";
-                            maintText.style.color = "#ff4d4d";
-                        } else {
-                            maintLight.style.backgroundColor = "#00ff88";
-                            maintLight.style.boxShadow = "0 0 8px #00ff88";
-                            maintText.innerText = "NO";
-                            maintText.style.color = "#00ff88";
-                        }
-                    }
-
-                    // BMS device
-                    const bmsOn = d.devices?.bms?.status || false;
-                    const bmsSw = document.getElementById("switch-bms");
-                    const bmsSt = document.getElementById("bms-status");
-                    const bmsCard = document.getElementById("card-bms");
-                    if (bmsSw) bmsSw.checked = bmsOn;
-                    if (bmsSt) { bmsSt.textContent = bmsOn ? "ON" : "OFF"; bmsSt.className = `status-text ${bmsOn ? "status-on" : "status-off"}`; }
-                    if (bmsCard) bmsCard.className = `device-card bms-card${bmsOn ? " active" : ""}`;
-
-                    // Safety sensors
-                    const safety = d.safety || {};
-                    checkSafetySensors(
-                        d.temperature,
-                        d.humidity,
-                        safety.smoke,
-                        safety.spark || safety.flame,
-                        safety.fire
-                    );
-
-                    const datasheetModal = document.getElementById('datasheet-modal');
-                    if (datasheetModal && datasheetModal.style.display === 'flex') {
-                        const tbody = document.getElementById('datasheet-tbody');
-                        const now = new Date().toLocaleTimeString();
-
-                        const newRowHtml = `
-                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,255,136,0.05);">
-                                    <td style="padding: 8px 10px;">${now}</td>
-                                    <td style="padding: 8px 10px;">${d.voltage || '--'}V</td>
-                                    <td style="padding: 8px 10px;">${d.temperature || '--'}°C</td>
-                                    <td style="padding: 8px 10px;">${d.devices?.fan?.status ? 'ON' : 'OFF'}</td>
-                                    <td style="padding: 8px 10px;">${d.devices?.light?.status ? 'ON' : 'OFF'}</td>
-                                    <td style="padding: 8px 10px;">NORMAL</td>
-                                </tr>`;
-                        if (tbody) tbody.insertAdjacentHTML('afterbegin', newRowHtml);
-                    }
-
-                } catch (e) {
-                    console.error("Fetch error:", e);
-                }
-            }
-
-            window.toggleEjection = async function (isEjecting) {
-                const statusElem = document.getElementById("ejection-status");
-                const switchElem = document.getElementById("switch-ejection");
-
-                if (isEjecting) {
-                    const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
-                    if (!confirmEject) {
-                        if (switchElem) switchElem.checked = false;
-                        return;
-                    }
-                }
-                try {
-                    const res = await fetch(`${API}/control/ejection`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ state: isEjecting ? "EJECTED" : "LOCKED" })
+        function sendDeviceNotification(title, message) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.ready.then(reg => {
+                        reg.showNotification(title, {
+                            body: message,
+                            vibrate: [200, 100, 200, 100, 200],
+                            tag: 'bms-alert',
+                            renotify: true
+                        });
                     });
-                    if (res.ok) {
-                        statusElem.textContent = isEjecting ? "EJECTED ⚠️" : "LOCKED";
-                        statusElem.style.color = isEjecting ? "#ef4444" : "#4ade80";
-                    }
-                } catch (err) {
-                    console.error("Ejection control error:", err);
-                }
-            }
-
-            function updateReadOnlyDevice(name, isOn) {
-                const slider = document.getElementById(`slider-${name}`);
-                const status = document.getElementById(`${name}-status`);
-                const card = document.getElementById(`card-${name}`);
-                if (slider) slider.className = `slider-readonly${isOn ? " on" : ""}`;
-                if (status) { status.textContent = isOn ? "ON" : "OFF"; status.className = `status-text ${isOn ? "status-on" : "status-off"}`; }
-                if (card) card.className = `device-card${isOn ? " active" : ""}`;
-            }
-
-            setInterval(fetchData, 5000);
-            fetchData();
-
-            // Keep Render awake
-            setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
-
-            // Send Chat Message Handler
-            window.sendMessage = async function () {
-                const inputField = document.getElementById("chat-input");
-                const chatBox = document.getElementById("chat-box");
-
-                if (!inputField || !chatBox) return;
-
-                const text = inputField.value.trim();
-                if (!text) return;
-
-                // Fixed: Using backticks (`) instead of single quotes (') for template literals
-                const userDiv = document.createElement("div");
-                userDiv.className = "user-msg";
-                userDiv.style.margin = "8px 0";
-                userDiv.style.textAlign = "right";
-                userDiv.innerHTML = `<span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 8px; display: inline-block;">${text}</span>`;
-                chatBox.appendChild(userDiv);
-
-                inputField.value = "";
-                chatBox.scrollTop = chatBox.scrollHeight;
-
-                const botDiv = document.createElement("div");
-                botDiv.className = "bot-msg";
-                botDiv.style.margin = "8px 0";
-                botDiv.innerHTML = `<span style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; display: inline-block;">Thinking...</span>`;
-                chatBox.appendChild(botDiv);
-                chatBox.scrollTop = chatBox.scrollHeight;
-
-                try {
-                    const response = await fetch(`${API}/chat`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: text })
+                } else {
+                    new Notification(title, {
+                        body: message,
+                        vibrate: [200, 100, 200]
                     });
+                }
+            }
+        }
 
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
+            smokeDetected = Boolean(smokeDetected);
+            sparkDetected = Boolean(sparkDetected);
+            fireDetected = Boolean(fireDetected);
 
-                    const data = await response.json();
-                    const reply = data.reply || data.response || "No response text received from backend.";
-                    botDiv.querySelector("span").textContent = reply;
-                } catch (err) {
-                    console.error("Backend Error:", err);
-                    botDiv.querySelector("span").textContent = "⚠️ Could not connect to backend server.";
+            updateSmokeCard(smokeDetected, temperature);
+            updateSparkCard(sparkDetected, temperature);
+
+            if (fireDetected || (smokeDetected && sparkDetected)) {
+                if (!fireAlertActive) {
+                    fireAlertActive = true;
+                    triggerFireAlert();
+                }
+            } else {
+                fireAlertActive = false;
+                clearFireAlert();
+            }
+
+            if (smokeDetected && !sparkDetected && !lastSmokeState) {
+                playBeep(750, 0.18, 2);
+                speakAlert("Warning! Smoke detected in the device. Please check immediately.");
+                addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
+                sendDeviceNotification("⚠️ BMS Alert: Smoke Detected", "Smoke level threshold exceeded on your BMS!");
+            }
+
+            if (sparkDetected && !smokeDetected && !lastSparkState) {
+                playBeep(950, 0.18, 2);
+                speakAlert("Warning! Spark or optical arc detected. Take immediate action.");
+                addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
+                sendDeviceNotification("⚡ BMS Alert: Spark Detected", "Optical spark or arc detected in the battery system!");
+            }
+
+            if (smokeDetected && sparkDetected && (!lastSmokeState || !lastSparkState)) {
+                playBeep(1200, 0.1, 4);
+                speakAlert("Emergency Alert! Both smoke and spark detected together! High risk of fire!");
+                addChatAlert("🔥 CRITICAL ALERT! Smoke and spark detected together! High fire danger!");
+                sendDeviceNotification("🔥 BMS CRITICAL ALERT", "Smoke and Spark detected simultaneously!");
+            }
+
+            lastSmokeState = smokeDetected;
+            lastSparkState = sparkDetected;
+        }
+
+        function updateSmokeCard(smokeDetected, temp) {
+            const card = document.getElementById('smoke-card');
+            const status = document.getElementById('smoke-value');
+            const level = document.getElementById('smoke-level');
+
+            if (smokeDetected) {
+                if (card) card.className = "sensor-card danger";
+                if (status) {
+                    status.innerText = "SMOKE DETECTED!";
+                    status.className = "sensor-value sensor-danger";
+                }
+                if (level) level.innerText = "Smoke threshold exceeded!";
+            } else {
+                if (card) card.className = "sensor-card safe";
+                if (status) {
+                    status.innerText = "CLEAR";
+                    status.className = "sensor-value sensor-safe";
+                }
+                if (level) level.innerText = "No smoke detected";
+            }
+        }
+
+        function updateSparkCard(sparkDetected, temp) {
+            const card = document.getElementById('spark-card');
+            const status = document.getElementById('spark-value');
+            const level = document.getElementById('spark-level');
+
+            if (sparkDetected) {
+                if (card) card.className = "sensor-card danger";
+                if (status) {
+                    status.innerText = "SPARK DETECTED!";
+                    status.className = "sensor-value sensor-danger";
+                }
+                if (level) level.innerText = "Spark/flame threshold exceeded!";
+            } else {
+                if (card) card.className = "sensor-card safe";
+                if (status) {
+                    status.innerText = "CLEAR";
+                    status.className = "sensor-value sensor-safe";
+                }
+                if (level) level.innerText = "No spark detected";
+            }
+        }
+
+        function triggerFireAlert() {
+            const banner = document.getElementById("alert-banner") || document.getElementById("fireAlert");
+            if (banner) {
+                banner.style.display = "block";
+            }
+            addChatAlert("🔥 FIRE ALERT! Both smoke and spark detected! THE DEVICE IS ON FIRE! EVACUATE IMMEDIATELY!");
+
+            speakAlert("Emergency! The device is on fire! Emergency! The device is on fire! Please evacuate immediately and call for help!");
+            setTimeout(() => speakAlert("Warning! Fire detected! The device is on fire! Evacuate now!"), 4000);
+            setTimeout(() => speakAlert("The device is on fire! The device is on fire! Take action immediately!"), 8000);
+        }
+
+        function clearFireAlert() {
+            const banner = document.getElementById("alert-banner") || document.getElementById("fireAlert");
+            if (banner) {
+                banner.style.display = "none";
+            }
+        }
+
+        function addChatAlert(msg) {
+            const chatContainer = document.getElementById("chat-box");
+            if (!chatContainer) return;
+
+            const div = document.createElement("div");
+            div.className = "msg-alert";
+            div.style.padding = "8px 12px";
+            div.style.borderRadius = "8px";
+            div.style.background = "rgba(255, 50, 50, 0.15)";
+            div.style.border = "1px solid rgba(255, 50, 50, 0.4)";
+            div.innerHTML = msg;
+            chatContainer.appendChild(div);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function fetchData() {
+            try {
+                const res = await fetch(`${API}/data`);
+                const d = await res.json();
+
+                document.getElementById("temperature").innerHTML = `${d.temperature}<span>°C</span>`;
+                document.getElementById("humidity").innerHTML = `${d.humidity}<span>%</span>`;
+                document.getElementById("voltage").innerHTML = `${d.voltage || '--'}<span>V</span>`;
+                document.getElementById("current").innerHTML = `${d.current || '--'}<span>A</span>`;
+                document.getElementById("soc").innerHTML = `${d.soc ?? '--'}<span>%</span>`;
+                document.getElementById("soh").innerHTML = `${d.soh ?? '--'}<span>%</span>`;
+
+                const rulElem = document.getElementById("rul-value");
+                if (rulElem) {
+                    rulElem.innerHTML = `${d.rul ?? "--"}<span>%</span>`;
                 }
 
-                chatBox.scrollTop = chatBox.scrollHeight;
-            };
-            // Web Speech API Voice Recognition
+                const predictedRulElem = document.getElementById("predicted-rul-value");
+                if (predictedRulElem) {
+                    predictedRulElem.innerHTML = d.predicted_rul ?? "--";
+                }
 
-            let recognitionInstance = null;
+                if (lastTemp !== null) {
+                    const diff = (d.temperature - lastTemp).toFixed(1);
+                    document.getElementById("temp-trend").innerHTML =
+                        diff > 0 ? `<span style="color:#ff6644">▲ +${diff}°</span>` :
+                            diff < 0 ? `<span style="color:#00aaff">▼ ${diff}°</span>` : 'Stable';
+                }
+                lastTemp = d.temperature;
 
-            window.startVoiceInput = function () {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!SpeechRecognition) {
-                    alert("Speech Recognition is not supported on this browser. Please use Chrome.");
+                const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (labels.length >= maxPts) {
+                    labels.shift(); tempData.shift(); humData.shift();
+                    voltData.shift(); currData.shift();
+                }
+                labels.push(now);
+                tempData.push(d.temperature);
+                humData.push(d.humidity);
+                voltData.push(d.voltage || 0);
+                currData.push(d.current || 0);
+                tChart.update(); hChart.update();
+                vChart.update(); cChart.update();
+
+                updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
+                updateReadOnlyDevice('light', d.devices?.light?.status || false);
+
+                const maintLight = document.getElementById("maint-light");
+                const maintText = document.getElementById("maint-text");
+                if (maintLight && maintText) {
+                    if (d.needs_maintenance) {
+                        maintLight.style.backgroundColor = "#ff4d4d";
+                        maintLight.style.boxShadow = "0 0 10px #ff4d4d";
+                        maintText.innerText = "REQUIRED";
+                        maintText.style.color = "#ff4d4d";
+                    } else {
+                        maintLight.style.backgroundColor = "#00ff88";
+                        maintLight.style.boxShadow = "0 0 8px #00ff88";
+                        maintText.innerText = "NO";
+                        maintText.style.color = "#00ff88";
+                    }
+                }
+
+                const bmsOn = d.devices?.bms?.status || false;
+                const bmsSw = document.getElementById("switch-bms");
+                const bmsSt = document.getElementById("bms-status");
+                const bmsCard = document.getElementById("card-bms");
+                if (bmsSw) bmsSw.checked = bmsOn;
+                if (bmsSt) { bmsSt.textContent = bmsOn ? "ON" : "OFF"; bmsSt.className = `status-text ${bmsOn ? "status-on" : "status-off"}`; }
+                if (bmsCard) bmsCard.className = `device-card bms-card${bmsOn ? " active" : ""}`;
+
+                const safety = d.safety || {};
+                checkSafetySensors(
+                    d.temperature,
+                    d.humidity,
+                    safety.smoke,
+                    safety.spark || safety.flame,
+                    safety.fire
+                );
+
+                const datasheetModal = document.getElementById('datasheet-modal');
+                if (datasheetModal && datasheetModal.style.display === 'flex') {
+                    const tbody = document.getElementById('datasheet-tbody');
+                    const now = new Date().toLocaleTimeString();
+
+                    const newRowHtml = `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(0,255,136,0.05);">
+                                <td style="padding: 8px 10px;">${now}</td>
+                                <td style="padding: 8px 10px;">${d.voltage || '--'}V</td>
+                                <td style="padding: 8px 10px;">${d.temperature || '--'}°C</td>
+                                <td style="padding: 8px 10px;">${d.devices?.fan?.status ? 'ON' : 'OFF'}</td>
+                                <td style="padding: 8px 10px;">${d.devices?.light?.status ? 'ON' : 'OFF'}</td>
+                                <td style="padding: 8px 10px;">NORMAL</td>
+                            </tr>`;
+                    if (tbody) tbody.insertAdjacentHTML('afterbegin', newRowHtml);
+                }
+
+            } catch (e) {
+                console.error("Fetch error:", e);
+            }
+        }
+
+        window.toggleEjection = async function (isEjecting) {
+            const statusElem = document.getElementById("ejection-status");
+            const switchElem = document.getElementById("switch-ejection");
+
+            if (isEjecting) {
+                const confirmEject = confirm("⚠️ WARNING: Are you sure you want to trigger physical BATTERY EJECTION?");
+                if (!confirmEject) {
+                    if (switchElem) switchElem.checked = false;
                     return;
                 }
-
-                if (recognitionInstance) {
-                    recognitionInstance.abort();
+            }
+            try {
+                const res = await fetch(`${API}/control/ejection`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ state: isEjecting ? "EJECTED" : "LOCKED" })
+                });
+                if (res.ok) {
+                    statusElem.textContent = isEjecting ? "EJECTED ⚠️" : "LOCKED";
+                    statusElem.style.color = isEjecting ? "#ef4444" : "#4ade80";
                 }
-
-                recognitionInstance = new SpeechRecognition();
-                recognitionInstance.lang = 'en-US';
-                recognitionInstance.interimResults = false;
-
-                const micBtn = document.getElementById("mic-btn");
-
-                recognitionInstance.onstart = () => {
-                    if (micBtn) micBtn.style.background = "#dc2626";
-                };
-
-                recognitionInstance.onresult = (event) => {
-                    const transcript = event.results[0][0].transcript;
-                    const inputField = document.getElementById("chat-input");
-                    if (inputField) {
-                        inputField.value = transcript;
-                        window.sendMessage();
-                    }
-                };
-
-                recognitionInstance.onerror = (err) => {
-                    if (err.error !== 'aborted') {
-                        console.error("Voice recognition error:", err);
-                    }
-                };
-
-                recognitionInstance.onend = () => {
-                    if (micBtn) micBtn.style.background = "";
-                    recognitionInstance = null;
-                };
-
-                recognitionInstance.start();
-            };
-            // Wake word listener
-            const startWakeWord = () => {
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
-                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-                const rec = new SR();
-                rec.lang = 'en-US';
-                rec.continuous = true;
-                rec.interimResults = false;
-
-                rec.onresult = (e) => {
-    const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
-    if (t.includes("bms") || t.includes("hey bms")) {
-        const output = document.getElementById("chat-box");
-        if (output) {
-            const activationDiv = document.createElement("div");
-            activationDiv.className = "bot-msg";
-            activationDiv.innerHTML = "🎤 BMS Agent activated! Listening...";
-            output.appendChild(activationDiv);
-            output.scrollTop = output.scrollHeight;
+            } catch (err) {
+                console.error("Ejection control error:", err);
+            }
         }
-        rec.stop(); // Stops background listener before opening active mic input
-        setTimeout(() => {
-            if (window.startVoiceInput) window.startVoiceInput();
-        }, 500);
-    }
-};
 
-                rec.start();
+        function updateReadOnlyDevice(name, isOn) {
+            const slider = document.getElementById(`slider-${name}`);
+            const status = document.getElementById(`${name}-status`);
+            const card = document.getElementById(`card-${name}`);
+            if (slider) slider.className = `slider-readonly${isOn ? " on" : ""}`;
+            if (status) { status.textContent = isOn ? "ON" : "OFF"; status.className = `status-text ${isOn ? "status-on" : "status-off"}`; }
+            if (card) card.className = `device-card${isOn ? " active" : ""}`;
+        }
+
+        setInterval(fetchData, 5000);
+        fetchData();
+
+        setInterval(() => fetch(`${API}/data`).catch(() => { }), 600000);
+
+        window.sendMessage = async function () {
+            const inputField = document.getElementById("chat-input");
+            const chatBox = document.getElementById("chat-box");
+
+            if (!inputField || !chatBox) return;
+
+            const text = inputField.value.trim();
+            if (!text) return;
+
+            const userDiv = document.createElement("div");
+            userDiv.className = "user-msg";
+            userDiv.style.margin = "8px 0";
+            userDiv.style.textAlign = "right";
+            userDiv.innerHTML = `<span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 8px; display: inline-block;">${text}</span>`;
+            chatBox.appendChild(userDiv);
+
+            inputField.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const botDiv = document.createElement("div");
+            botDiv.className = "bot-msg";
+            botDiv.style.margin = "8px 0";
+            botDiv.innerHTML = `<span style="background: #1e293b; color: #cbd5e1; padding: 6px 12px; border-radius: 8px; display: inline-block;">Thinking...</span>`;
+            chatBox.appendChild(botDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch(`${API}/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: text })
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                const reply = data.reply || data.response || "No response text received from backend.";
+                botDiv.querySelector("span").textContent = reply;
+            } catch (err) {
+                console.error("Backend Error:", err);
+                botDiv.querySelector("span").textContent = "⚠️ Could not connect to backend server.";
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        let recognitionInstance = null;
+
+        window.startVoiceInput = function () {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Speech Recognition is not supported on this browser. Please use Chrome.");
+                return;
+            }
+
+            if (recognitionInstance) {
+                recognitionInstance.abort();
+            }
+
+            recognitionInstance = new SpeechRecognition();
+            recognitionInstance.lang = 'en-US';
+            recognitionInstance.interimResults = false;
+
+            const micBtn = document.getElementById("mic-btn");
+
+            recognitionInstance.onstart = () => {
+                if (micBtn) micBtn.style.background = "#dc2626";
             };
 
-            window.renderDatasheetRows = function (dataArray) {
-                const tbody = document.getElementById('datasheet-tbody');
-                if (!tbody) return;
-
-                tbody.innerHTML = dataArray.map(row => `
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 8px 10px;">${row.timestamp || '--'}</td>
-                            <td style="padding: 8px 10px;">${row.voltage || '--'}V</td>
-                            <td style="padding: 8px 10px;">${row.temperature || '--'}°C</td>
-                            <td style="padding: 8px 10px;">${row.fan ? 'ON' : 'OFF'}</td>
-                            <td style="padding: 8px 10px;">${row.light ? 'ON' : 'OFF'}</td>
-                            <td style="padding: 8px 10px;">${row.maintenance || 'NORMAL'}</td>
-                        </tr>
-                    `).join('');
-            };
-
-            window.toggleDatasheetModal = async function () {
-                const modal = document.getElementById('datasheet-modal');
-                if (!modal) return;
-
-                const isOpening = (modal.style.display === 'none' || !modal.style.display);
-                modal.style.display = isOpening ? 'flex' : 'none';
-
-                if (isOpening) {
-                    try {
-                        const res = await fetch(`${API}/logs`);
-                        const logs = await res.json();
-                        window.renderDatasheetRows(logs);
-                    } catch (err) {
-                        console.error("Failed to load datasheet history:", err);
-                    }
+            recognitionInstance.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const inputField = document.getElementById("chat-input");
+                if (inputField) {
+                    inputField.value = transcript;
+                    window.sendMessage();
                 }
             };
 
-            // Initialize wake word listener on page load
-            window.addEventListener("DOMContentLoaded", () => {
-                startWakeWord();
-            });
-        </script>
+            recognitionInstance.onerror = (err) => {
+                if (err.error !== 'aborted') {
+                    console.error("Voice recognition error:", err);
+                }
+            };
 
-        <div id="datasheet-modal"
-            style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
-            <div
-                style="background: #181825; border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 900px; max-height: 80vh; border-radius: 12px; padding: 24px; overflow-y: auto; color: #fff;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 1.4rem;">Battery Historical & Live Datasheet</h2>
-                    <button onclick="toggleDatasheetModal()"
-                        style="background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
-                </div>
-                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.2); color: #93c5fd;">
-                            <th style="padding: 10px;">Timestamp</th>
-                            <th style="padding: 10px;">Voltage</th>
-                            <th style="padding: 10px;">Temp</th>
-                            <th style="padding: 10px;">Fan</th>
-                            <th style="padding: 10px;">Light</th>
-                            <th style="padding: 10px;">Maintenance</th>
-                        </tr>
-                    </thead>
-                    <tbody id="datasheet-tbody">
-                        <!-- Dynamically populated rows -->
-                    </tbody>
-                </table>
+            recognitionInstance.onend = () => {
+                if (micBtn) micBtn.style.background = "";
+                recognitionInstance = null;
+            };
+
+            recognitionInstance.start();
+        };
+
+        const startWakeWord = () => {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const rec = new SR();
+            rec.lang = 'en-US';
+            rec.continuous = true;
+            rec.interimResults = false;
+
+            rec.onresult = (e) => {
+                const t = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+                if (t.includes("bms") || t.includes("hey bms")) {
+                    const output = document.getElementById("chat-box");
+                    if (output) {
+                        const activationDiv = document.createElement("div");
+                        activationDiv.className = "bot-msg";
+                        activationDiv.innerHTML = "🎤 BMS Agent activated! Listening...";
+                        output.appendChild(activationDiv);
+                        output.scrollTop = output.scrollHeight;
+                    }
+                    rec.stop();
+                    setTimeout(() => {
+                        if (window.startVoiceInput) window.startVoiceInput();
+                    }, 500);
+                }
+            };
+
+            rec.start();
+        };
+
+        window.renderDatasheetRows = function (dataArray) {
+            const tbody = document.getElementById('datasheet-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = dataArray.map(row => `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px 10px;">${row.timestamp || '--'}</td>
+                        <td style="padding: 8px 10px;">${row.voltage || '--'}V</td>
+                        <td style="padding: 8px 10px;">${row.temperature || '--'}°C</td>
+                        <td style="padding: 8px 10px;">${row.fan ? 'ON' : 'OFF'}</td>
+                        <td style="padding: 8px 10px;">${row.light ? 'ON' : 'OFF'}</td>
+                        <td style="padding: 8px 10px;">${row.maintenance || 'NORMAL'}</td>
+                    </tr>
+                `).join('');
+        };
+
+        window.toggleDatasheetModal = async function () {
+            const modal = document.getElementById('datasheet-modal');
+            if (!modal) return;
+
+            const isOpening = (modal.style.display === 'none' || !modal.style.display);
+            modal.style.display = isOpening ? 'flex' : 'none';
+
+            if (isOpening) {
+                try {
+                    const res = await fetch(`${API}/logs`);
+                    const logs = await res.json();
+                    window.renderDatasheetRows(logs);
+                } catch (err) {
+                    console.error("Failed to load datasheet history:", err);
+                }
+            }
+        };
+
+        window.addEventListener("DOMContentLoaded", () => {
+            startWakeWord();
+        });
+    </script>
+
+    <div id="datasheet-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
+        <div
+            style="background: #181825; border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 900px; max-height: 80vh; border-radius: 12px; padding: 24px; overflow-y: auto; color: #fff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; font-size: 1.4rem;">Battery Historical & Live Datasheet</h2>
+                <button onclick="toggleDatasheetModal()"
+                    style="background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
             </div>
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2); color: #93c5fd;">
+                        <th style="padding: 10px;">Timestamp</th>
+                        <th style="padding: 10px;">Voltage</th>
+                        <th style="padding: 10px;">Temp</th>
+                        <th style="padding: 10px;">Fan</th>
+                        <th style="padding: 10px;">Light</th>
+                        <th style="padding: 10px;">Maintenance</th>
+                    </tr>
+                </thead>
+                <tbody id="datasheet-tbody">
+                </tbody>
+            </table>
         </div>
+    </div>
 </body>
 
 </html>
