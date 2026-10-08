@@ -1,7 +1,7 @@
 import os
+import time
 from google import genai
 
-# CHANGE 1: Added specific rule for RUL prediction in days
 SYSTEM_PROMPT = """You are the BMS AI Agent — an intelligent Battery Management System assistant connected directly to live hardware sensors.
 
 Your capabilities:
@@ -39,7 +39,6 @@ Live BMS Hardware Data:
 - Estimated RUL (Hours): {live_data.get('rul', 'N/A')}
 - Predicted RUL (Days): {live_data.get('predicted_rul', 'N/A')}
 
-
 Safety Status:
 - Smoke: {'DETECTED ⚠️' if safety.get('smoke') else 'Clear'}
 - Spark / Flame: {'DETECTED ⚠️' if safety.get('spark') or safety.get('flame') else 'Clear'}
@@ -52,11 +51,22 @@ Device Status:
 """
     prompt = f"{SYSTEM_PROMPT}\n\nCurrent Context:\n{context}\n\nUser Question: {user_msg}\n\nBMS AI Agent:"
 
-    try:
-        response = client.models.generate_content(
-            model='gemini-3.6-flash',
-            contents=prompt,
-        )
-        return response.text.strip()
-    except Exception as e:
-        return f"BMS Agent error: {str(e)}"
+    # Retry loop with fallback models to prevent 503 UNAVAILABLE errors
+    models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro']
+    
+    for model_name in models_to_try:
+        for attempt in range(3):
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                )
+                return response.text.strip()
+            except Exception as e:
+                err_str = str(e)
+                if "503" in err_str or "UNAVAILABLE" in err_str:
+                    time.sleep(1)
+                    continue
+                break
+
+    return "The AI service is currently experiencing high demand. Please try again in a few moments."
