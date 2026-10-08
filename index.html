@@ -1013,7 +1013,12 @@
         const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
         const socChart = mkChart('socChart', socData, 'rgb(168,85,247)', 'SOC');
         const sohChart = mkChart('sohChart', sohData, 'rgb(236,72,153)', 'SOH');
-        const rulChart = mkChart('rulChart', rulData, 'rgb(34,197,94)', 'RUL');
+
+sohChart.options.scales.y.suggestedMin = 50;
+sohChart.options.scales.y.suggestedMax = 100;
+
+const rulChart = mkChart('rulChart', rulData, 'rgb(34,197,94)', 'RUL');
+rulChart.options.scales.y.beginAtZero = false;
 
         let lastTemp = null;
         let fireAlertActive = false;
@@ -1244,7 +1249,10 @@
                 currData.push(d.current || 0);
                 socData.push(d.soc ?? 0);
                 sohData.push(d.soh ?? 0);
-                rulData.push(d.rul ?? 0);
+                
+                // Extract numeric value from predicted_rul or rul (e.g., "120 cycles" -> 120)
+const numericRul = parseFloat(d.rul ?? d.predicted_rul ?? 0) || 0;
+rulData.push(numericRul);
                 tChart.update(); hChart.update();
                 vChart.update(); cChart.update();
                 socChart.update(); sohChart.update(); rulChart.update();
