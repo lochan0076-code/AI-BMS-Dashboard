@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!<!-- Graphs -->OCTYPE html>
 <html lang="en">
 
 <head>
@@ -817,6 +817,19 @@
                 <div class="chart-title">🔋 Current History</div>
                 <canvas id="currChart"></canvas>
             </div>
+        <div class="grid-3">
+    <div class="chart-card">
+        <div class="chart-title">🔋 SOC History (%)</div>
+        <canvas id="socChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">🩺 SOH History (%)</div>
+        <canvas id="sohChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">⏳ RUL History (%)</div>
+        <canvas id="rulChart"></canvas>
+    </div>
         </div>
 
         <!-- Device Status -->
@@ -986,6 +999,9 @@
         const hChart = mkChart('humChart', humData, 'rgb(0,170,255)', 'Humidity');
         const vChart = mkChart('voltChart', voltData, 'rgb(255,200,0)', 'Voltage');
         const cChart = mkChart('currChart', currData, 'rgb(0,255,150)', 'Current');
+        const socChart = mkChart('socChart', socData, 'rgb(168,85,247)', 'SOC');
+        const sohChart = mkChart('sohChart', sohData, 'rgb(236,72,153)', 'SOH');
+        const rulChart = mkChart('rulChart', rulData, 'rgb(34,197,94)', 'RUL');
 
         let lastTemp = null;
         let fireAlertActive = false;
@@ -1207,16 +1223,20 @@
                 const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 if (labels.length >= maxPts) {
                     labels.shift(); tempData.shift(); humData.shift();
-                    voltData.shift(); currData.shift();
+                    voltData.shift(); currData.shift();socData.shift();sohData.shift();rulData.shift();
                 }
                 labels.push(now);
                 tempData.push(d.temperature);
                 humData.push(d.humidity);
                 voltData.push(d.voltage || 0);
                 currData.push(d.current || 0);
+                socData.push(d.soc ?? 0);
+                sohData.push(d.soh ?? 0);
+                rulData.push(d.rul ?? 0);
                 tChart.update(); hChart.update();
                 vChart.update(); cChart.update();
-
+                socChart.update(); sohChart.update(); rulChart.update();
+                
                 updateReadOnlyDevice('fan', d.devices?.fan?.status || false);
                 updateReadOnlyDevice('light', d.devices?.light?.status || false);
 
