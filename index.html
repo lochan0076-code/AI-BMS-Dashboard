@@ -1,4 +1,4 @@
-<!<!-- Graphs -->OCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -796,28 +796,35 @@
             </div>
         </div>
 
-        <!-- Graphs -->
-        <div class="section-label">📊 Live Graphs</div>
-        <div class="grid-2">
-            <div class="chart-card">
-                <div class="chart-title">🌡️ Temperature History</div>
-                <canvas id="tempChart"></canvas>
-            </div>
-            <div class="chart-card">
-                <div class="chart-title">💧 Humidity History</div>
-                <canvas id="humChart"></canvas>
-            </div>
-        </div>
-        <div class="grid-2">
-            <div class="chart-card">
-                <div class="chart-title">⚡ Voltage History</div>
-                <canvas id="voltChart"></canvas>
-            </div>
-            <div class="chart-card">
-                <div class="chart-title">🔋 Current History</div>
-                <canvas id="currChart"></canvas>
-            </div>
-        <div class="grid-3">
+        <!-- Live Graphs -->
+<div class="section-label">📊 Live Graphs</div>
+
+<!-- Row 1: Temperature & Humidity -->
+<div class="grid-2">
+    <div class="chart-card">
+        <div class="chart-title">🌡️ Temperature History</div>
+        <canvas id="tempChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">💧 Humidity History</div>
+        <canvas id="humChart"></canvas>
+    </div>
+</div>
+
+<!-- Row 2: Voltage & Current -->
+<div class="grid-2">
+    <div class="chart-card">
+        <div class="chart-title">⚡ Voltage History</div>
+        <canvas id="voltChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">🔋 Current History</div>
+        <canvas id="currChart"></canvas>
+    </div>
+</div>
+
+<!-- Row 3: SOC & SOH -->
+<div class="grid-2">
     <div class="chart-card">
         <div class="chart-title">🔋 SOC History (%)</div>
         <canvas id="socChart"></canvas>
@@ -826,11 +833,19 @@
         <div class="chart-title">🩺 SOH History (%)</div>
         <canvas id="sohChart"></canvas>
     </div>
+</div>
+
+<!-- Row 4: RUL & AI Predicted RUL -->
+<div class="grid-2">
     <div class="chart-card">
         <div class="chart-title">⏳ RUL History (%)</div>
         <canvas id="rulChart"></canvas>
     </div>
-        </div>
+    <div class="chart-card">
+        <div class="chart-title">🤖 Predicted RUL History</div>
+        <canvas id="predictedRulChart"></canvas>
+    </div>
+</div>
 
         <!-- Device Status -->
         <div class="section-label">🔌 Device Status & BMS Control</div>
@@ -960,6 +975,7 @@
 
         const labels = [];
         const tempData = [], humData = [], voltData = [], currData = [];
+        const socData = [], sohData = [], rulData = [];
         const maxPts = 20;
 
         const mkChart = (id, dataArr, color, label) => {
