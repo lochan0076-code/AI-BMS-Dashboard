@@ -857,7 +857,7 @@ nav {
         <div class="card-big" id="predicted-rul-value">--</div>
         <div class="card-sub">Model Predicted Lifespan</div>
     </div>
-</div>
+
 
         <!-- Smoke & Spark Sensors -->
         <div class="section-label">🔥 Safety Sensors</div>
@@ -1084,6 +1084,33 @@ if (themeBtn) {
             let lastSmokeState = false;
             let lastSparkState = false;
 
+            // Add above speakAlert(message) inside <script type="module">
+function playBeep(frequency = 880, duration = 0.15, count = 1) {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+
+        for (let i = 0; i < count; i++) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = frequency;
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            const startTime = ctx.currentTime + (i * (duration + 0.1));
+            osc.start(startTime);
+            gain.gain.setValueAtTime(0.3, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            osc.stop(startTime + duration);
+        }
+    } catch (e) {
+        console.error("Audio Context error:", e);
+    }
+}
+
             // Voice alert function
             function speakAlert(message) {
                 if (!('speechSynthesis' in window)) return;
@@ -1096,39 +1123,78 @@ if (themeBtn) {
                 window.speechSynthesis.speak(utterance);
             }
 
+            // Request Notification Permission on initialization
+if ("Notification" in window && Notification.permission !== "granted") {
+    Notification.requestPermission();
+}
+
+function sendDeviceNotification(title, message) {
+    if ("Notification" in window && Notification.permission === "granted") {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(reg => {
+                reg.showNotification(title, {
+                    body: message,
+                    vibrate: [200, 100, 200, 100, 200],
+                    tag: 'bms-alert',
+                    renotify: true
+                });
+            });
+        } else {
+            new Notification(title, {
+                body: message,
+                vibrate: [200, 100, 200]
+            });
+        }
+    }
+}
+
             // Simulate smoke & spark from sensor data
             function checkSafetySensors(temperature, humidity, smokeDetected, sparkDetected, fireDetected) {
-                smokeDetected = Boolean(smokeDetected);
-                sparkDetected = Boolean(sparkDetected);
-                fireDetected = Boolean(fireDetected);
+    smokeDetected = Boolean(smokeDetected);
+    sparkDetected = Boolean(sparkDetected);
+    fireDetected = Boolean(fireDetected);
 
-                updateSmokeCard(smokeDetected, temperature);
-                updateSparkCard(sparkDetected, temperature);
+    updateSmokeCard(smokeDetected, temperature);
+    updateSparkCard(sparkDetected, temperature);
 
-                // Fire Banner Logic
-                if (fireDetected) {
-                    if (!fireAlertActive) {
-                        fireAlertActive = true;
-                        triggerFireAlert();
-                    }
-                } else {
-                    fireAlertActive = false;
-                    clearFireAlert(); // Always call this when fireDetected is false to hide the banner
-                }
+    // Fire Banner & Combined Fire Logic
+    if (fireDetected || (smokeDetected && sparkDetected)) {
+        if (!fireAlertActive) {
+            fireAlertActive = true;
+            triggerFireAlert();
+        }
+    } else {
+        fireAlertActive = false;
+        clearFireAlert();
+    }
 
-                // Individual sensor audio & chat alerts
-                if (smokeDetected && !lastSmokeState) {
-                    speakAlert("Warning! Smoke detected in the device. Please check immediately.");
-                    addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
-                }
-                if (sparkDetected && !lastSparkState) {
-                    speakAlert("Warning! Spark or flame detected. Danger! Take immediate action.");
-                    addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
-                }
+    // 1. Smoke Sensor Triggered Individually
+    if (smokeDetected && !sparkDetected && !lastSmokeState) {
+        playBeep(750, 0.18, 2);
+        speakAlert("Warning! Smoke detected in the device. Please check immediately.");
+        addChatAlert("⚠️ SMOKE DETECTED! Smoke sensor triggered. Please check your device immediately!");
+        sendDeviceNotification("⚠️ BMS Alert: Smoke Detected", "Smoke level threshold exceeded on your BMS!");
+    }
 
-                lastSmokeState = smokeDetected;
-                lastSparkState = sparkDetected;
-            }
+    // 2. Spark Sensor Triggered Individually
+    if (sparkDetected && !smokeDetected && !lastSparkState) {
+        playBeep(950, 0.18, 2);
+        speakAlert("Warning! Spark or optical arc detected. Take immediate action.");
+        addChatAlert("⚡ SPARK DETECTED! Flame sensor triggered. Danger! Take immediate action!");
+        sendDeviceNotification("⚡ BMS Alert: Spark Detected", "Optical spark or arc detected in the battery system!");
+    }
+
+    // 3. Both Sensors Triggered Together
+    if (smokeDetected && sparkDetected && (!lastSmokeState || !lastSparkState)) {
+        playBeep(1200, 0.1, 4);
+        speakAlert("Emergency Alert! Both smoke and spark detected together! High risk of fire!");
+        addChatAlert("🔥 CRITICAL ALERT! Smoke and spark detected together! High fire danger!");
+        sendDeviceNotification("🔥 BMS CRITICAL ALERT", "Smoke and Spark detected simultaneously!");
+    }
+
+    lastSmokeState = smokeDetected;
+    lastSparkState = sparkDetected;
+}
 
             function updateSmokeCard(smokeDetected, temp) {
                 const card = document.getElementById('smoke-card');
